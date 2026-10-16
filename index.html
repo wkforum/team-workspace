@@ -458,6 +458,7 @@ fieldset:disabled .file-item .icon-btn{display:none}
 /* 세션 마스터 */
 .se-table{min-width:980px}
 .se-table th.c-name{left:0}
+.se-table .c-spk{width:220px}.spk-cell{width:100%;justify-content:flex-start}.spk-names{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:#37352f}
 .se-table .c-name{width:280px}.se-table .c-asg{width:190px}.se-table .c-ven{width:140px}.se-table .c-pil{width:120px}.se-table .c-day{width:90px}.se-table .c-time{width:210px}
 .th-hint{font-weight:400;color:#b4b4b0;margin-left:4px}
 .time-cell{display:flex;align-items:center;gap:2px;padding-right:6px}
@@ -496,6 +497,11 @@ fieldset:disabled .file-item .icon-btn{display:none}
 .tt-missing{margin-top:14px;background:#fff;border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:13px}
 .tt-missing b{display:block;margin-bottom:8px;font-weight:600}
 .sec-hint{font-size:12px;font-weight:500;color:var(--muted);margin-left:6px}
+.rz-h{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;z-index:6}
+.rz-h::after{content:'';position:absolute;top:22%;bottom:22%;left:4px;width:2px;border-radius:2px;background:transparent;transition:background .12s}
+th:hover>.rz-h::after{background:#d4d4cf}.rz-h:hover::after,.rz-h.on::after{background:var(--accent)}
+body.rz-drag,body.rz-drag *{cursor:col-resize!important;user-select:none!important}
+.sp-table th,.sc-table th,.av-table th{position:sticky}
 
 /* v17 연사 페이지: 가로 배치 · 접이식 섹션 */
 .sp-hero{display:flex;gap:16px;align-items:center;margin:6px 0 4px}
@@ -3777,17 +3783,26 @@ function sePplLine(s) {
 /* ---------- 목록 ---------- */
 function seListHtml() {
   const vis = seSort(seVisible()), ed = canEdit();
-  const head = `<thead><tr><th class="c-name">이름</th><th class="c-asg">담당자</th><th class="c-ven">장소</th><th class="c-pil">${PIL()}</th><th class="c-day">날짜</th><th class="c-time">시간 <span class="th-hint">${ttHint()}</span></th></tr></thead>`;
+  const side = sideNow(), nc = side ? 7 : 6;
+  const head = `<thead><tr><th class="c-name">이름</th>${side ? '<th class="c-spk">연사</th>' : ''}<th class="c-asg">담당자</th><th class="c-ven">장소</th><th class="c-pil">${PIL()}</th><th class="c-day">날짜</th><th class="c-time">시간 <span class="th-hint">${ttHint()}</span></th></tr></thead>`;
   const body = vis.map(seRowHtml).join('')
-    + (ed ? '<tr class="add-row"><td colspan="6"><a class="add-link" data-act="seAdd">+ 새 ${SEW()}</a></td></tr>' : '')
-    + (!vis.length && !ed ? `<tr><td colspan="6" class="muted" style="padding:16px">${sideNow() ? '부대행사가' : '세션이'} 없어요</td></tr>` : '');
+    + (ed ? `<tr class="add-row"><td colspan="${nc}"><a class="add-link" data-act="seAdd">+ 새 ${SEW()}</a></td></tr>` : '')
+    + (!vis.length && !ed ? `<tr><td colspan="${nc}" class="muted" style="padding:16px">${sideNow() ? '부대행사가' : '세션이'} 없어요</td></tr>` : '');
   return `${seNote(vis)}<div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table se-table">${head}<tbody>${body}</tbody></table></fieldset></div>`;
+}
+// 부대행사 목록: 참석 연사 이름 (누르면 부대행사 페이지가 열려 추가·삭제)
+function seSpkCell(s) {
+  const L = S.sePeopleAll.filter(x => x.session_id === s.id).sort((a, b) => (a.role === 'moderator') - (b.role === 'moderator') || a.position - b.position);
+  const names = L.map(r => esc(S.spkNames[r.speaker_id]?.name || '🔒'));
+  return `<button class="cell-btn spk-cell" data-act="seOpen" data-eid="${s.id}" title="${names.length ? names.join(', ') : '연사 추가'} · 눌러서 열기">${names.length
+    ? `<span class="spk-names">${names.join(', ')}</span>` : `<span class="tg-empty">${canEdit() ? '+ 연사' : '—'}</span>`}</button>`;
 }
 function seRowHtml(s) {
   const pick = (field, inner) => `<button class="cell-btn" data-act="sePick" data-field="${field}" data-eid="${s.id}">${inner}</button>`;
   return `<tr class="se-row" data-eid="${s.id}">
     <td class="c-name"><div class="name-cell"><input class="cell-in nm-in" data-ef="name" value="${esc(s.name)}" placeholder="${SEW()} 이름 입력" maxlength="200">
       <span class="row-acts"><a class="open-btn" data-act="seOpen" data-eid="${s.id}">열기</a><a class="del-btn" data-act="seDel" data-eid="${s.id}" title="세션 삭제">${ICON.trash}</a></span></div></td>
+    ${sideNow() ? `<td>${seSpkCell(s)}</td>` : ''}
     <td>${pick('assignees', asgHtml(s))}</td>
     <td>${pick('venue_id', colorTag(venueOf(s.venue_id)) || EMPTY)}</td>
     <td>${pick('pillar_id', colorTag(pillarOf(s.pillar_id)) || EMPTY)}</td>
@@ -5303,7 +5318,7 @@ function vrHtml() {
       <span class="vr-sum">전체 <b>${n.all}</b> · 완료 ${n.done} · 미탑승 ${n.noshow} · 취소 ${n.cancel}</span>
       <span class="vr-hint">날짜·시간순 자동 정렬 · 다른 사람이 고치면 바로 반영돼요</span></div>
     <div class="vr-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="vr-table">
-      <colgroup>${VR_COLS.map(c => `<col style="width:${c[2]}px">`).join('')}<col style="width:96px"></colgroup>
+      <colgroup>${VR_COLS.map(c => `<col style="width:${c[2]}px" data-w0="${c[2]}px">`).join('')}<col style="width:96px" data-w0="96px"></colgroup>
       <thead><tr>${VR_COLS.map(c => `<th class="${c[0] === 'send_time' ? 'th-red' : ''}">${c[1]}</th>`).join('')}<th class="th-act">삭제 및 수정</th></tr></thead>
       <tbody>${rows.map(r => `<tr class="vr-row ${vrRowCls(r)}" data-vid="${r.id}">${VR_COLS.map(c => cell(r, c)).join('')}<td class="vc-act"><span class="vr-acts">
         <a class="del-btn hist-btn" data-act="history" data-table="vehicle_runs" data-id="${r.id}" title="수정 기록">${ICON.history}</a><a class="del-btn" data-act="vrDel" data-vid="${r.id}" title="이 줄 삭제">${ICON.trash}</a></span></td></tr>`).join('')
@@ -5472,6 +5487,67 @@ function vrPasteModal() {
     } catch (e) { btn.disabled = false; btn.textContent = '넣기'; isV7Missing(e) || /vehicle_runs/.test(e.message || '') ? toast('setup/schema_v9_vehicle.sql을 먼저 실행해 주세요', true) : err(e); }
   };
 }
+/* =====================================================================
+   목록 표 칸 너비 조절 — 머리글 오른쪽 끝을 끌어서. 두 번 누르면 그 표 전체를 원래대로.
+   너비는 이 브라우저에 표 종류별로 기억
+   ===================================================================== */
+const RZ_SEL = 'table.sp-table, table.sc-table, table.vr-table, table.av-table';
+function rzKey(t) {
+  const n = t.tHead?.rows[0]?.cells.length || 0;
+  return 'colw:' + t.className.trim().split(/\s+/).sort().join('.') + (isSideProject(curProject()) ? ':side' : '') + ':' + n;
+}
+function rzLoad(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (_) { return {}; } }
+function rzSave(k, W) { try { Object.keys(W).length ? localStorage.setItem(k, JSON.stringify(W)) : localStorage.removeItem(k); } catch (_) {} }
+function rzCells(t) {
+  const ths = [...(t.tHead?.rows[0]?.cells || [])], cols = [...t.querySelectorAll(':scope > colgroup > col')];
+  return ths.map((th, i) => ({ th, col: cols[i] || null }));
+}
+function rzSet(c, w) { if (c.col) c.col.style.width = w + 'px'; else c.th.style.width = w + 'px'; }
+function rzFit(t, cells) { const sum = cells.reduce((a, c) => a + c.th.getBoundingClientRect().width, 0); t.style.width = Math.round(sum) + 'px'; t.style.minWidth = '0'; }
+function rzApply(t) {
+  t.dataset.rz = '1';
+  const cells = rzCells(t); if (!cells.length) return;
+  cells.forEach((c, i) => {
+    if (c.th.classList.contains('c-chk') || c.th.colSpan > 1 || i === cells.length - 1 && t.classList.contains('vr-table')) return;
+    if (!c.th.querySelector(':scope > .rz-h')) c.th.insertAdjacentHTML('beforeend', '<span class="rz-h" title="끌어서 칸 너비 조절 · 두 번 누르면 원래대로"></span>');
+  });
+  const W = rzLoad(rzKey(t)); if (!Object.keys(W).length) return;
+  const cur = cells.map(c => c.th.getBoundingClientRect().width);
+  cells.forEach((c, i) => rzSet(c, W[i] || Math.round(cur[i])));
+  rzFit(t, cells);
+}
+let rzQueued = false;
+new MutationObserver(() => {
+  if (rzQueued) return; rzQueued = true;
+  requestAnimationFrame(() => { rzQueued = false; document.querySelectorAll(RZ_SEL).forEach(t => { if (!t.dataset.rz) rzApply(t); }); });
+}).observe(document.body, { childList: true, subtree: true });
+document.addEventListener('mousedown', e => {
+  const h = e.target.closest?.('.rz-h'); if (!h) return;
+  e.preventDefault(); e.stopPropagation();
+  const th = h.parentElement, t = th.closest('table'), cells = rzCells(t), i = cells.findIndex(c => c.th === th);
+  const cur = cells.map(c => Math.round(c.th.getBoundingClientRect().width));
+  cells.forEach((c, j) => rzSet(c, cur[j])); rzFit(t, cells);
+  const x0 = e.clientX, w0 = cur[i], tw0 = t.getBoundingClientRect().width;
+  document.body.classList.add('rz-drag'); h.classList.add('on');
+  const move = ev => { const w = Math.max(48, w0 + ev.clientX - x0); rzSet(cells[i], w); t.style.width = Math.round(tw0 + w - w0) + 'px'; };
+  const up = () => {
+    document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up);
+    document.body.classList.remove('rz-drag'); h.classList.remove('on');
+    const k = rzKey(t), W = rzLoad(k);
+    cells.forEach((c, j) => { W[j] = Math.round(c.th.getBoundingClientRect().width); }); rzSave(k, W);
+  };
+  document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
+}, true);
+document.addEventListener('click', e => { if (e.target.closest?.('.rz-h')) { e.preventDefault(); e.stopPropagation(); } }, true);
+document.addEventListener('dblclick', e => {
+  const h = e.target.closest?.('.rz-h'); if (!h) return;
+  e.preventDefault(); e.stopPropagation();
+  const t = h.closest('table'); rzSave(rzKey(t), {});
+  rzCells(t).forEach(c => { c.th.style.width = ''; if (c.col) c.col.style.width = c.col.dataset.w0 || ''; });
+  t.style.width = ''; t.style.minWidth = '';
+  toast('이 표의 칸 너비를 원래대로 돌렸어요');
+}, true);
+
 /* =====================================================================
    v10 · 여권번호·생년월일 편집자 전용
    ===================================================================== */
