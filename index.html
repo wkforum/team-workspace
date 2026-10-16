@@ -53,6 +53,10 @@ input,select,textarea{font:inherit;color:inherit}
 #sidebar{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 .ws{display:flex;align-items:center;gap:10px;padding:16px 16px 10px;font-weight:700;font-size:15px}
 nav{flex:1;overflow:auto;padding:4px 8px 12px}
+.nav-item[draggable="true"]{cursor:pointer}
+.nav-item.nd-src{opacity:.45}
+.nav-item.nd-before{box-shadow:inset 0 2px 0 var(--accent)}
+.nav-item.nd-after{box-shadow:inset 0 -2px 0 var(--accent)}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border-radius:7px;text-align:left;color:#37352f;margin-bottom:1px}
 .nav-item:hover{background:var(--hover)}
 .nav-item.active{background:var(--accent-weak);color:var(--accent);font-weight:600}
@@ -497,6 +501,12 @@ fieldset:disabled .file-item .icon-btn{display:none}
 .tt-missing{margin-top:14px;background:#fff;border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:13px}
 .tt-missing b{display:block;margin-bottom:8px;font-weight:600}
 .sec-hint{font-size:12px;font-weight:500;color:var(--muted);margin-left:6px}
+.se-side{margin-top:6px}
+.side-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.side-spk{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.side-h{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;padding:2px 2px 4px}
+.side-spk .link-item{border:0;background:#fafaf9;padding-left:8px}
+.side-list>.tg-empty,.side-list>.lk-lock{grid-column:1/-1}
 .rz-h{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;z-index:6}
 .rz-h::after{content:'';position:absolute;top:22%;bottom:22%;left:4px;width:2px;border-radius:2px;background:transparent;transition:background .12s}
 th:hover>.rz-h::after{background:#d4d4cf}.rz-h:hover::after,.rz-h.on::after{background:var(--accent)}
@@ -1251,6 +1261,10 @@ function supabaseApi() {
     updateMyName: (id, full_name) => q(sb.from('profiles').update({ full_name }).eq('id', id)),
     projects: () => q(sb.from('projects').select('*').order('sort_order').order('created_at')),
     createProject: (name, color, sort_order) => q(sb.from('projects').insert({ name, color, sort_order }).select().single()),
+    async reorderProjects(rows) {
+      const res = await Promise.all(rows.map(r => sb.from('projects').update({ sort_order: r.sort_order }).eq('id', r.id).select('id')));
+      const bad = res.find(x => x.error || !(x.data || []).length); if (bad) throw (bad.error || new Error('순서를 저장하지 못했어요 (관리자만 바꿀 수 있어요)'));
+    },
     members: () => q(sb.from('project_members').select('*')),
     async setMemberRole(project_id, user_id, role) {
       const rows = await q(sb.from('project_members').update({ role }).eq('project_id', project_id).eq('user_id', user_id).select('user_id,role'));
@@ -1714,6 +1728,7 @@ function demoApi() {
     updateMyName: (id, n) => { P.find(p => p.id === id).full_name = n; return ret(null); },
     projects: () => ret([...projects].sort((a, b) => a.sort_order - b.sort_order)),
     createProject: (name, color, sort_order) => { const p = { id:newId(), name, color, sort_order }; projects.push(p); add(p.id, 'u1'); return ret(p); },
+    reorderProjects: rows => { rows.forEach(r => { const p = projects.find(x => x.id === r.id); if (p) p.sort_order = r.sort_order; }); return ret(null); },
     members: () => ret(members),
     addMember: (pid, u, role = 'editor') => { add(pid, u, role); const m = members.find(x => x.project_id === pid && x.user_id === u); if (m) m.role = role; return ret(null); },
     removeMember: (pid, u) => { const i = members.findIndex(m => m.project_id === pid && m.user_id === u); if (i > -1) members.splice(i, 1); return ret(null); },
@@ -1911,10 +1926,10 @@ function edAddModal() {
   };
 }
 function renderSidebar() {
-  // 부대행사 마스터는 연도 묶음 맨 아래에
-  const list = myProjects().map((p, i) => [p, i]).sort((a, b) => (!!a[0].side_events - !!b[0].side_events) || a[1] - b[1]).map(x => x[0]);
+  // 순서 = sort_order (관리자가 끌어서 바꿈)
+  const list = myProjects().map((p, i) => [p, i]).sort((a, b) => (a[0].sort_order ?? 0) - (b[0].sort_order ?? 0) || a[1] - b[1]).map(x => x[0]);
   const item = p => `
-    <button class="nav-item ${S.view === 'project' && S.pid === p.id ? 'active' : ''}" data-act="project" data-pid="${p.id}" title="${esc(p.name)}">
+    <button class="nav-item ${S.view === 'project' && S.pid === p.id ? 'active' : ''}" data-act="project" data-pid="${p.id}" title="${esc(p.name)}${isAdmin() ? ' · 끌어서 순서 바꾸기' : ''}" ${isAdmin() ? 'draggable="true"' : ''}>
       <span class="dot" style="background:${esc(p.color)}"></span><span class="nm">${esc(multi && p.edition ? p.name.replace(/^\[\d{4}\]\s*/, '') : p.name)}</span>
     </button>`;
   const eds = [...new Set(list.map(p => p.edition ?? ''))].sort((a, b) => (b || '0').localeCompare(a || '0'));
@@ -1934,6 +1949,41 @@ function renderSidebar() {
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3H3.5v10H6M10.5 5l3 3-3 3M13.5 8H6.5"/></svg>
     </button>`;
 }
+
+/* ---------- 프로젝트 순서: 관리자가 왼쪽 목록에서 끌어서 (같은 연도 안에서) ---------- */
+let navDrag = null;
+const navMark = () => $$('.nav-item.nd-before,.nav-item.nd-after').forEach(x => x.classList.remove('nd-before', 'nd-after'));
+document.addEventListener('dragstart', e => {
+  const it = e.target.closest?.('#projectList .nav-item[data-pid]'); if (!it || !isAdmin()) return;
+  navDrag = it.dataset.pid; it.classList.add('nd-src');
+  e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', navDrag); } catch (_) {}
+});
+document.addEventListener('dragover', e => {
+  if (!navDrag) return;
+  const it = e.target.closest?.('#projectList .nav-item[data-pid]'); navMark();
+  if (!it || it.dataset.pid === navDrag) return;
+  const a = S.projects.find(p => p.id === navDrag), b = S.projects.find(p => p.id === it.dataset.pid);
+  if ((a?.edition ?? '') !== (b?.edition ?? '')) return;   // 다른 연도로는 못 옮김
+  e.preventDefault();
+  const r = it.getBoundingClientRect(); it.classList.add(e.clientY < r.top + r.height / 2 ? 'nd-before' : 'nd-after');
+});
+document.addEventListener('drop', async e => {
+  if (!navDrag) return;
+  const it = e.target.closest?.('#projectList .nav-item.nd-before, #projectList .nav-item.nd-after'); if (!it) return;
+  e.preventDefault();
+  const before = it.classList.contains('nd-before'), src = navDrag, dst = it.dataset.pid; navMark();
+  const ed = S.projects.find(p => p.id === src)?.edition ?? '';
+  const L = S.projects.filter(p => (p.edition ?? '') === ed).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const moving = L.find(p => p.id === src), rest = L.filter(p => p.id !== src);
+  rest.splice(rest.findIndex(p => p.id === dst) + (before ? 0 : 1), 0, moving);
+  const prev = L.map(p => ({ id: p.id, sort_order: p.sort_order }));
+  const rows = rest.map((p, i) => ({ id: p.id, sort_order: i + 1 })).filter(r => S.projects.find(p => p.id === r.id).sort_order !== r.sort_order);
+  if (!rows.length) return;
+  rows.forEach(r => { S.projects.find(p => p.id === r.id).sort_order = r.sort_order; }); renderSidebar();
+  try { await api.reorderProjects(rows); toast('프로젝트 순서를 바꿨어요 (모든 팀원에게 같은 순서로 보여요)'); }
+  catch (er) { prev.forEach(r => { const p = S.projects.find(x => x.id === r.id); if (p) p.sort_order = r.sort_order; }); renderSidebar(); err(er); }
+});
+document.addEventListener('dragend', () => { if (!navDrag) return; navDrag = null; navMark(); $$('.nav-item.nd-src').forEach(x => x.classList.remove('nd-src')); });
 
 const peopleBtn = `<button class="btn people-toggle" data-act="togglePeople" title="팀원 패널 열기/접기">
   <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5.5" r="2.3"/><path d="M1.8 13.2c.5-2.3 2.2-3.6 4.2-3.6s3.7 1.3 4.2 3.6"/><circle cx="11.4" cy="6.2" r="1.8"/><path d="M11.2 9.6c1.6.1 2.7 1.2 3 3"/></svg>팀원</button>`;
@@ -3692,6 +3742,7 @@ const isSideProject = p => p?.kind === 'session' && !!p?.side_events;
 const sideNow = () => isSideProject(curProject());
 const PIL = () => sideNow() ? '종류' : '트랙';
 const SEW = () => sideNow() ? '부대행사' : '세션';
+const FILEW = () => sideNow() ? '관련자료' : '발표자료';
 function seRange() { const sd = sideNow(); TT_START = (sd ? 7 : 8) * 60; TT_END = (sd ? 23 : 18) * 60; }
 const ttHint = (sep = '–') => `${apLabel(TT_START).replace(':00', '시')}${sep}${apLabel(TT_END).replace(':00', '시')}`;
 const seOf = id => S.sessions.find(s => s.id === id);
@@ -4140,9 +4191,55 @@ function seSearchToggle() {
 }
 
 /* ---------- 세션 페이지 (오른쪽) ---------- */
+/* ---------- 세션 페이지: 이 세션 연사들의 부대행사 (같은 연도의 부대행사 마스터) ---------- */
+async function sideEventsFor(spkIds) {
+  const out = [];
+  if (!spkIds.length) return out;
+  for (const sp of S.projects.filter(p => isSideProject(p) && sameEdition(p) && isMember(p.id))) {
+    const [evs, pils, vens] = await Promise.all([api.sessions(sp.id), api.opts('session_pillars', sp.id), api.opts('session_venues', sp.id)]);
+    const ppl = evs.length ? await api.sessionPeopleFor(evs.map(e => e.id)) : [];
+    evs.forEach(e => { const spk = ppl.filter(r => r.session_id === e.id && spkIds.includes(r.speaker_id)).map(r => r.speaker_id);
+      if (spk.length) out.push({ ...e, _pil: pils.find(x => x.id === e.pillar_id), _ven: vens.find(x => x.id === e.venue_id), _spk: spk }); });
+  }
+  return out.sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
+}
+const seSpkIds = sid => [...new Set(S.sePeopleAll.filter(r => r.session_id === sid).sort((a, b) => (a.role === 'moderator') - (b.role === 'moderator') || a.position - b.position).map(r => r.speaker_id))];
+async function loadSeSide(sid) {
+  const ids = seSpkIds(sid), k = ids.join(',');
+  S.seSide = { sid, k, list: null };
+  let list = [], error = false;
+  try { list = await sideEventsFor(ids); } catch (e) { console.warn('side events', e); error = true; }
+  if (S.seSide?.sid !== sid || S.seSide.k !== k) return;
+  S.seSide.list = list; S.seSide.error = error;
+  const box = $('#seSideBox'); if (box) box.innerHTML = seSideHtml(seOf(sid));
+}
+function seSideHtml(s) {
+  if (!s) return '';
+  const ids = seSpkIds(s.id), st = S.seSide;
+  const hasSide = S.projects.some(p => isSideProject(p) && sameEdition(p));
+  const canSee = S.projects.some(p => isSideProject(p) && sameEdition(p) && isMember(p.id));
+  let body;
+  if (!hasSide) body = '<div class="tg-empty">같은 연도의 부대행사 마스터가 없어요</div>';
+  else if (!canSee) body = '<div class="lk-lock">🔒 부대행사 마스터에 초대받지 않아 볼 수 없어요</div>';
+  else if (!ids.length) body = '<div class="tg-empty">Speaker/Moderator를 넣으면 그 연사의 부대행사가 여기 보여요</div>';
+  else if (!st || st.sid !== s.id || !st.list) body = '<div class="tg-empty">불러오는 중…</div>';
+  else if (st.error) body = '<div class="tg-empty">부대행사를 불러오지 못했어요</div>';
+  else {
+    const a0 = s.start_time ? hm2m(s.start_time) : null, a1 = s.start_time ? seEnd(s) : null;
+    const row = e => { const clash = s.day && e.day === s.day && a0 != null && e.start_time && hm2m(e.start_time) < a1 && a0 < (e.end_time ? hm2m(e.end_time) : hm2m(e.start_time) + 10);
+      return `<div class="link-item"><a class="lk-open" data-act="spSessOpen" data-id="${e.id}" data-pid="${e.project_id}" title="부대행사 마스터에서 열기">
+        ${clash ? '<span class="clash" title="이 세션과 시간이 겹쳐요">⚠ 시간 겹침</span>' : ''}${e._pil ? colorTag(e._pil) : ''}
+        <span class="lk-title">${esc(e.name || '이름 없음')}</span>
+        <span class="lk-proj">${[e.day ? e.day + '일' : '날짜 미정', e.start_time ? seTimeLabel(e) : '', e._ven?.name || ''].filter(Boolean).map(esc).join(' · ')}</span></a></div>`; };
+    body = ids.map(id => { const L = st.list.filter(e => e._spk.includes(id)), t = S.spkNames[id];
+      return `<div class="side-spk"><div class="side-h">${esc(t?.name || '🔒 볼 수 없는 연사')}<span class="cnt">${L.length}</span></div>
+        ${L.length ? L.map(row).join('') : '<div class="tg-empty" style="padding:2px 2px 6px">부대행사 없음</div>'}</div>`; }).join('');
+  }
+  return `<h4 class="sec">이 세션 연사의 부대행사 <span class="sec-hint">부대행사 마스터에서 관리해요 · 누르면 열려요</span></h4><div class="side-list">${body}</div>`;
+}
 function openSePage(id, focusName) {
   closePop();
-  S.lpKey = null; S.lpBack = null; S.spId = null; S.seId = id;
+  S.lpKey = null; S.lpBack = null; S.spId = null; S.seId = id; S.seSide = null;
   CMT.cur = null; CMT.key = 'sessions:' + id; CMT.list = []; CMT.loaded = false; CMT.error = null;
   $('#spage').classList.add('open');
   renderSePage(true); cmtSet('sessions:' + id);
@@ -4204,14 +4301,14 @@ function sePageHtml(s) {
       <div class="opt-chips"><button type="button" class="ochip ${s.is_public !== false ? 'on' : ''}" data-act="sePub" data-v="1">공개</button>
         <button type="button" class="ochip ${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>`}
 
-      <h4 class="sec">제목 · 시놉시스</h4>
-      ${ta('title_en', '영문제목', 1)}${ta('title_ko', '국문제목', 1)}${ta('synop_en', '영문시놉', 4)}${ta('synop_ko', '국문시놉', 4)}
+      <h4 class="sec">${side ? '제목' : '제목 · 시놉시스'}</h4>
+      ${ta('title_en', '영문제목', 1)}${ta('title_ko', '국문제목', 1)}${side ? '' : ta('synop_en', '영문시놉', 4) + ta('synop_ko', '국문시놉', 4)}
 
-      <h4 class="sec">발표자료 <span class="sec-hint">PPTX, PDF, JPG, PNG, DOCX, MP4 등 · 여러 개 · 50MB 이하</span></h4>
+      <h4 class="sec">${FILEW()} <span class="sec-hint">PPTX, PDF, JPG, PNG, DOCX, MP4 등 · 여러 개 · 50MB 이하</span></h4>
       <div class="files">
         ${files.length ? files.map(x => { const [lbl, cls] = fileKind(x); return `<div class="file-item"><span class="fic ${cls}">${lbl}</span>
           <a class="fname" data-act="seFileOpen" data-path="${esc(x.path)}" title="열기">${esc(x.name)}</a><span class="fsize">${fmtSize(x.size)}</span>
-          <button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button></div>`; }).join('') : '<div class="hint">첨부된 발표자료가 없어요</div>'}
+          <button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button></div>`; }).join('') : `<div class="hint">첨부된 ${FILEW()}가 없어요</div>`}
         <label class="btn file-btn">+ 파일 첨부<input type="file" accept="${SE_ACCEPT}" multiple data-upload="session" class="vh"></label>
       </div>
 
@@ -4349,7 +4446,7 @@ async function uploadSessionFiles(sid, files) {
   if (!added.length) return;
   const cur = seOf(sid); if (!cur) return;
   await updateSession(sid, { files: [...(cur.files || []), ...added] });
-  toast(`발표자료 ${added.length}개를 첨부했어요`);
+  toast(`${FILEW()} ${added.length}개를 첨부했어요`);
 }
 async function seFileDel(path) {
   const s = seOf(S.seId); if (!s) return;
@@ -4366,16 +4463,7 @@ async function preAgenda(onlyId, lang = 'en') {
   const ids = [...new Set(S.sePeopleAll.filter(r => !onlyId || r.session_id === onlyId).map(r => r.speaker_id))];
   let det = {}, side = [];
   // 세션 마스터: 이 세션 연사가 들어 있는 부대행사(같은 연도, 내가 볼 수 있는 것)를 '기타일정'으로
-  if (!sideNow() && ids.length) {
-    try {
-      for (const sp of S.projects.filter(p => isSideProject(p) && sameEdition(p) && isMember(p.id))) {
-        const [evs, pils, vens] = await Promise.all([api.sessions(sp.id), api.opts('session_pillars', sp.id), api.opts('session_venues', sp.id)]);
-        const ppl = evs.length ? await api.sessionPeopleFor(evs.map(e => e.id)) : [];
-        evs.forEach(e => { if (ppl.some(r => r.session_id === e.id && ids.includes(r.speaker_id)))
-          side.push({ ...e, _pil: pils.find(x => x.id === e.pillar_id), _ven: vens.find(x => x.id === e.venue_id) }); });
-      }
-    } catch (e) { console.warn('side events', e); }
-  }
+  if (!sideNow() && ids.length) { try { side = await sideEventsFor(ids); } catch (e) { console.warn('side events', e); } }
   try { det = Object.fromEntries((ids.length ? await api.speakerDetails(ids) : []).map(r => [r.id, r])); } catch (_) {}
   w.document.open(); w.document.write(agendaHtml(det, onlyId, lang, side)); w.document.close();
 }
@@ -4422,7 +4510,7 @@ function agendaHtml(det, onlyId, lang = 'en', side = []) {
         ${pl ? `<span class="pill" style="--c:${safeColor(pl.color)}">${esc(enOnly(pl.name))}</span>` : ''}${s.is_public === false && !sideNow() ? `<span class="pill priv">${T.closed}</span>` : ''}
         <h3>${esc(sTitle(s) || T.untitled)}</h3>
         ${sp.length || mo.length ? `<div class="ppl">${sp.length ? `<div><span class="lab">Speaker${sp.length > 1 ? 's' : ''}</span><ul>${sp.map(person).join('')}</ul></div>` : ''}${mo.length ? `<div><span class="lab">Moderator${mo.length > 1 ? 's' : ''}</span><ul>${mo.map(person).join('')}</ul></div>` : ''}</div>` : ''}
-        ${KO ? (s.synop_ko ? `<div class="syn">${esc(s.synop_ko)}</div>` : '') : (s.synop_en ? `<div class="syn en">${esc(s.synop_en)}</div>` : '')}
+        ${sideNow() ? '' : KO ? (s.synop_ko ? `<div class="syn">${esc(s.synop_ko)}</div>` : '') : (s.synop_en ? `<div class="syn en">${esc(s.synop_en)}</div>` : '')}
       </div></article>`;
   };
   return `<!doctype html><html lang="${KO ? 'ko' : 'en'}"><head><meta charset="utf-8"><title>${esc(one ? (sTitle(one) || 'Session') : 'Pre Agenda')} · Pre Agenda (${KO ? '한' : '영'})</title>
@@ -4744,7 +4832,7 @@ const FIELD_LABEL = {
     day1:'1일차', day2:'2일차', day3:'3일차', opening:'개막식', vip_dinner:'VIP 만찬', gala:'갈라디너', diet_flag:'특이식성', diet_note:'특이식성 내용',
     fields:'분야', keywords:'키워드', agency:'에이전시', referral:'소개 경로', attachments:'첨부파일', entourage:'수행 정보' },
   sessions: { name:'세션 이름', assignees:'담당자', venue_id:'장소', pillar_id:'트랙·종류', day:'날짜', start_time:'시작 시간', end_time:'종료 시간',
-    title_en:'영문제목', title_ko:'국문제목', synop_en:'영문시놉', synop_ko:'국문시놉', files:'발표자료', category:'카테고리', is_public:'공개 여부', meetings:'기타일정' },
+    title_en:'영문제목', title_ko:'국문제목', synop_en:'영문시놉', synop_ko:'국문시놉', files:'발표자료·관련자료', category:'카테고리', is_public:'공개 여부', meetings:'기타일정' },
   secret_items: { name:'이름', assignees:'담당자', fee:'연사료', flight:'항공권', hotel:'숙박' },
   vehicle_runs: Object.fromEntries([...VR_COLS_LABEL(), ['note_color', '비고 글자색']]),
 };
@@ -4974,14 +5062,13 @@ async function seExport() {
     ['날짜', s => s.day ? s.day + '일' : '미정', 7], ['시작', s => t(s.start_time), 10], ['종료', s => t(s.end_time), 10],
     ['장소', s => venueOf(s.venue_id)?.name || '', 14], [PIL(), s => pillarOf(s.pillar_id)?.name || '', 10], [`${SEW()} 이름`, s => s.name, 28],
     ['영문제목', s => s.title_en, 30], ['국문제목', s => s.title_ko, 30], ['Speaker', s => ppl(s, 'speaker'), 26], ['Moderator', s => ppl(s, 'moderator'), 20],
-    ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 14], ['공개 여부', s => s.is_public === false ? '비공개' : '공개', 9],
-    ['영문시놉', s => s.synop_en, 50], ['국문시놉', s => s.synop_ko, 50],
-    ['기타일정', s => (s.meetings || []).filter(m => m.title || m.time || m.type_id || m.venue_id).map(m => [m.day ? m.day + '일' : '', m.time ? t(m.time) + (m.end ? '–' + t(m.end) : '') : '', meetTypeName(m), m.title, meetPlaceName(m)].filter(Boolean).join(' ')).join('\n'), 40],
-    ['발표자료', s => (s.files || []).map(f => f.name).join(', '), 24],
+    ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 14], ...(sideNow() ? [] : [['공개 여부', s => s.is_public === false ? '비공개' : '공개', 9], ['영문시놉', s => s.synop_en, 50], ['국문시놉', s => s.synop_ko, 50]]),
+    ...(sideNow() ? [] : [['기타일정', s => (s.meetings || []).filter(m => m.title || m.time || m.type_id || m.venue_id).map(m => [m.day ? m.day + '일' : '', m.time ? t(m.time) + (m.end ? '–' + t(m.end) : '') : '', meetTypeName(m), m.title, meetPlaceName(m)].filter(Boolean).join(' ')).join('\n'), 40]]),
+    [FILEW(), s => (s.files || []).map(f => f.name).join(', '), 24],
     ['마지막 수정', s => s.updated_at ? new Date(s.updated_at).toLocaleString('ko-KR') : '', 18],
   ];
   const head = cols.map(c => c[0]), rows = list.map(s => cols.map(c => { const v = c[1](s); return v == null ? '' : String(v); }));
-  const base = `${p.name}_세션목록_${todayStr()}`.replace(/[\\/:*?"<>|]/g, '');
+  const base = `${p.name}_${SEW()}목록_${todayStr()}`.replace(/[\\/:*?"<>|]/g, '');
   toast('엑셀 파일을 만드는 중…');
   try {
     const X = await loadXLSX();
