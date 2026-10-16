@@ -259,11 +259,11 @@ tbody tr:last-child td{border-bottom:0}
 
 /* 목록 표 */
 .sp-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;max-height:calc(100vh - 230px)}
-.sp-table{border-collapse:separate;border-spacing:0;width:100%;min-width:1240px;table-layout:fixed}
+.sp-table{border-collapse:separate;border-spacing:0;width:100%;min-width:1180px;table-layout:fixed}
 .sp-table th{position:sticky;top:0;z-index:3;background:#fafaf9;font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);border-right:1px solid #f0f0ed;white-space:nowrap}
 .sp-table td{padding:0;border-bottom:1px solid #efefec;border-right:1px solid #f3f3f0;height:38px;vertical-align:middle;background:#fff}
 .sp-table .c-chk{width:62px}.sp-table .c-name{width:230px}.sp-table .c-asg{width:200px}.sp-table .c-nat{width:110px}.sp-table .c-st{width:126px}
-.sp-table .c-pp{width:170px}.sp-table .c-pn{width:130px}.sp-table .c-birth{width:120px}.sp-table .c-pri{width:90px}
+.sp-table .c-aff{width:210px}.sp-table .c-tit{width:190px}.sp-table .c-pp{width:170px}.sp-table .c-pn{width:130px}.sp-table .c-birth{width:120px}.sp-table .c-pri{width:90px}
 .sp-table th.c-chk,.sp-table td:first-child{position:sticky;left:0;z-index:2}
 .sp-table th.c-name,.sp-table tr.sp-row td:nth-child(2){position:sticky;left:62px;z-index:2;box-shadow:1px 0 0 var(--line)}
 .sp-table th.c-chk,.sp-table th.c-name{z-index:4}
@@ -371,7 +371,7 @@ tbody.grp.over .grp-head td{background:var(--accent-weak)!important}
 #spage{position:fixed;inset:0;z-index:45;pointer-events:none}
 #spage.open{pointer-events:auto}
 .sp-backdrop{position:absolute;inset:0;background:rgba(15,15,15,.14)}
-.sp-panel{position:absolute;top:0;right:0;bottom:0;width:min(780px,100%);background:#fff;box-shadow:-12px 0 36px rgba(0,0,0,.1);overflow:auto;padding:0 44px 48px}
+.sp-panel{position:absolute;top:0;right:0;bottom:0;width:min(940px,100%);background:#fff;box-shadow:-12px 0 36px rgba(0,0,0,.1);overflow:auto;padding:0 44px 48px}
 .sp-top{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);z-index:5;display:flex;align-items:center;gap:8px;padding:14px 0 12px;border-bottom:1px solid #f0f0ed;margin-bottom:8px}
 .sp-top .sp{flex:1}
 .sp-title{font-size:30px;font-weight:700;border:0;outline:0;width:100%;padding:14px 0 10px;background:transparent;letter-spacing:-.3px}
@@ -496,6 +496,56 @@ fieldset:disabled .file-item .icon-btn{display:none}
 .tt-missing{margin-top:14px;background:#fff;border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:13px}
 .tt-missing b{display:block;margin-bottom:8px;font-weight:600}
 .sec-hint{font-size:12px;font-weight:500;color:var(--muted);margin-left:6px}
+
+/* v17 연사 페이지: 가로 배치 · 접이식 섹션 */
+.sp-hero{display:flex;gap:16px;align-items:center;margin:6px 0 4px}
+.hero-ph{width:64px;height:64px;border-radius:50%;overflow:hidden;background:#eef0f3;display:grid;place-items:center;flex:none;color:#9aa1ad;font-size:24px;font-weight:700}
+.hero-ph img{width:100%;height:100%;object-fit:cover}
+.hero-main{flex:1;min-width:0}
+.hero-main .sp-title{padding:6px 0 2px}
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.name-row label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px;font-weight:600}
+.name-row label>span{flex:none;width:42px}
+.name-row .pin{padding:6px 8px}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 16px;margin-top:10px;padding:6px 0;border-top:1px solid #f0f0ed;border-bottom:1px solid #f0f0ed}
+.pgrid.two{grid-template-columns:repeat(2,minmax(0,1fr));border:0;margin-top:0;padding:0}
+.pgrid.three{border:0;margin-top:0;padding:0}
+.pcell{min-width:0}
+.pcell>label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;font-weight:600;padding:6px 8px 0}
+.pcell .pv{min-height:34px}
+.role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:16px}
+.fbox{min-width:0}
+.fl{display:flex;align-items:center;justify-content:space-between;font-weight:600;color:#37352f;font-size:13px;margin-bottom:4px}
+.fl .copy-btn{font-size:11px;padding:2px 7px}
+.psec{border-bottom:1px solid var(--line);margin-top:6px}
+.psec>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:14px 0 12px;cursor:pointer;user-select:none;min-width:0}
+.psec>summary::-webkit-details-marker{display:none}
+.ps-car{font-size:11px;color:var(--muted);transition:transform .15s;width:12px;flex:none}
+.psec[open]>summary .ps-car{transform:rotate(90deg)}
+.ps-t{font-size:15px;font-weight:700;flex:none}
+.ps-sum{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;display:flex;align-items:center;gap:6px}
+.psec[open] .ps-sum{display:none}
+.psec>summary .sec-hint{margin-left:auto;flex:none}
+.psec>summary:hover .ps-t{color:var(--accent)}
+.ps-b{padding:0 0 18px}
+.psec .two-col .sl{margin-top:0}
+.memo-ta{min-height:110px;background:#fffdf5;border-color:#f1e4b3}
+.bio-row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:18px;align-items:start}
+.photo-col .photo-box{width:170px;height:212px}
+.photo-col .photo-actions{margin-top:8px}
+.ph-links{display:flex;gap:8px;align-items:center}
+.bio-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.attend-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.dayboxes.sm .daybox{padding:10px 6px;font-size:14px}
+.diet-red{color:#dc2626}
+
+@media (max-width:760px){
+  .pgrid,.pgrid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .name-row,.role-grid,.bio-row,.attend-grid,.pgrid.two{grid-template-columns:1fr}
+  .psec>summary .sec-hint{display:none}
+  .sp-top{flex-wrap:wrap}
+  .sp-top .btn,.sp-top .done-btn{white-space:nowrap}
+}
 .ppl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ppl-col{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .ppl-h{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;padding:0 2px 2px}
@@ -1158,7 +1208,7 @@ function err(e) {
   console.error(e);
   const m = e?.message || '';
   toast(/row-level security|permission denied|violates/i.test(m) ? '편집 권한이 없어요 (뷰어는 보기만 가능해요)'
-    : /does not exist|schema cache|could not find/i.test(m) ? '데이터베이스 설정이 아직 안 됐어요. setup 폴더의 SQL을 순서대로(최신 schema_v7_collab까지) 실행해 주세요.'
+    : /does not exist|schema cache|could not find/i.test(m) ? '데이터베이스 설정이 아직 안 됐어요. setup 폴더의 SQL을 순서대로(최신 schema_v17_side_events까지) 실행해 주세요.'
     : (m || '오류가 발생했어요'), true);
 }
 
@@ -1222,7 +1272,7 @@ function supabaseApi() {
     setAdmin: (target, make_admin) => q(sb.rpc('set_admin', { target, make_admin })),
     sessionSpeakerCards: session_project => q(sb.rpc('session_speaker_cards', { session_project })),
     vrunsForSpeaker: sid => q(sb.from('vehicle_runs').select('id,project_id,category,run_date,run_time,flight,origin,dest,car_type,driver').eq('speaker_id', sid)),
-    speakerPrivate: pid => q(sb.from('speaker_private').select('speaker_id,passport_no,birth_date').eq('project_id', pid)),
+    speakerPrivate: pid => q(sb.from('speaker_private').select('*').eq('project_id', pid)),
     savePrivate: (speaker_id, project_id, patch) => q(sb.from('speaker_private').upsert({ speaker_id, project_id, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'speaker_id' })),
     createVrun: r => q(sb.from('vehicle_runs').insert(r).select().single()),
     createVruns: rows => q(sb.from('vehicle_runs').insert(rows).select()),
@@ -1314,17 +1364,21 @@ function supabaseApi() {
     },
     async speakerDetails(ids) {
       const out = [];
-      for (let i = 0; i < ids.length; i += 80) out.push(...await q(sb.from('speakers').select('id,name,passport_name,title_en,affil_en,title_ko,affil_ko').in('id', ids.slice(i, i + 80))));
+      const cols = 'id,name,passport_name,title_en,affil_en,title_ko,affil_ko';
+      for (let i = 0; i < ids.length; i += 80) { const part = ids.slice(i, i + 80);
+        // name_ko·name_en은 schema_v17 이후에만 있음
+        out.push(...await q(sb.from('speakers').select(cols + ',name_ko,name_en').in('id', part)).catch(() => q(sb.from('speakers').select(cols).in('id', part)))); }
       return out;
     },
     addSessionPerson: (session_id, speaker_id, role) => q(sb.from('session_people').insert({ session_id, speaker_id, role, position: Date.now() }).select().single()),
     removeSessionPerson: id => q(sb.from('session_people').delete().eq('id', id)),
     async searchSpeakers(term, pids) {
       if (!pids.length) return [];
-      let qq = sb.from('speakers').select('id,name,passport_name,project_id').in('project_id', pids).order('name').limit(60);
       const t = term.replace(/[,()"%_\\*]/g, ' ').trim();
-      if (t) qq = qq.or(`name.ilike."%${t}%",passport_name.ilike."%${t}%"`);
-      return q(qq);
+      const run = extra => { let qq = sb.from('speakers').select('id,name,passport_name,project_id').in('project_id', pids).order('name').limit(60);
+        if (t) qq = qq.or([`name.ilike."%${t}%"`, `passport_name.ilike."%${t}%"`, ...(extra ? [`name_ko.ilike."%${t}%"`, `name_en.ilike."%${t}%"`] : [])].join(','));
+        return q(qq); };
+      return run(true).catch(() => run(false));
     },
     async speakerSessions(speakerId) {
       const rows = await q(sb.from('session_people').select('id,session_id,role').eq('speaker_id', speakerId));
@@ -1403,45 +1457,49 @@ function demoApi() {
   const projects = [
     { id:'p1', name:'[2027] 연사 마스터', color:'#4f46e5', sort_order:1, kind:'speaker', edition:'2027' },
     { id:'p2', name:'[2027] 세션 마스터', color:'#0891b2', sort_order:2, kind:'session', edition:'2027' },
+    { id:'p5', name:'[2027] 부대행사 마스터', color:'#be123c', sort_order:5, kind:'session', side_events:true, edition:'2027' },
     { id:'p3', name:'[2027] 연사 대외비', color:'#dc2626', sort_order:3, kind:'secret', sync_confirmed:true, edition:'2027' },
     { id:'p4', name:'[2027] 차량 스케줄', color:'#d97706', sort_order:4, kind:'basic', sync_confirmed:true, vehicle_tab:true, edition:'2027' },
   ];
   const members = [];
   const add = (pid, u, role = 'editor') => { if (!members.some(m => m.project_id === pid && m.user_id === u)) members.push({ project_id: pid, user_id: u, role }); };
-  ['p1','p2','p3','p4'].forEach(p => add(p, 'u1'));
-  add('p1','u2'); add('p2','u2'); add('p1','u3'); add('p2','u3'); add('p3','u3'); add('p4','u4'); add('p1','u5','viewer');
+  ['p1','p2','p3','p4','p5'].forEach(p => add(p, 'u1'));
+  add('p1','u2'); add('p2','u2'); add('p5','u2'); add('p5','u3'); add('p1','u3'); add('p2','u3'); add('p3','u3'); add('p4','u4'); add('p1','u5','viewer');
   const nats = [['미국','#2563eb'],['한국','#dc2626'],['일본','#db2777'],['중국','#ea580c'],['프랑스','#4f46e5'],['독일','#57534e'],['싱가포르','#0d9488'],['호주','#ca8a04'],['영국','#7c3aed'],['이탈리아','#16a34a']]
     .map(([name, color], i) => ({ id:'n' + (i + 1), name, color, sort_order:i + 1 }));
   const SPD = (o, i) => ({ id:'s' + i, project_id:'p1', name:'', grp:1, position:i, done:false, assignees:[], nationality_id:null, flight_status:'none', hotel_status:'none', priority:null,
-    passport_name:'', passport_no:'', birth_date:'', title_en:'', affil_en:'', bio_en:'', title_ko:'', affil_ko:'', bio_ko:'', photo_path:null,
+    name_ko:'', name_en:'', memo:'', passport_name:'', passport_no:'', birth_date:'', title_en:'', affil_en:'', bio_en:'', title_ko:'', affil_ko:'', bio_ko:'', photo_path:null,
     speaker_email:'', contact_name:'', contact_email:'', onsite_phone:'', flight_info:'', flight_note:'', flight_files:[], check_in:null, check_out:null, hotel_note:'',
     day1:false, day2:false, day3:false, opening:false, vip_dinner:false, gala:false, diet_flag:false, diet_note:'', fields:[], keywords:[], agency:'', referral:'', attachments:[], entourage:[], created_by:'u1',
     created_at:new Date(Date.now() - (20 - i) * 864e5).toISOString(), updated_at:new Date(Date.now() - (10 - i) * 36e5).toISOString(), ...o });
   const speakers = [
     { name:'연사 섭외 가이드 (먼저 읽어 주세요)', grp:0, assignees:['u1'] },
-    { name:'John Carter', fields:['경제','지정학'], keywords:['금리','거시경제'], agency:'Northbridge Speakers 소속. 담당 에이전트와 메일로 조율, 회신 2~3일 소요.', referral:'국제부 기자 소개로 2025년 첫 접촉.', grp:3, assignees:['u3'], nationality_id:'n1', flight_status:'issued', hotel_status:'booked', priority:'S', passport_name:'CARTER JOHN', passport_no:'M12345678', birth_date:'1968-04-12', title_en:'CEO', affil_en:'Northwind Labs', title_ko:'대표이사', affil_ko:'노스윈드 랩스', day1:true, day2:true, opening:true, gala:true, check_in:dplus(30), check_out:dplus(33), flight_info:'입국 11/14 KE012 LAX→ICN 05:20 도착\n출국 11/17 KE017 ICN 14:30 출발' },
-    { name:'홍길동', grp:3, assignees:['u2','u3'], nationality_id:'n2', flight_status:'na', hotel_status:'sent', priority:'A', passport_name:'HONG GILDONG', birth_date:'1975-09-30', day1:true, opening:true, vip_dinner:true, diet_flag:true, diet_note:'채식 (유제품 가능)', done:true },
+    { name:'John Carter', name_ko:'존 카터', name_en:'John Carter', memo:'前 연준 이코노미스트, 2025 다보스 패널. 강연 주제: 금리·거시경제 전망.\n연사료 USD 25,000 + 비즈니스 항공 논의 중 (에이전시 통해 확정 예정).', fields:['경제','지정학'], keywords:['금리','거시경제'], agency:'Northbridge Speakers 소속. 담당 에이전트와 메일로 조율, 회신 2~3일 소요.', referral:'국제부 기자 소개로 2025년 첫 접촉.', grp:3, assignees:['u3'], nationality_id:'n1', flight_status:'issued', hotel_status:'booked', priority:'S', passport_name:'CARTER JOHN', passport_no:'M12345678', birth_date:'1968-04-12', title_en:'CEO', affil_en:'Northwind Labs', title_ko:'대표이사', affil_ko:'노스윈드 랩스', day1:true, day2:true, opening:true, gala:true, check_in:dplus(30), check_out:dplus(33), flight_info:'입국 11/14 KE012 LAX→ICN 05:20 도착\n출국 11/17 KE017 ICN 14:30 출발' },
+    { name:'홍길동', name_ko:'홍길동', name_en:'Gildong Hong', title_ko:'회장', affil_ko:'길동그룹', title_en:'Chairman', affil_en:'Gildong Group', grp:3, assignees:['u2','u3'], nationality_id:'n2', flight_status:'na', hotel_status:'sent', priority:'A', passport_name:'HONG GILDONG', birth_date:'1975-09-30', day1:true, opening:true, vip_dinner:true, diet_flag:true, diet_note:'채식 (유제품 가능)', done:true },
     { name:'Yuki Tanaka', grp:2, assignees:['u5'], nationality_id:'n3', flight_status:'request', hotel_status:'request', priority:'B', passport_name:'TANAKA YUKI', day2:true, day3:true, gala:true },
     { name:'Marie Dubois', grp:2, assignees:['u3'], nationality_id:'n5', flight_status:'sent', hotel_status:'booked', priority:'A', vip_dinner:true, diet_flag:true, diet_note:'견과류 알레르기' },
     { name:'Li Wei', grp:1, assignees:[], nationality_id:'n4', priority:'C' },
     { name:'Oliver Smith', grp:4, assignees:['u2'], nationality_id:'n9', flight_status:'na', hotel_status:'na', priority:'B' },
   ].map((o, i) => SPD(o, i + 1));
   // 여권번호·생년월일은 편집자 전용 표에 따로 (schema_v10)
-  const priv = speakers.filter(s => s.passport_no || s.birth_date).map(s => ({ speaker_id:s.id, project_id:s.project_id, passport_no:s.passport_no, birth_date:s.birth_date }));
-  speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; });
+  const priv = speakers.filter(s => s.passport_no || s.birth_date || s.memo).map(s => ({ speaker_id:s.id, project_id:s.project_id, passport_no:s.passport_no, birth_date:s.birth_date, memo:s.memo }));
+  speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; s.memo = ''; });
   const links = [{ id:'l1', speaker_id:'s2', target_type:'task', target_id:null }];
   const files = new Map();
   const venues = [['장소 미정','#64748b'],['장충','#2563eb'],['다이너스티A','#7c3aed'],['다이너스티B','#9333ea'],['에메랄드','#059669'],['루비','#dc2626'],['토파즈','#d97706'],['영빈관 후정','#0891b2'],['영빈관 내정','#0d9488']]
     .map(([name, color], i) => ({ id:'v' + i, project_id:'p2', name, color, sort_order:i }));
+  venues.push(...venues.map(v => ({ ...v, id:'s' + v.id, project_id:'p5' })));
   const pillars = [['지정학','#dc2626'],['AI','#2563eb'],['인문','#9333ea'],['경제경영','#059669'],['산업','#d97706']]
     .map(([name, color], i) => ({ id:'pl' + (i + 1), project_id:'p2', name, color, sort_order:i + 1 }));
+  pillars.push(...[['Luncheon · 오찬','#d97706'],['Private · 프라이빗','#7c3aed'],['VIP Dinner · 만찬','#dc2626'],['Gala Dinner · 갈라만찬','#be123c'],['Interview · 인터뷰','#0891b2'],['Try everything','#059669'],['Special Event · 스페셜 이벤트','#db2777']]
+    .map(([name, color], i) => ({ id:'sk' + (i + 1), project_id:'p5', name, color, sort_order:i + 1 })));
   const meetTypes = [['Luncheon · 오찬','#d97706'],['Session · 세션','#2563eb'],['Private · 프라이빗','#7c3aed'],['VIP Dinner · 만찬','#dc2626'],['Gala Dinner · 갈라만찬','#be123c'],['Interview · 인터뷰','#0891b2'],['Try everything','#059669'],['Special Event · 스페셜 이벤트','#db2777']]
     .map(([name, color], i) => ({ id:'mt' + (i + 1), project_id:'p2', name, color, sort_order:i + 1 }));
   const SED = (o, i) => ({ id:'e' + i, project_id:'p2', name:'', assignees:[], venue_id:null, pillar_id:null, day:null, start_time:null, end_time:null,
     title_en:'', title_ko:'', synop_en:'', synop_ko:'', files:[], category:null, is_public:true, meetings:[], position:i, created_by:'u1',
     created_at:new Date(Date.now() - (20 - i) * 864e5).toISOString(), updated_at:new Date(Date.now() - (10 - i) * 36e5).toISOString(), ...o });
   const sessions = [
-    { name:'개막 기조연설', category:'session', meetings:[{ id:'m1', type_id:'mt3', day:7, time:'16:00', title:'금융권 CEO 간담', place:'신라호텔 회의실' }, { id:'m2', type_id:'mt1', day:7, time:'12:00', end:'13:30', title:'연사 오찬', venue_id:'v7' }], venue_id:'v1', pillar_id:'pl1', day:7, start_time:'09:00:00', end_time:'10:00:00', assignees:['u2'], title_en:'Opening Keynote', title_ko:'개막 기조연설' },
+    { name:'개막 기조연설', category:'session', venue_id:'v1', pillar_id:'pl1', day:7, start_time:'09:00:00', end_time:'10:00:00', assignees:['u2'], title_en:'Opening Keynote', title_ko:'개막 기조연설' },
     { name:'AI와 일의 미래', venue_id:'v2', pillar_id:'pl2', day:7, start_time:'10:30:00', end_time:'11:40:00', assignees:['u3'] },
     { name:'동북아 안보 라운드테이블', venue_id:'v3', pillar_id:'pl1', day:7, start_time:'10:30:00', end_time:'12:00:00' },
     { name:'인문학 토크', venue_id:'v4', pillar_id:'pl3', day:7, start_time:'13:30:00', end_time:'14:30:00' },
@@ -1449,6 +1507,13 @@ function demoApi() {
     { name:'반도체 공급망', pillar_id:'pl5', day:8 },
     { name:'클로징 세션', assignees:['u1'] },
   ].map((o, i) => SED(o, i + 1));
+  // 부대행사 마스터 (p5)
+  sessions.push(...[
+    { name:'연사 오찬', pillar_id:'sk1', venue_id:'sv7', day:7, start_time:'12:00:00', end_time:'13:30:00', assignees:['u2'] },
+    { name:'금융권 CEO 간담', pillar_id:'sk2', day:7, start_time:'16:00:00', end_time:'17:00:00', synop_ko:'장소: 신라호텔 회의실' },
+    { name:'VIP 만찬', pillar_id:'sk3', venue_id:'sv8', day:7, start_time:'19:00:00', end_time:'21:30:00', assignees:['u1'], title_en:'VIP Dinner' },
+    { name:'방송 인터뷰', pillar_id:'sk5', day:8, start_time:'14:00:00', end_time:'14:40:00' },
+  ].map((o, i) => SED({ project_id:'p5', ...o }, 101 + i)));
   const secret = [
     { id:'c1', project_id:'p3', speaker_id:'s2', name:'John Carter', assignees:['u3'], fee:25000, flight:'비즈니스 왕복 (LAX-ICN)', hotel:'신라호텔 디럭스 3박', position:1 },
     { id:'c2', project_id:'p3', speaker_id:'s3', name:'홍길동', assignees:['u1','u3'], fee:0, flight:'해당 없음', hotel:'', position:2 },
@@ -1475,6 +1540,10 @@ function demoApi() {
     { id:'pp2', session_id:'e1', speaker_id:'s3', role:'moderator', position:2 },
     { id:'pp3', session_id:'e2', speaker_id:'s4', role:'speaker', position:3 },
     { id:'pp4', session_id:'e2', speaker_id:'s5', role:'speaker', position:4 },
+    { id:'pp5', session_id:'e101', speaker_id:'s2', role:'speaker', position:5 },
+    { id:'pp6', session_id:'e101', speaker_id:'s3', role:'speaker', position:6 },
+    { id:'pp7', session_id:'e103', speaker_id:'s2', role:'speaker', position:7 },
+    { id:'pp8', session_id:'e104', speaker_id:'s4', role:'speaker', position:8 },
   ];
   const T = (project_id, title, status, assignee_id, due, priority = 'normal', description = '') =>
     ({ id:newId(), project_id, title, status, assignee_id, due_date: due, priority, description, position: pos++, created_by:'u1', created_at: now, updated_at: now });
@@ -1578,7 +1647,7 @@ function demoApi() {
     vruns: pid => ret(vruns.filter(r => r.project_id === pid)),
     sessionSpeakerCards: pid => { const sids = sessions.filter(x => x.project_id === pid).map(x => x.id);
       const ids = new Set(sPeople.filter(r => sids.includes(r.session_id)).map(r => r.speaker_id));
-      return ret(speakers.filter(x => ids.has(x.id)).map(x => ({ id:x.id, project_id:x.project_id, name:x.name, passport_name:x.passport_name, title_en:x.title_en, affil_en:x.affil_en, title_ko:x.title_ko, affil_ko:x.affil_ko }))); },
+      return ret(speakers.filter(x => ids.has(x.id)).map(x => ({ id:x.id, project_id:x.project_id, name:x.name, passport_name:x.passport_name, title_en:x.title_en, affil_en:x.affil_en, title_ko:x.title_ko, affil_ko:x.affil_ko, name_ko:x.name_ko, name_en:x.name_en }))); },
     setAdmin: (uid, make) => { if (!make && P.filter(x => x.role === 'admin' && x.id !== uid).length === 0) return Promise.reject(new Error('마지막 관리자는 해제할 수 없어요. 다른 사람을 먼저 관리자로 지정해 주세요'));
       P.find(x => x.id === uid).role = make ? 'admin' : 'member'; return ret(make ? 'admin' : 'member'); },
     createEdition: (from, ne, copyMem) => { let n = 0;
@@ -1588,7 +1657,7 @@ function demoApi() {
       return ret(n); },
     vrunsForSpeaker: sid => ret(vruns.filter(r => r.speaker_id === sid)),
     speakerPrivate: pid => ret(priv.filter(r => r.project_id === pid)),
-    savePrivate: (speaker_id, project_id, patch) => { let r = priv.find(x => x.speaker_id === speaker_id); if (!r) { r = { speaker_id, project_id, passport_no:'', birth_date:'' }; priv.push(r); } Object.assign(r, patch); return ret(null); },
+    savePrivate: (speaker_id, project_id, patch) => { let r = priv.find(x => x.speaker_id === speaker_id); if (!r) { r = { speaker_id, project_id, passport_no:'', birth_date:'', memo:'' }; priv.push(r); } Object.assign(r, patch); return ret(null); },
     createVrun: r => { const t = new Date().toISOString(); const n = { id:newId(), category:'assigned', run_date:null, run_time:'', send_time:'', last_name:'', first_name:'', pax:null, origin:'', dest:'', flight:'', terminal:'', note:'', note_color:'', car_type:'', car_no:'', driver:'', driver_phone:'', status_id:null, created_by:'u1', created_at:t, updated_at:t, ...r }; vruns.push(n); return ret(n); },
     createVruns: rows => { const t = new Date().toISOString(); const made = rows.map(r => ({ id:newId(), category:'assigned', run_date:null, run_time:'', send_time:'', last_name:'', first_name:'', pax:null, origin:'', dest:'', flight:'', terminal:'', note:'', note_color:'', car_type:'', car_no:'', driver:'', driver_phone:'', status_id:null, created_by:'u1', created_at:t, updated_at:t, ...r })); vruns.push(...made); return ret(made); },
     updateVrun: (id, patch) => { const r = vruns.find(x => x.id === id); logCh('vehicle_runs', r, 'update'); Object.assign(r, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); return ret({ id, updated_at:r.updated_at }); },
@@ -1600,13 +1669,13 @@ function demoApi() {
       if (table === 'vehicle_status_opts') { vopts.splice(vopts.findIndex(o => o.id === id), 1); vruns.forEach(r => { if (r.status_id === id) r.status_id = null; }); return ret(null); }
       const L = table === 'session_venues' ? venues : pillars; L.splice(L.findIndex(o => o.id === id), 1);
       const f = table === 'session_venues' ? 'venue_id' : 'pillar_id'; sessions.forEach(s => { if (s[f] === id) s[f] = null; }); return ret(null); },
-    speakerDetails: ids => ret(speakers.filter(s => ids.includes(s.id)).map(s => ({ id:s.id, name:s.name, passport_name:s.passport_name, title_en:s.title_en, affil_en:s.affil_en, title_ko:s.title_ko, affil_ko:s.affil_ko }))),
+    speakerDetails: ids => ret(speakers.filter(s => ids.includes(s.id)).map(s => ({ id:s.id, name:s.name, name_ko:s.name_ko, name_en:s.name_en, passport_name:s.passport_name, title_en:s.title_en, affil_en:s.affil_en, title_ko:s.title_ko, affil_ko:s.affil_ko }))),
     sessionPeopleFor: ids => ret(sPeople.filter(p => ids.includes(p.session_id)).sort((a, b) => a.position - b.position)),
     addSessionPerson: (session_id, speaker_id, role) => { if (sPeople.some(p => p.session_id === session_id && p.speaker_id === speaker_id && p.role === role)) return Promise.reject(new Error('이미 추가된 연사예요'));
       const r = { id:newId(), session_id, speaker_id, role, position:Date.now() }; sPeople.push(r); return ret(r); },
     removeSessionPerson: id => { const i = sPeople.findIndex(p => p.id === id); if (i > -1) sPeople.splice(i, 1); return ret(null); },
     searchSpeakers: (term, pids) => { const t = String(term || '').toLowerCase().replace(/\s+/g, '');
-      return ret(speakers.filter(s => pids.includes(s.project_id) && (!t || (s.name + ' ' + s.passport_name).toLowerCase().replace(/\s+/g, '').includes(t)))
+      return ret(speakers.filter(s => pids.includes(s.project_id) && (!t || (s.name + ' ' + s.passport_name + ' ' + s.name_ko + ' ' + s.name_en).toLowerCase().replace(/\s+/g, '').includes(t)))
         .map(s => ({ id:s.id, name:s.name, passport_name:s.passport_name, project_id:s.project_id }))); },
     speakerSessions: spk => ret(sPeople.filter(p => p.speaker_id === spk).map(p => ({ id:p.id, session_id:p.session_id, role:p.role, session: sessions.find(s => s.id === p.session_id) })).filter(r => r.session)),
     uploadFile: (path, file) => { files.set(path, URL.createObjectURL(file)); return ret(null); },
@@ -1816,7 +1885,7 @@ function edAddModal() {
   const last = eds.at(-1), next = String(Number(last) + 1);
   openModal(`<h3>연도 추가</h3>
     <p class="sub">선택한 연도의 프로젝트 세트를 복사해 새 연도 프로젝트를 만들어요.<br>
-      <b>복사되는 것</b>: 프로젝트 이름([${esc(last)}] → [새 연도])·색·종류, 장소·필라·기타일정 종류·운행여부 토글<br>
+      <b>복사되는 것</b>: 프로젝트 이름([${esc(last)}] → [새 연도])·색·종류, 장소·트랙·부대행사 종류·운행여부 토글<br>
       <b>복사되지 않는 것</b>: 연사·세션·대외비·차량 등 내용</p>
     <label class="lbl">새 연도</label><input type="text" id="edNew" value="${next}" maxlength="4" inputmode="numeric">
     <label class="lbl">복사할 연도 세트</label>
@@ -1836,7 +1905,8 @@ function edAddModal() {
   };
 }
 function renderSidebar() {
-  const list = myProjects();
+  // 부대행사 마스터는 연도 묶음 맨 아래에
+  const list = myProjects().map((p, i) => [p, i]).sort((a, b) => (!!a[0].side_events - !!b[0].side_events) || a[1] - b[1]).map(x => x[0]);
   const item = p => `
     <button class="nav-item ${S.view === 'project' && S.pid === p.id ? 'active' : ''}" data-act="project" data-pid="${p.id}" title="${esc(p.name)}">
       <span class="dot" style="background:${esc(p.color)}"></span><span class="nm">${esc(multi && p.edition ? p.name.replace(/^\[\d{4}\]\s*/, '') : p.name)}</span>
@@ -2476,7 +2546,7 @@ function spVisible() {
   const v = sv(), q = norm(v.q);
   return S.speakers.filter(s => {
     if (S.pinned.has(s.id)) return true;
-    if (q && ![s.name, s.passport_name, ...(s.keywords || []), ...(s.fields || []), s.affil_en, s.affil_ko, s.title_en, s.title_ko].some(x => norm(x).includes(q))) return false;
+    if (q && ![s.name, s.name_ko, s.name_en, s.passport_name, ...(s.keywords || []), ...(s.fields || []), s.affil_en, s.affil_ko, s.title_en, s.title_ko].some(x => norm(x).includes(q))) return false;
     if (v.nat.length && !v.nat.includes(s.nationality_id)) return false;
     if (v.ev.some(f => !s[f])) return false;
     if (v.diet && !s.diet_flag) return false;
@@ -2553,15 +2623,14 @@ function asgHtml(s) {
 /* ---------- 목록 탭 ---------- */
 function spListHtml() {
   const vis = spSort(spVisible()), v = sv(), ed = canEdit(), total = S.speakers.length;
-  const head = `<thead><tr><th class="c-chk"></th><th class="c-name">이름</th><th class="c-asg">담당자</th><th class="c-nat">국적</th><th class="c-st">항공</th>
-    <th class="c-pp">여권 영문명</th><th class="c-pn">여권번호</th><th class="c-birth">생년월일</th><th class="c-st">숙박</th><th class="c-pri">중요도</th></tr></thead>`;
+  const head = `<thead><tr><th class="c-chk"></th><th class="c-name">이름</th><th class="c-aff">소속</th><th class="c-tit">직함</th><th class="c-asg">담당자</th><th class="c-nat">국적</th><th class="c-st">항공</th><th class="c-st">숙박</th><th class="c-pri">중요도</th></tr></thead>`;
   const groups = GROUPS.map(g => {
     const rows = vis.filter(s => s.grp === g.k), folded = v.fold.includes(g.k);
     return `<tbody class="grp" data-gdrop="${g.k}">
-      <tr class="grp-head"><td colspan="10"><div class="grp-h"><a class="fold" data-act="spFold" data-grp="${g.k}">${folded ? '▸' : '▾'}</a>
+      <tr class="grp-head"><td colspan="9"><div class="grp-h"><a class="fold" data-act="spFold" data-grp="${g.k}">${folded ? '▸' : '▾'}</a>
         <span class="gnum">${g.k}</span>${tag(g.tone, g.label)}<span class="cnt">${rows.length}</span></div></td></tr>
       ${folded ? '' : rows.map(spRowHtml).join('')}
-      ${folded || !ed ? '' : `<tr class="add-row"><td colspan="10"><a class="add-link" data-act="spAdd" data-field="grp" data-val="${g.k}">+ 새 연사</a></td></tr>`}
+      ${folded || !ed ? '' : `<tr class="add-row"><td colspan="9"><a class="add-link" data-act="spAdd" data-field="grp" data-val="${g.k}">+ 새 연사</a></td></tr>`}
     </tbody>`;
   }).join('');
   const note = vis.length < total ? `<div class="filter-note">전체 ${total}명 중 ${vis.length}명 표시 중 · <a data-act="spFilterReset">필터·검색 해제</a></div>` : '';
@@ -2576,12 +2645,11 @@ function spRowHtml(s) {
       <button class="check ${s.done ? 'on' : ''}" data-act="spDone" data-sid="${s.id}" title="${s.done ? '완료 해제' : '완료로 표시'}">${s.done ? '✓' : ''}</button></div></td>
     <td class="c-name"><div class="name-cell"><input class="cell-in nm-in" data-sf="name" value="${esc(s.name)}" placeholder="이름 입력" maxlength="120">
       <span class="row-acts"><a class="open-btn" data-act="spOpen" data-sid="${s.id}">열기</a><a class="del-btn" data-act="spDel" data-sid="${s.id}" title="연사 삭제">${ICON.trash}</a></span></div></td>
+    <td>${cin('affil_ko', s.affil_en ? esc(s.affil_en) : '', 200)}</td>
+    <td>${cin('title_ko', s.title_en ? esc(s.title_en) : '', 200)}</td>
     <td>${pick('assignees', asgHtml(s))}</td>
     <td>${pick('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY)}</td>
     <td>${pick('flight_status', tag(f.tone, f.label))}</td>
-    <td>${cin('passport_name')}</td>
-    <td>${canEdit() ? cin('passport_no', '', 40) : LOCK_CELL}</td>
-    <td>${canEdit() ? cin('birth_date', 'YYYY-MM-DD', 10) : LOCK_CELL}</td>
     <td>${pick('hotel_status', tag(h.tone, h.label))}</td>
     <td>${pick('priority', pr ? tag(pr.tone, pr.label) : EMPTY)}</td>
   </tr>`;
@@ -3010,14 +3078,32 @@ function renderSpPage(force) {
   $$('textarea.ta', root).forEach(autosize);
   hydrateFiles(root);
 }
+/* 접이식 섹션 — 열림/닫힘은 이 브라우저에 기억 */
+const SEC_DEF = { memo:true, links:true, kw:true, bio:false, contact:true, att:true, attend:true, flight:false, hotel:false, ent:false, pass:false };
+let SEC_OPEN = {}; try { SEC_OPEN = JSON.parse(localStorage.getItem('spSecs') || '{}') || {}; } catch (_) {}
+const secIsOpen = k => k in SEC_OPEN ? !!SEC_OPEN[k] : !!SEC_DEF[k];
+document.addEventListener('toggle', e => {
+  const d = e.target; if (!d?.classList?.contains('psec')) return;
+  SEC_OPEN[d.dataset.sec] = d.open; try { localStorage.setItem('spSecs', JSON.stringify(SEC_OPEN)); } catch (_) {}
+  if (d.open) $$('textarea.ta', d).forEach(autosize);
+}, true);
+function psec(key, title, body, sum = '', hint = '') {
+  return `<details class="psec" data-sec="${key}" ${secIsOpen(key) ? 'open' : ''}><summary><span class="ps-car">▸</span><span class="ps-t">${title}</span>${sum ? `<span class="ps-sum">${sum}</span>` : ''}${hint ? `<span class="sec-hint">${hint}</span>` : ''}</summary><div class="ps-b">${body}</div></details>`;
+}
 function spPageHtml(s) {
   const ed = canEdit(), dis = ed ? '' : 'disabled';
   const f = optOf(FLIGHT, s.flight_status) || FLIGHT[0], h = optOf(HOTEL, s.hotel_status) || HOTEL[0], pr = optOf(PRI, s.priority), g = optOf(GROUPS, s.grp) || GROUPS[1];
   const sel = (field, inner) => `<button class="cell-btn pv-btn" data-act="spPick" data-field="${field}" data-sid="${s.id}">${inner}</button>`;
   const inp = (field, ph = '비어 있음', type = 'text', max = 200) => `<input class="pin" type="${type}" data-sf="${field}" value="${esc(s[field] ?? '')}" placeholder="${ph}" maxlength="${max}">`;
   const ta = (field, ph = '', rows = 1) => `<textarea class="ta" data-sf="${field}" rows="${rows}" placeholder="${ph}">${esc(s[field] || '')}</textarea>`;
+  const fld = (label, field, ph = '', copy = true, rows = 1) => `<div class="fbox"><div class="fl"><span>${label}</span>${copy ? `<a class="copy-btn" data-act="spCopy" data-f="${field}" role="button" title="${label} 복사">${ICON.copy}복사</a>` : ''}</div>${ta(field, ph, rows)}</div>`;
+  const cell = (label, inner) => `<div class="pcell"><label>${label}</label><div class="pv">${inner}</div></div>`;
+  const lock = '<span class="priv-note">🔒 편집자만 볼 수 있어요</span>';
   const creator = prof(s.created_by);
-  const files = Array.isArray(s.flight_files) ? s.flight_files : [];
+  const ent = Array.isArray(s.entourage) ? s.entourage : [];
+  const days = [1, 2, 3].filter(d => s['day' + d]);
+  const evN = EVENTS.filter(ev => s[ev.f]).length;
+  const memoSum = !ed ? '🔒 편집자 전용' : s.memo ? esc(String(s.memo).split('\n')[0].slice(0, 40)) + (String(s.memo).length > 40 ? '…' : '') : '';
   return `<div class="sp-backdrop" data-act="spClose"></div>
   <div class="sp-panel" data-sid="${s.id}">
     <div class="sp-top">
@@ -3031,107 +3117,107 @@ function spPageHtml(s) {
       <button class="btn" data-act="spClose">닫기 ✕</button>
     </div>
     <fieldset class="fs" ${dis}>
-      <input class="sp-title" data-sf="name" value="${esc(s.name)}" placeholder="이름 없음" maxlength="120">
-      <div class="props">
-        <label>${ICON.user}담당자</label><div class="pv">${sel('assignees', asgHtml(s))}</div>
-        <label>${ICON.group}그룹</label><div class="pv">${sel('grp', `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}`)}</div>
-        <label>★ 중요도</label><div class="pv">${sel('priority', pr ? tag(pr.tone, pr.label) : EMPTY)}</div>
-        <label>${ICON.link}종속관계</label><div class="pv links" id="spLinks">${linksHtml()}</div>
-        <label>${ICON.cal}참여 세션</label><div class="pv links" id="spSess">${spSessHtml()}</div>
-      </div>
-
-      <h4 class="sec">프로젝트</h4>
-      <div class="props">
-        <label>여권 영문명</label><div class="pv">${inp('passport_name')}</div>
-        <label>여권번호</label><div class="pv">${ed ? inp('passport_no', '비어 있음', 'text', 40) : '<span class="priv-note">🔒 편집자만 볼 수 있어요</span>'}</div>
-        <label>생년월일</label><div class="pv">${ed ? inp('birth_date', 'YYYY-MM-DD', 'text', 10) : '<span class="priv-note">🔒 편집자만 볼 수 있어요</span>'}</div>
-        <label>국적</label><div class="pv">${sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY)}</div>
-        <label>항공</label><div class="pv">${sel('flight_status', tag(f.tone, f.label))}</div>
-        <label>숙박</label><div class="pv">${sel('hotel_status', tag(h.tone, h.label))}</div>
-      </div>
-
-      <h4 class="sec">분야 / 키워드</h4>
-      <label class="sl">분야 <span class="hint">복수 선택</span></label>
-      <div class="opt-chips">${FIELDS.map(f => { const on = (s.fields || []).includes(f);
-        return `<button type="button" class="ochip ck ${on ? 'on' : ''}" data-act="spField" data-v="${esc(f)}"><span class="obox">${on ? '✓' : ''}</span>${esc(f)}</button>`; }).join('')}</div>
-      <label class="sl">키워드 <span class="hint">직접 입력 후 Enter</span></label>
-      <div class="kw-box">${(s.keywords || []).map(k => `<span class="kw">${esc(k)}<a class="kw-x" data-act="spKwDel" data-v="${esc(k)}" title="빼기">×</a></span>`).join('')}
-        <input class="kw-in" id="kwIn" placeholder="키워드 입력" maxlength="40" autocomplete="off"></div>
-
-      <h4 class="sec">설명</h4>
-      <div class="desc-grid">
-        <div class="dl"><span>Title:</span><a class="copy-btn" data-act="spCopy" data-f="title_en" role="button" title="Title 복사">${ICON.copy}복사</a></div>${ta('title_en')}
-        <div class="dl"><span>Affil:</span><a class="copy-btn" data-act="spCopy" data-f="affil_en" role="button" title="Affil 복사">${ICON.copy}복사</a></div>${ta('affil_en')}
-        <div class="dl"><span>Bio:</span><a class="copy-btn" data-act="spCopy" data-f="bio_en" role="button" title="Bio 복사">${ICON.copy}복사</a></div>${ta('bio_en', '', 4)}
-        <div class="dl"><span>직함:</span><a class="copy-btn" data-act="spCopy" data-f="title_ko" role="button" title="직함 복사">${ICON.copy}복사</a></div>${ta('title_ko')}
-        <div class="dl"><span>소속:</span><a class="copy-btn" data-act="spCopy" data-f="affil_ko" role="button" title="소속 복사">${ICON.copy}복사</a></div>${ta('affil_ko')}
-        <div class="dl"><span>국문 Bio:</span><a class="copy-btn" data-act="spCopy" data-f="bio_ko" role="button" title="국문 Bio 복사">${ICON.copy}복사</a></div>${ta('bio_ko', '', 4)}
-      </div>
-
-      <h4 class="sec">사진</h4>
-      <div class="photo-row">
-        <div class="photo-box">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 없음</span>'}</div>
-        <div class="photo-actions">
-          <label class="btn file-btn">${s.photo_path ? '사진 바꾸기' : '사진 첨부'}<input type="file" accept="image/*" data-upload="photo" class="vh"></label>
-          ${s.photo_path ? `<button type="button" class="btn-danger" data-act="spPhotoDel">사진 삭제</button>
-            <a class="link-btn" data-act="spFileOpen" data-path="${esc(s.photo_path)}">원본 보기</a>` : ''}
-          <div class="hint">JPG, PNG 등 이미지 · 20MB 이하</div>
+      <div class="sp-hero">
+        <div class="hero-ph" title="사진은 아래 '사진 · Bio'에서 바꿀 수 있어요">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="">` : `<span>${esc((s.name || '?').trim()[0] || '?')}</span>`}</div>
+        <div class="hero-main">
+          <input class="sp-title" data-sf="name" value="${esc(s.name)}" placeholder="이름 없음" maxlength="120">
+          <div class="name-row">
+            <label><span>국문명</span><input class="pin" data-sf="name_ko" value="${esc(s.name_ko || '')}" placeholder="홍길동" maxlength="120"></label>
+            <label><span>영문명</span><input class="pin" data-sf="name_en" value="${esc(s.name_en || '')}" placeholder="Gildong Hong" maxlength="120"></label>
+          </div>
         </div>
       </div>
-
-      <h4 class="sec">연락처</h4>
-      <div class="props">
-        <label>연사 이메일</label><div class="pv">${inp('speaker_email', 'speaker@example.com', 'email')}</div>
-        <label>컨택 담당자 이름</label><div class="pv">${inp('contact_name')}</div>
-        <label>컨택 담당자 이메일</label><div class="pv">${inp('contact_email', 'contact@example.com', 'email')}</div>
-        <label>현장 연락처</label><div class="pv">${inp('onsite_phone', '+82 10-0000-0000', 'tel', 40)}</div>
+      <div class="pgrid">
+        ${cell(`${ICON.user}담당자`, sel('assignees', asgHtml(s)))}
+        ${cell(`${ICON.group}그룹`, sel('grp', `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}`))}
+        ${cell('★ 중요도', sel('priority', pr ? tag(pr.tone, pr.label) : EMPTY))}
+        ${cell('국적', sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY))}
+        ${cell('항공', sel('flight_status', tag(f.tone, f.label)))}
+        ${cell('숙박', sel('hotel_status', tag(h.tone, h.label)))}
       </div>
 
-      <h4 class="sec">컨택 포인트</h4>
-      <div class="two-col">
-        <div><label class="sl">에이전시</label>${ta('agency', '소속 에이전시, 담당 에이전트, 연락 방식·소요 시간 등', 3)}</div>
-        <div><label class="sl">소개 경로</label>${ta('referral', '누구의 소개로, 언제 처음 접촉했는지 등', 3)}</div>
+      <div class="role-grid">
+        ${fld('직함', 'title_ko', '예: 대표이사')}${fld('소속', 'affil_ko', '예: OO그룹')}
+        ${fld('Title', 'title_en', 'e.g. CEO')}${fld('Affil', 'affil_en', 'e.g. OO Group')}
       </div>
 
-      <h4 class="sec">첨부파일 <span class="sec-hint">칸 이름은 눌러서 바꿀 수 있어요 · 칸 추가 가능 · 어떤 파일이든 50MB 이하</span></h4>
-      ${attHtml(s)}
+      ${psec('memo', '메모 · 보고용', ed ? `<textarea class="ta memo-ta" data-sf="memo" rows="5" placeholder="주요 경력 · 이슈 및 특징 · 가능한 강연 주제 · 예상/논의된 연사료와 조건 등을 자유롭게 적어 주세요.&#10;연사 PDF(회장 보고용)에 그대로 들어가요.">${esc(s.memo || '')}</textarea>` : lock, memoSum, '편집자만 보여요 · PDF에 포함')}
 
-      <h4 class="sec">항공</h4>
-      <label class="sl">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등을 자유롭게 적어 주세요', 4)}
-      <label class="sl">비고</label>${ta('flight_note', '', 2)}
-      <div id="spVrBox">${spVrHtml(s)}</div>
+      ${psec('links', '연결', `<div class="two-col">
+          <div><label class="sl">${ICON.link}종속관계</label><div class="links" id="spLinks">${linksHtml()}</div></div>
+          <div><label class="sl">${ICON.cal}참여 세션 · 부대행사</label><div class="links" id="spSess">${spSessHtml()}</div></div></div>`)}
 
-      <h4 class="sec">숙박</h4>
-      <div class="props">
-        <label>체크인</label><div class="pv">${inp('check_in', '', 'date')}</div>
-        <label>체크아웃</label><div class="pv">${inp('check_out', '', 'date')}</div>
+      ${psec('kw', '분야 / 키워드', `<label class="sl" style="margin-top:0">분야 <span class="hint">복수 선택</span></label>
+      <div class="opt-chips">${FIELDS.map(x => { const on = (s.fields || []).includes(x);
+        return `<button type="button" class="ochip ck ${on ? 'on' : ''}" data-act="spField" data-v="${esc(x)}"><span class="obox">${on ? '✓' : ''}</span>${esc(x)}</button>`; }).join('')}</div>
+      <label class="sl">키워드 <span class="hint">직접 입력 후 Enter</span></label>
+      <div class="kw-box">${(s.keywords || []).map(k => `<span class="kw">${esc(k)}<a class="kw-x" data-act="spKwDel" data-v="${esc(k)}" title="빼기">×</a></span>`).join('')}
+        <input class="kw-in" id="kwIn" placeholder="키워드 입력" maxlength="40" autocomplete="off"></div>`,
+        [...(s.fields || []), ...(s.keywords || [])].slice(0, 4).map(esc).join(' · '))}
+
+      ${psec('bio', '사진 · Bio', `<div class="bio-row">
+        <div class="photo-col">
+          <div class="photo-box">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 없음</span>'}</div>
+          <div class="photo-actions">
+            <label class="btn file-btn">${s.photo_path ? '사진 바꾸기' : '사진 첨부'}<input type="file" accept="image/*" data-upload="photo" class="vh"></label>
+            ${s.photo_path ? `<div class="ph-links"><a class="link-btn" data-act="spFileOpen" data-path="${esc(s.photo_path)}">원본 보기</a><button type="button" class="btn-danger" data-act="spPhotoDel">삭제</button></div>` : ''}
+            <div class="hint">이미지 · 20MB 이하</div>
+          </div>
+        </div>
+        <div class="bio-col">${fld('Bio', 'bio_en', '', true, 4)}${fld('국문 Bio', 'bio_ko', '', true, 4)}</div>
+      </div>`, [s.photo_path ? '사진 있음' : '사진 없음', s.bio_en || s.bio_ko ? 'Bio 있음' : ''].filter(Boolean).join(' · '))}
+
+      ${psec('contact', '연락처 · 컨택 포인트', `<div class="pgrid two">
+        ${cell('연사 이메일', inp('speaker_email', 'speaker@example.com', 'email'))}
+        ${cell('현장 연락처', inp('onsite_phone', '+82 10-0000-0000', 'tel', 40))}
+        ${cell('컨택 담당자', inp('contact_name'))}
+        ${cell('담당자 이메일', inp('contact_email', 'contact@example.com', 'email'))}
       </div>
-      <label class="sl">비고 및 특이사항</label>${ta('hotel_note', '', 3)}
+      <div class="two-col" style="margin-top:8px">
+        <div><label class="sl">에이전시</label>${ta('agency', '소속 에이전시, 담당 에이전트, 연락 방식·소요 시간 등', 2)}</div>
+        <div><label class="sl">소개 경로</label>${ta('referral', '누구의 소개로, 언제 처음 접촉했는지 등', 2)}</div>
+      </div>`, esc([s.speaker_email, s.contact_name].filter(Boolean).join(' · ')))}
 
-      <h4 class="sec">참석 가능일</h4>
-      <div class="dayboxes">${[1, 2, 3].map(d => `<button type="button" class="daybox ${s['day' + d] ? 'on' : ''}" data-act="spFlip" data-f="day${d}">
-        <span class="dck">${s['day' + d] ? '✓' : ''}</span>${d}일차</button>`).join('')}</div>
+      ${psec('att', '첨부파일', attHtml(s), '', '칸 이름은 눌러서 바꿀 수 있어요 · 칸 추가 가능 · 50MB 이하')}
 
-      <h4 class="sec">행사 참석</h4>
-      <div class="events">${EVENTS.map(ev => `<div class="ev-row"><span>${ev.label}</span><div class="seg">
-        <button type="button" class="${s[ev.f] ? 'on-yes' : ''}" data-act="spSet" data-f="${ev.f}" data-v="1">참석</button>
-        <button type="button" class="${s[ev.f] ? '' : 'on-no'}" data-act="spSet" data-f="${ev.f}" data-v="0">미참석</button></div></div>`).join('')}</div>
+      ${psec('attend', '참석 · 식성', `<div class="attend-grid">
+        <div><label class="sl" style="margin-top:0">참석 가능일</label>
+          <div class="dayboxes sm">${[1, 2, 3].map(d => `<button type="button" class="daybox ${s['day' + d] ? 'on' : ''}" data-act="spFlip" data-f="day${d}">
+            <span class="dck">${s['day' + d] ? '✓' : ''}</span>${d}일차</button>`).join('')}</div>
+          <label class="sl">특이식성</label>
+          <div class="diet">
+            <label class="diet-chk"><input type="checkbox" data-sf="diet_flag" ${s.diet_flag ? 'checked' : ''}>있음</label>
+            <input class="pin diet-in" data-sf="diet_note" value="${esc(s.diet_note)}" maxlength="300"
+              placeholder="${s.diet_flag ? '예: 채식, 견과류 알레르기, 할랄' : '있음을 체크하면 적을 수 있어요'}" ${s.diet_flag ? '' : 'disabled'}>
+          </div></div>
+        <div><label class="sl" style="margin-top:0">행사 참석</label>
+          <div class="events">${EVENTS.map(ev => `<div class="ev-row"><span>${ev.label}</span><div class="seg">
+            <button type="button" class="${s[ev.f] ? 'on-yes' : ''}" data-act="spSet" data-f="${ev.f}" data-v="1">참석</button>
+            <button type="button" class="${s[ev.f] ? '' : 'on-no'}" data-act="spSet" data-f="${ev.f}" data-v="0">미참석</button></div></div>`).join('')}</div></div>
+      </div>`, [days.length ? days.map(d => d + '일차').join('·') : '', evN ? `행사 ${evN}개 참석` : '', s.diet_flag ? '<b class="diet-red">특이식성</b>' : ''].filter(Boolean).join(' · '))}
 
-      <h4 class="sec">특이식성</h4>
-      <div class="diet">
-        <label class="diet-chk"><input type="checkbox" data-sf="diet_flag" ${s.diet_flag ? 'checked' : ''}>특이식성 있음</label>
-        <input class="pin diet-in" data-sf="diet_note" value="${esc(s.diet_note)}" maxlength="300"
-          placeholder="${s.diet_flag ? '예: 채식, 견과류 알레르기, 할랄' : '특이식성 있음을 체크하면 적을 수 있어요'}" ${s.diet_flag ? '' : 'disabled'}>
-      </div>
+      ${psec('flight', '항공', `<label class="sl" style="margin-top:0">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등을 자유롭게 적어 주세요', 3)}
+        <label class="sl">비고</label>${ta('flight_note', '', 2)}
+        <div id="spVrBox">${spVrHtml(s)}</div>`, tag(f.tone, f.label))}
 
-      <h4 class="sec">수행 정보 <span class="sec-hint">함께 오는 수행원 · 여러 명 가능</span></h4>
-      <div class="ent-list">${(Array.isArray(s.entourage) ? s.entourage : []).map(x => `<div class="ent-row" data-entid="${esc(x.id)}">
+      ${psec('hotel', '숙박', `<div class="pgrid two">
+          ${cell('체크인', inp('check_in', '', 'date'))}${cell('체크아웃', inp('check_out', '', 'date'))}</div>
+        <label class="sl">비고 및 특이사항</label>${ta('hotel_note', '', 2)}`,
+        tag(h.tone, h.label) + (s.check_in || s.check_out ? ` ${esc(fmtDate(s.check_in) || '?')} ~ ${esc(fmtDate(s.check_out) || '?')}` : ''))}
+
+      ${psec('ent', '수행 정보', `<div class="ent-list">${ent.map(x => `<div class="ent-row" data-entid="${esc(x.id)}">
           <input class="pin" data-ent="name" value="${esc(x.name || '')}" placeholder="이름" maxlength="80">
           <input class="pin" data-ent="affil" value="${esc(x.affil || '')}" placeholder="소속" maxlength="120">
           <input class="pin" data-ent="note" value="${esc(x.note || '')}" placeholder="비고 (직책, 연락처, 동선 등)" maxlength="300">
           <button type="button" class="icon-btn" data-act="entDel" data-entid="${esc(x.id)}" title="삭제">✕</button></div>`).join('')
         || '<div class="hint" style="margin:0 0 4px">아직 수행원이 없어요</div>'}
-        <button type="button" class="meet-add" data-act="entAdd">+ 수행원 추가</button></div>
+        <button type="button" class="meet-add" data-act="entAdd">+ 수행원 추가</button></div>`, ent.length ? `${ent.length}명` : '', '함께 오는 수행원 · 여러 명 가능')}
+
+      ${psec('pass', '여권 정보', `<div class="pgrid three">
+        ${cell('여권 영문명', inp('passport_name', 'HONG GILDONG'))}
+        ${cell('여권번호', ed ? inp('passport_no', '비어 있음', 'text', 40) : lock)}
+        ${cell('생년월일', ed ? inp('birth_date', 'YYYY-MM-DD', 'text', 10) : lock)}
+      </div>`, esc(s.passport_name || ''), '여권번호·생년월일은 편집자만 보여요')}
     </fieldset>
     ${cmtHtml('speakers:' + s.id)}
     <div class="sp-foot">
@@ -3541,7 +3627,7 @@ document.addEventListener('drop', e => {
 /* =====================================================================
    세션 마스터 (projects.kind = 'session')
    ===================================================================== */
-const SE_TABS = [['list','목록'], ['board','보드'], ['pillar','필라'], ['tt','시간표']];
+const SE_TABS = [['list','목록'], ['board','보드'], ['pillar','트랙'], ['tt','시간표']];
 const DAYS = [7, 8, 9];
 const CATS = [['luncheon','Luncheon · 오찬'], ['session','Session · 세션'], ['private','Private · 프라이빗'], ['dinner','Dinner · 만찬'], ['interview','Interview · 인터뷰'], ['te','T.E'], ['special','Special Event · 스페셜 이벤트']];
 const CAT_LABEL = Object.fromEntries(CATS);
@@ -3554,12 +3640,12 @@ function timeOptions(cur, from = 7 * 60, to = 23 * 60) {
 }
 const SE_SORTS = [{ k:'time', label:'날짜·시간순' }, { k:'alpha', label:'이름순' }, { k:'created', label:'생성일 (최신순)' }, { k:'updated', label:'마지막 수정일 (최신순)' }];
 const OPT_COLORS = ['#64748b','#2563eb','#7c3aed','#9333ea','#059669','#dc2626','#d97706','#0891b2','#0d9488','#db2777','#65a30d','#4f46e5'];
-const TT_START = 8 * 60, TT_END = 18 * 60, TT_ROW = 20;
+let TT_START = 8 * 60, TT_END = 18 * 60; const TT_ROW = 20;
 const MAX_SFILE = 50 * 1024 * 1024;
 const SE_ACCEPT = '.pptx,.ppt,.pdf,.jpeg,.jpg,.png,.docx,.doc,.mp4,.mov,.key,.xlsx,.xls,.hwp,.zip';
 const OPT = {
   venue:  { table:'session_venues',  label:'장소', field:'venue_id',  list: () => S.venues,  set: v => { S.venues = v; } },
-  pillar: { table:'session_pillars', label:'필라', field:'pillar_id', list: () => S.pillars, set: v => { S.pillars = v; } },
+  pillar: { table:'session_pillars', get label() { return PIL(); }, field:'pillar_id', list: () => S.pillars, set: v => { S.pillars = v; } },
   meet:   { table:'session_meet_types', label:'기타일정 종류', field:null, list: () => S.meetTypes, set: v => { S.meetTypes = v; },
             count: x => S.sessions.reduce((n, s) => n + (s.meetings || []).filter(m => m.type_id === x.id).length, 0), unit:'건' },
 };
@@ -3595,6 +3681,13 @@ function meetTypePick(el) {
     footer: { label:'✎ 기타일정 종류 토글 편집 (이름·순서·색·삭제)', onClick: () => optManage('meet') } });
 }
 const isSessionProject = p => p?.kind === 'session';
+// v17 부대행사 마스터 = 세션 마스터와 같은 화면, projects.side_events = true
+const isSideProject = p => p?.kind === 'session' && !!p?.side_events;
+const sideNow = () => isSideProject(curProject());
+const PIL = () => sideNow() ? '종류' : '트랙';
+const SEW = () => sideNow() ? '부대행사' : '세션';
+function seRange() { const sd = sideNow(); TT_START = (sd ? 7 : 8) * 60; TT_END = (sd ? 23 : 18) * 60; }
+const ttHint = (sep = '–') => `${apLabel(TT_START).replace(':00', '시')}${sep}${apLabel(TT_END).replace(':00', '시')}`;
 const seOf = id => S.sessions.find(s => s.id === id);
 const venueOf = id => S.venues.find(v => v.id === id);
 const pillarOf = id => S.pillars.find(v => v.id === id);
@@ -3636,7 +3729,8 @@ function seSort(list) {
 
 /* ---------- 화면 틀 ---------- */
 function renderSessionMain(p) {
-  const tabs = SE_TABS.map(([k, l]) => `<button class="tab ${S.setab === k ? 'active' : ''}" data-act="seTab" data-tab="${k}">${l}</button>`).join('');
+  seRange();
+  const tabs = SE_TABS.map(([k, l]) => `<button class="tab ${S.setab === k ? 'active' : ''}" data-act="seTab" data-tab="${k}">${k === 'pillar' ? PIL() : l}</button>`).join('');
   const v = ssv();
   $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
     <div class="sp-toolbar">
@@ -3646,8 +3740,8 @@ function renderSessionMain(p) {
         <button class="tool" id="seFilterBtn" data-act="seFilter"></button>
         <button class="tool" id="seSortBtn" data-act="seSort"></button>
         <div class="search-box ${v.q ? 'open' : ''}" id="seSearchBox">
-          <button class="tool" data-act="seSearch" title="세션 검색">${ICON.search}</button>
-          <input id="seSearchIn" placeholder="세션 이름·제목 검색" value="${esc(v.q)}" autocomplete="off">
+          <button class="tool" data-act="seSearch" title="${SEW()} 검색">${ICON.search}</button>
+          <input id="seSearchIn" placeholder="${SEW()} 이름·제목 검색" value="${esc(v.q)}" autocomplete="off">
         </div>
       </div></div>
     <div class="content" id="seBody"></div>`;
@@ -3659,7 +3753,7 @@ function updateSeToolbar() {
   const sb = $('#seSortBtn'); if (sb) { sb.classList.toggle('on', v.sort !== 'time'); sb.innerHTML = `${ICON.sort}${v.sort === 'time' ? '정렬' : esc(SE_SORTS.find(x => x.k === v.sort).label)}`; }
 }
 function renderSeBody(force) {
-  const b = $('#seBody'); if (!b) return;
+  const b = $('#seBody'); if (!b) return; seRange();
   if (!force && inputFocusedIn('#seBody')) { pendBody = true; return; }
   pendBody = false;
   const sc = b.scrollTop, w0 = b.querySelector('.sp-wrap, .sboard, .tt-wrap'), sl = w0?.scrollLeft || 0, st = w0?.scrollTop || 0;
@@ -3683,16 +3777,16 @@ function sePplLine(s) {
 /* ---------- 목록 ---------- */
 function seListHtml() {
   const vis = seSort(seVisible()), ed = canEdit();
-  const head = `<thead><tr><th class="c-name">이름</th><th class="c-asg">담당자</th><th class="c-ven">장소</th><th class="c-pil">필라</th><th class="c-day">날짜</th><th class="c-time">시간 <span class="th-hint">오전 8시–오후 6시</span></th></tr></thead>`;
+  const head = `<thead><tr><th class="c-name">이름</th><th class="c-asg">담당자</th><th class="c-ven">장소</th><th class="c-pil">${PIL()}</th><th class="c-day">날짜</th><th class="c-time">시간 <span class="th-hint">${ttHint()}</span></th></tr></thead>`;
   const body = vis.map(seRowHtml).join('')
-    + (ed ? '<tr class="add-row"><td colspan="6"><a class="add-link" data-act="seAdd">+ 새 세션</a></td></tr>' : '')
-    + (!vis.length && !ed ? '<tr><td colspan="6" class="muted" style="padding:16px">세션이 없어요</td></tr>' : '');
+    + (ed ? '<tr class="add-row"><td colspan="6"><a class="add-link" data-act="seAdd">+ 새 ${SEW()}</a></td></tr>' : '')
+    + (!vis.length && !ed ? `<tr><td colspan="6" class="muted" style="padding:16px">${sideNow() ? '부대행사가' : '세션이'} 없어요</td></tr>` : '');
   return `${seNote(vis)}<div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table se-table">${head}<tbody>${body}</tbody></table></fieldset></div>`;
 }
 function seRowHtml(s) {
   const pick = (field, inner) => `<button class="cell-btn" data-act="sePick" data-field="${field}" data-eid="${s.id}">${inner}</button>`;
   return `<tr class="se-row" data-eid="${s.id}">
-    <td class="c-name"><div class="name-cell"><input class="cell-in nm-in" data-ef="name" value="${esc(s.name)}" placeholder="세션 이름 입력" maxlength="200">
+    <td class="c-name"><div class="name-cell"><input class="cell-in nm-in" data-ef="name" value="${esc(s.name)}" placeholder="${SEW()} 이름 입력" maxlength="200">
       <span class="row-acts"><a class="open-btn" data-act="seOpen" data-eid="${s.id}">열기</a><a class="del-btn" data-act="seDel" data-eid="${s.id}" title="세션 삭제">${ICON.trash}</a></span></div></td>
     <td>${pick('assignees', asgHtml(s))}</td>
     <td>${pick('venue_id', colorTag(venueOf(s.venue_id)) || EMPTY)}</td>
@@ -3702,7 +3796,7 @@ function seRowHtml(s) {
   </tr>`;
 }
 
-/* ---------- 보드 (장소별) / 필라 ---------- */
+/* ---------- 보드 (장소별) / 트랙 ---------- */
 function seBoardHtml(field) {
   const kind = field === 'venue_id' ? 'venue' : 'pillar', o = OPT[kind], ed = canEdit();
   const vis = seSort(seVisible());
@@ -3736,7 +3830,7 @@ function seCardHtml(s, field) {
 function ttGridHtml(day, vis, row, colMin) {
   const cols = S.venues, H = (TT_END - TT_START) / 10 * row;
   if (!cols.length) return '<div class="empty">장소 토글이 없어요. 세션 페이지의 장소에서 추가해 주세요.</div>';
-  const hours = []; for (let h = 8; h <= 18; h++) hours.push(`<div class="tt-hour" style="top:${(h * 60 - TT_START) / 10 * row}px">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
+  const hours = []; for (let h = TT_START / 60; h <= TT_END / 60; h++) hours.push(`<div class="tt-hour" style="top:${(h * 60 - TT_START) / 10 * row}px">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
   const colsHtml = cols.map(vn => {
     const items = vis.filter(s => s.day === day && s.venue_id === vn.id && s.start_time).sort((a, b) => hm2m(a.start_time) - hm2m(b.start_time));
     return `<div class="tt-col" style="height:${H}px">${items.map(s => {
@@ -3761,7 +3855,7 @@ function ttDayTabs(day, vis, act) {
 }
 function seTTHtml() {
   const v = ssv(), day = v.tday, vis = seVisible();
-  return `<div class="tt-top"><div class="daytabs">${ttDayTabs(day, vis, 'seTDay')}</div><span class="muted tt-note">한 칸 = 10분 · 오전 8시–오후 6시 · 블록을 누르면 세션이 열려요</span>
+  return `<div class="tt-top"><div class="daytabs">${ttDayTabs(day, vis, 'seTDay')}</div><span class="muted tt-note">한 칸 = 10분 · ${ttHint()} · 블록을 누르면 ${sideNow() ? '부대행사가' : '세션이'} 열려요</span>
     <span class="sp"></span><button class="btn sm" data-act="ttFull">${ICON.expand}크게 보기</button><button class="btn sm" data-act="ttPdf">${ICON.pdf}PDF로 저장</button></div>
   <div class="tt-wrap">${ttGridHtml(day, vis, TT_ROW, 150)}</div>
   ${ttMissingHtml(day, vis)}`;
@@ -3805,7 +3899,7 @@ function ttPrintHtml() {
         <div class="bt">${seTimeLabel(s)}${pil ? ` · ${esc(pil.name)}` : ''}</div><div class="bn">${esc(s.name || '(이름 없음)')}</div>
         ${sp.length ? `<div class="bp">S ${sp.join(', ')}</div>` : ''}${mo.length ? `<div class="bp">M ${mo.join(', ')}</div>` : ''}</div>`;
     }).join('');
-    const hours = []; for (let h = 8; h <= 18; h++) hours.push(`<div class="hr" style="top:${(h * 60 - TT_START) / 10 * ROW}mm">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
+    const hours = []; for (let h = TT_START / 60; h <= TT_END / 60; h++) hours.push(`<div class="hr" style="top:${(h * 60 - TT_START) / 10 * ROW}mm">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
     const miss = all.filter(s => !s.venue_id || !s.start_time);
     return `<section class="pg"><header><h1>${day}일 시간표</h1><div>${esc(p?.name || '')} · 세션 ${all.length}개 · ${stamp} 기준</div></header>
       <div class="g" style="grid-template-columns:15mm repeat(${n},1fr)">
@@ -3867,7 +3961,7 @@ async function updateSession(id, patch, from, opt = {}) {
   const s = seOf(id); if (!s) return;
   for (const k of ['start_time', 'end_time']) if (k in patch && patch[k]) {
     patch[k] = hm(patch[k]); const m = hm2m(patch[k]);
-    if (m < TT_START || m > TT_END) { toast('시간은 오전 8시~오후 6시 사이로 입력해 주세요', true); return seRevert(); }
+    seRange(); if (m < TT_START || m > TT_END) { toast(`시간은 ${ttHint('~')} 사이로 입력해 주세요`, true); return seRevert(); }
   }
   const n = { ...s, ...patch };
   if (n.start_time && n.end_time && hm2m(n.end_time) <= hm2m(n.start_time)) { toast('종료 시간은 시작 시간보다 늦어야 해요', true); return seRevert(); }
@@ -3928,7 +4022,7 @@ function sePick(el) {
   }
 }
 
-/* ---------- 장소 · 필라 토글 관리 ---------- */
+/* ---------- 장소 · 트랙 토글 관리 ---------- */
 async function reloadOpts(kind) { const o = OPT[kind]; o.set(sortOpts(await api.opts(o.table, S.pid))); }
 async function optAdd(kind, name) {
   const o = OPT[kind], list = o.list();
@@ -3943,7 +4037,7 @@ async function optAdd(kind, name) {
 function optManage(kind) {
   const o = OPT[kind], ed = canEdit();
   openModal(`<h3>${o.label} 토글 편집</h3>
-    <p class="sub">이름·순서·색을 바꾸거나 삭제하면 ${kind === 'meet' ? '모든 세션의 기타일정과 Pre Agenda' : '세션 마스터 전체(목록·보드·필라·시간표)'}에 바로 반영돼요.${kind === 'venue' ? ' 시간표의 가로 순서도 이 순서를 따라요.' : ''}</p>
+    <p class="sub">이름·순서·색을 바꾸거나 삭제하면 ${kind === 'meet' ? '모든 세션의 기타일정과 Pre Agenda' : `${sideNow() ? '부대행사 마스터' : '세션 마스터'} 전체(목록·보드·${PIL()}·시간표)`}에 바로 반영돼요.${kind === 'venue' ? ' 시간표의 가로 순서도 이 순서를 따라요.' : ''}</p>
     <fieldset class="fs" ${ed ? '' : 'disabled'}><div id="optList" class="opt-list"></div>
     <div class="opt-add"><input type="text" id="optNew" placeholder="새 ${o.label} 이름" maxlength="40"><button class="btn-primary" id="optAddBtn" type="button">추가</button></div></fieldset>
     <div class="modal-foot"><button class="btn" data-act="closeModal">닫기</button></div>`);
@@ -4007,7 +4101,7 @@ function seFilter(el) {
       pop.innerHTML = `
         <div class="fsec"><div class="pop-h">날짜</div><div class="fwrap">${DAYS.map(d => ck('day', String(d), `${d}일`)).join('')}${ck('day', 'none', '<span class="muted">미정</span>')}</div></div>
         <div class="fsec"><div class="pop-h">장소</div><div class="fwrap">${S.venues.map(x => ck('venue', x.id, colorTag(x))).join('')}${ck('venue', 'none', '<span class="muted">장소 없음</span>')}</div></div>
-        <div class="fsec"><div class="pop-h">필라</div><div class="fwrap">${S.pillars.map(x => ck('pillar', x.id, colorTag(x))).join('')}${ck('pillar', 'none', '<span class="muted">필라 없음</span>')}</div></div>
+        <div class="fsec"><div class="pop-h">${PIL()}</div><div class="fwrap">${S.pillars.map(x => ck('pillar', x.id, colorTag(x))).join('')}${ck('pillar', 'none', `<span class="muted">${PIL()} 없음</span>`)}</div></div>
         <div class="ffoot"><span class="muted" id="sefcount">${seVisible().length}개 표시</span><button type="button" class="link-btn" data-freset="1">초기화</button></div>`;
     };
     draw();
@@ -4055,7 +4149,8 @@ function fileKind(f) {
     : /docx?|hwp/.test(e) ? ['DOC', 'doc'] : /mp4|mov|m4v/.test(e) ? ['MP4', 'vid'] : /xlsx?/.test(e) ? ['XLS', 'xls'] : [e.toUpperCase().slice(0, 4) || 'FILE', 'etc'];
 }
 function sePageHtml(s) {
-  const ed = canEdit(), dis = ed ? '' : 'disabled';
+  seRange();
+  const ed = canEdit(), dis = ed ? '' : 'disabled', side = sideNow();
   const sel = (field, inner) => `<button class="cell-btn pv-btn" data-act="sePick" data-field="${field}" data-eid="${s.id}">${inner}</button>`;
   const ta = (f, label, rows, ph = '') => `<div class="copy-field"><div class="cf-h"><span class="sl">${label}</span>
       <a class="copy-btn" data-act="seCopy" data-f="${f}" role="button">${ICON.copy}복사</a></div>
@@ -4079,20 +4174,20 @@ function sePageHtml(s) {
       <button class="btn agenda-btn" data-act="sePreAgenda" data-lang="en" title="이 세션을 영어 Pre Agenda PDF로 내보내기">${ICON.pdf}Pre Agenda (영)</button>
       <button class="btn" data-act="history" data-table="sessions" data-id="${s.id}" title="누가 언제 무엇을 바꿨는지 보기">${ICON.history}수정 기록</button><button class="btn" data-act="spClose">닫기 ✕</button></div>
     <fieldset class="fs" ${dis}>
-      <input class="sp-title" data-ef="name" value="${esc(s.name)}" placeholder="세션 이름" maxlength="200">
+      <input class="sp-title" data-ef="name" value="${esc(s.name)}" placeholder="${SEW()} 이름" maxlength="200">
       <div class="props"><label>${ICON.user}담당자</label><div class="pv">${sel('assignees', asgHtml(s))}</div></div>
 
-      <h4 class="sec">종속관계 <span class="sec-hint">[2027] 연사 마스터 (선행) → 이 세션 (후행)</span></h4>
+      <h4 class="sec">종속관계 <span class="sec-hint">[2027] 연사 마스터 (선행) → 이 ${SEW()} (후행)</span></h4>
       <div class="ppl-grid">${pplCol('speaker', 'Speaker')}${pplCol('moderator', 'Moderator')}</div>
 
       <table class="kv-table"><tbody>
         <tr><th>장소</th><td>${sel('venue_id', colorTag(venueOf(s.venue_id)) || EMPTY)}</td></tr>
-        <tr><th>필라</th><td>${sel('pillar_id', colorTag(pillarOf(s.pillar_id)) || EMPTY)}</td></tr>
+        <tr><th>${PIL()}</th><td>${sel('pillar_id', colorTag(pillarOf(s.pillar_id)) || EMPTY)}</td></tr>
       </tbody></table>
 
-      <h4 class="sec">공개 여부</h4>
+      ${side ? '' : `<h4 class="sec">공개 여부</h4>
       <div class="opt-chips"><button type="button" class="ochip ${s.is_public !== false ? 'on' : ''}" data-act="sePub" data-v="1">공개</button>
-        <button type="button" class="ochip ${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>
+        <button type="button" class="ochip ${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>`}
 
       <h4 class="sec">제목 · 시놉시스</h4>
       ${ta('title_en', '영문제목', 1)}${ta('title_ko', '국문제목', 1)}${ta('synop_en', '영문시놉', 4)}${ta('synop_ko', '국문시놉', 4)}
@@ -4105,18 +4200,18 @@ function sePageHtml(s) {
         <label class="btn file-btn">+ 파일 첨부<input type="file" accept="${SE_ACCEPT}" multiple data-upload="session" class="vh"></label>
       </div>
 
-      <h4 class="sec">세션일정</h4>
+      <h4 class="sec">${side ? '일정' : '세션일정'}</h4>
       <div class="props">
         <label>날짜</label><div class="pv"><div class="seg">${DAYS.map(d => `<button type="button" class="${s.day === d ? 'on-yes' : ''}" data-act="seSetDay" data-day="${d}">${d}일</button>`).join('')}
           <button type="button" class="${s.day ? '' : 'on-no'}" data-act="seSetDay" data-day="">미정</button></div></div>
         <label>시간</label><div class="pv"><div class="time-range">
           ${timeBtn(s, 'start_time', true)}<span>–</span>${timeBtn(s, 'end_time', true)}
-          <span class="hint">오전 8시 ~ 오후 6시 · 10분 단위</span></div></div>
+          <span class="hint">${ttHint(' ~ ')} · 10분 단위</span></div></div>
       </div>
       <p class="hint" style="margin-top:6px">날짜·장소·시간을 모두 넣으면 시간표 탭에 자동으로 나와요. 같은 날짜·장소에서 시간이 겹치면 입력할 수 없어요 (장소 미정은 제외).</p>
 
-      <hr class="sched-div">
-      <h4 class="sec">기타일정</h4>
+      ${side || !(s.meetings || []).length ? '' : `<hr class="sched-div">
+      <h4 class="sec">기타일정 <span class="sec-hint">예전에 적은 내용 · 이제 오찬·만찬·인터뷰 등은 부대행사 마스터에서 관리해요</span></h4>
       <div class="meetings">${(s.meetings || []).map(m => `<div class="meet-row" data-mid="${esc(m.id)}">
           <button type="button" class="cell-btn mt-type" data-act="meetType" data-mid="${esc(m.id)}" title="미팅 종류 선택">${meetTypeHtml(m)}</button>
           <select class="mt-in" data-mf="day"><option value="">날짜</option>${DAYS.map(d => `<option value="${d}" ${m.day === d ? 'selected' : ''}>${d}일</option>`).join('')}</select>
@@ -4125,7 +4220,7 @@ function sePageHtml(s) {
           <input class="mt-in" data-mf="title" value="${esc(m.title || '')}" placeholder="미팅 내용" maxlength="120">
           <button type="button" class="cell-btn mt-type mt-place" data-act="meetPlace" data-mid="${esc(m.id)}" title="장소 선택 (세션 장소 토글과 같은 목록)">${meetPlaceHtml(m)}</button>
           <button type="button" class="icon-btn" data-act="meetDel" data-mid="${esc(m.id)}" title="미팅 삭제">✕</button></div>`).join('')}
-        <button type="button" class="meet-add" data-act="meetAdd">+ 기타일정 추가 (오찬·프라이빗·만찬·인터뷰 등)</button></div>
+        </div>`}
     </fieldset>
     ${cmtHtml('sessions:' + s.id)}
     <div class="sp-foot">
@@ -4147,7 +4242,8 @@ function seTimePick(el) {
   openPop(el, pop => {
     pop.classList.add('tpick');
     let html = `<div class="pop-h">${f === 'start_time' ? '시작' : '종료'} 시간 · 10분 단위</div><div class="tp-grid">`;
-    for (let h = 8; h <= 18; h++) {
+    seRange();
+    for (let h = TT_START / 60; h <= TT_END / 60; h++) {
       html += `<div class="tp-h">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`;
       for (let m = 0; m < 60; m += 10) {
         const v = h * 60 + m;
@@ -4253,11 +4349,22 @@ async function preAgenda(onlyId, lang = 'en') {
   if (!w) return toast('팝업이 막혔어요. 주소창 오른쪽에서 이 사이트의 팝업을 허용해 주세요', true);
   w.document.write('<p style="font-family:sans-serif;padding:40px;color:#555">Pre Agenda를 만드는 중…</p>');
   const ids = [...new Set(S.sePeopleAll.filter(r => !onlyId || r.session_id === onlyId).map(r => r.speaker_id))];
-  let det = {};
+  let det = {}, side = [];
+  // 세션 마스터: 이 세션 연사가 들어 있는 부대행사(같은 연도, 내가 볼 수 있는 것)를 '기타일정'으로
+  if (!sideNow() && ids.length) {
+    try {
+      for (const sp of S.projects.filter(p => isSideProject(p) && sameEdition(p) && isMember(p.id))) {
+        const [evs, pils, vens] = await Promise.all([api.sessions(sp.id), api.opts('session_pillars', sp.id), api.opts('session_venues', sp.id)]);
+        const ppl = evs.length ? await api.sessionPeopleFor(evs.map(e => e.id)) : [];
+        evs.forEach(e => { if (ppl.some(r => r.session_id === e.id && ids.includes(r.speaker_id)))
+          side.push({ ...e, _pil: pils.find(x => x.id === e.pillar_id), _ven: vens.find(x => x.id === e.venue_id) }); });
+      }
+    } catch (e) { console.warn('side events', e); }
+  }
   try { det = Object.fromEntries((ids.length ? await api.speakerDetails(ids) : []).map(r => [r.id, r])); } catch (_) {}
-  w.document.open(); w.document.write(agendaHtml(det, onlyId, lang)); w.document.close();
+  w.document.open(); w.document.write(agendaHtml(det, onlyId, lang, side)); w.document.close();
 }
-function agendaHtml(det, onlyId, lang = 'en') {
+function agendaHtml(det, onlyId, lang = 'en', side = []) {
   const p = curProject(), now = new Date(), one = onlyId ? seOf(onlyId) : null, KO = lang === 'ko';
   const SS = one ? [one] : S.sessions;
   const stamp = KO ? `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${apLabel(now.getHours() * 60 + now.getMinutes())}`
@@ -4275,7 +4382,7 @@ function agendaHtml(det, onlyId, lang = 'en') {
   const groups = [...DAYS.map((d, i) => ({ label: `Day ${i + 1} · ${ord(d)}`, list: SS.filter(s => s.day === d).sort(byTime) })),
                   { label: T.tbdDate, list: SS.filter(s => !s.day).sort(byTime) }].filter(g => g.list.length);
   const person = r => {
-    const d = det[r.speaker_id] || S.spkCards?.[r.speaker_id]; let name = d?.name || S.spkNames[r.speaker_id]?.name || '';
+    const d = det[r.speaker_id] || S.spkCards?.[r.speaker_id]; let name = (KO ? d?.name_ko : d?.name_en) || d?.name || S.spkNames[r.speaker_id]?.name || '';
     // 한글 이름이면 여권 영문명(성 이름 순)을 'Gildong Hong' 처럼 바꿔서 표시
     if (!KO && /[가-힣]/.test(name) && d?.passport_name) { const w = d.passport_name.trim().split(/[\s,]+/).map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()); name = w.length > 1 ? [...w.slice(1), w[0]].join(' ') : w[0]; }
     const role = (KO ? [d?.title_ko || d?.title_en, d?.affil_ko || d?.affil_en] : [d?.title_en, d?.affil_en]).filter(Boolean).join(', ');
@@ -4283,9 +4390,10 @@ function agendaHtml(det, onlyId, lang = 'en') {
   };
   const ppl = (s, role) => S.sePeopleAll.filter(r => r.session_id === s.id && r.role === role).sort((a, b) => a.position - b.position);
   // 기타일정: 세션 카드 밖, 선 아래 별도 섹션
-  const allMeets = SS.flatMap(se => (se.meetings || []).filter(m => m.title || m.place || m.venue_id || m.time || m.type_id || m.type).map(m => ({ ...m, _s: se })))
+  const allMeets = [...SS.flatMap(se => (se.meetings || []).filter(m => m.title || m.place || m.venue_id || m.time || m.type_id || m.type).map(m => ({ ...m, _s: se }))),
+      ...side.map(e => ({ id: e.id, title: KO ? (e.title_ko || e.name || e.title_en) : (e.title_en || e.name), day: e.day, time: e.start_time ? hm(e.start_time) : '', end: e.end_time ? hm(e.end_time) : '', _ev: e }))]
     .sort((a, b) => (a.day || 99) - (b.day || 99) || String(a.time || '99').padStart(5, '0').localeCompare(String(b.time || '99').padStart(5, '0')));
-  const meetRow = m => { const o = meetTypeOf(m.type_id), nm = enOnly(meetTypeName(m)), place = meetPlaceName(m);
+  const meetRow = m => { const o = m._ev ? m._ev._pil : meetTypeOf(m.type_id), nm = enOnly(m._ev ? (o?.name || '') : meetTypeName(m)), place = m._ev ? (m._ev._ven?.name || '') : meetPlaceName(m);
     return `<article class="s">
       <div class="when"><div class="t">${enRange(m.time, m.end) || T.tbdTime}</div><div class="v">${[m.day ? ord(m.day) : T.tbdDate, place ? esc(place) : T.tbdVenue].join(' · ')}</div></div>
       <div class="body">${nm ? `<span class="pill" style="--c:${o ? safeColor(o.color) : '#64748b'}">${esc(nm)}</span>` : ''}
@@ -4296,7 +4404,7 @@ function agendaHtml(det, onlyId, lang = 'en') {
     return `<article class="s">
       <div class="when"><div class="t">${enRange(s.start_time, s.end_time) || T.tbdTime}</div><div class="v">${v ? esc(v.name) : T.tbdVenue}</div></div>
       <div class="body">
-        ${pl ? `<span class="pill" style="--c:${safeColor(pl.color)}">${esc(pl.name)}</span>` : ''}${s.is_public === false ? `<span class="pill priv">${T.closed}</span>` : ''}
+        ${pl ? `<span class="pill" style="--c:${safeColor(pl.color)}">${esc(enOnly(pl.name))}</span>` : ''}${s.is_public === false && !sideNow() ? `<span class="pill priv">${T.closed}</span>` : ''}
         <h3>${esc(sTitle(s) || T.untitled)}</h3>
         ${sp.length || mo.length ? `<div class="ppl">${sp.length ? `<div><span class="lab">Speaker${sp.length > 1 ? 's' : ''}</span><ul>${sp.map(person).join('')}</ul></div>` : ''}${mo.length ? `<div><span class="lab">Moderator${mo.length > 1 ? 's' : ''}</span><ul>${mo.map(person).join('')}</ul></div>` : ''}</div>` : ''}
         ${KO ? (s.synop_ko ? `<div class="syn">${esc(s.synop_ko)}</div>` : '') : (s.synop_en ? `<div class="syn en">${esc(s.synop_en)}</div>` : '')}
@@ -4378,9 +4486,10 @@ function spPdfHtml(list, photos, single) {
       <div class="ph">${photos[s.id] ? `<img src="${esc(photos[s.id])}" alt="">` : `<div class="noimg">${esc((s.name || '?').trim()[0] || '?')}</div>`}</div>
       <div class="bd">
         <div class="pills">${g ? pill(g.tone, g.label) : ''}${pr ? pill(pr.tone, pr.label) : ''}${n ? `<span class="pill t-gray">${esc(n.name)}</span>` : ''}${s.done ? pill('green', '완료') : ''}</div>
-        <h3>${esc(s.name || '(이름 없음)')}</h3>
+        <h3>${esc(s.name || '(이름 없음)')}${[s.name_ko, s.name_en].filter(x => x && x !== s.name).length ? `<small class="alt">${esc([s.name_ko, s.name_en].filter(x => x && x !== s.name).join(' · '))}</small>` : ''}</h3>
+        ${role(s.title_ko, s.affil_ko) ? `<div class="ro ko1">${role(s.title_ko, s.affil_ko)}</div>` : ''}
         ${role(s.title_en, s.affil_en) ? `<div class="ro en">${role(s.title_en, s.affil_en)}</div>` : ''}
-        ${role(s.title_ko, s.affil_ko) ? `<div class="ro">${role(s.title_ko, s.affil_ko)}</div>` : ''}
+        ${s.memo ? `<div class="memo"><b>메모 · 보고</b>${esc(s.memo)}</div>` : ''}
         ${s.bio_en ? `<div class="bio en">${esc(s.bio_en)}</div>` : ''}${s.bio_ko ? `<div class="bio">${esc(s.bio_ko)}</div>` : ''}
         <table class="kv">${row('분야', esc((s.fields || []).join(', ')))}${row('키워드', esc((s.keywords || []).join(', ')))}
           ${row('담당자', esc(asg))}${row('참석 가능일', days)}${row('행사 참석', esc(evs))}
@@ -4417,6 +4526,10 @@ section:first-of-type h2{margin-top:0}
 h3{font-size:14pt;margin:1.2mm 0 .5mm;letter-spacing:-.01em}
 .ro{font-size:10pt;color:#333}.ro.en{font-weight:600}
 .bio{font-size:9pt;color:#333;white-space:pre-wrap;margin-top:1.8mm;padding-left:2.5mm;border-left:.6mm solid #e2e2de}
+h3 .alt{font-size:9.5pt;font-weight:500;color:#666;margin-left:2mm}
+.ro.ko1{font-weight:600}
+.memo{font-size:9.5pt;white-space:pre-wrap;margin-top:2.2mm;padding:2mm 3mm;background:#fffbeb;border:.3mm solid #fde68a;border-radius:1.5mm}
+.memo b{display:block;font-size:8pt;color:#92400e;letter-spacing:.04em;margin-bottom:.6mm}
 .kv{border-collapse:collapse;margin-top:2.5mm;font-size:9pt;width:100%}
 .kv th{text-align:left;font-weight:600;color:#666;width:24mm;padding:.5mm 0;vertical-align:top;white-space:nowrap}
 .kv td{padding:.5mm 0}
@@ -4609,13 +4722,13 @@ const rowOf = (table, id) => table === 'speakers' ? spOf(id) : table === 'sessio
 const updaterOf = table => ({ speakers: updateSpeaker, sessions: updateSession, secret_items: updateSecret, vehicle_runs: updateVrun })[table];
 
 const FIELD_LABEL = {
-  speakers: { name:'이름', assignees:'담당자', grp:'그룹', done:'완료', nationality_id:'국적', flight_status:'항공', hotel_status:'숙박', priority:'중요도',
+  speakers: { name:'이름', name_ko:'국문명', name_en:'영문명', memo:'메모', assignees:'담당자', grp:'그룹', done:'완료', nationality_id:'국적', flight_status:'항공', hotel_status:'숙박', priority:'중요도',
     passport_name:'여권 영문명', passport_no:'여권번호', birth_date:'생년월일', title_en:'Title', affil_en:'Affil', bio_en:'Bio', title_ko:'직함', affil_ko:'소속', bio_ko:'국문 Bio',
     photo_path:'사진', speaker_email:'연사 이메일', contact_name:'컨택 담당자 이름', contact_email:'컨택 담당자 이메일', onsite_phone:'현장 연락처',
     flight_info:'항공 정보', flight_note:'항공 비고', flight_files:'항공 첨부파일', check_in:'체크인', check_out:'체크아웃', hotel_note:'숙박 비고',
     day1:'1일차', day2:'2일차', day3:'3일차', opening:'개막식', vip_dinner:'VIP 만찬', gala:'갈라디너', diet_flag:'특이식성', diet_note:'특이식성 내용',
     fields:'분야', keywords:'키워드', agency:'에이전시', referral:'소개 경로', attachments:'첨부파일', entourage:'수행 정보' },
-  sessions: { name:'세션 이름', assignees:'담당자', venue_id:'장소', pillar_id:'필라', day:'날짜', start_time:'시작 시간', end_time:'종료 시간',
+  sessions: { name:'세션 이름', assignees:'담당자', venue_id:'장소', pillar_id:'트랙·종류', day:'날짜', start_time:'시작 시간', end_time:'종료 시간',
     title_en:'영문제목', title_ko:'국문제목', synop_en:'영문시놉', synop_ko:'국문시놉', files:'발표자료', category:'카테고리', is_public:'공개 여부', meetings:'기타일정' },
   secret_items: { name:'이름', assignees:'담당자', fee:'연사료', flight:'항공권', hotel:'숙박' },
   vehicle_runs: Object.fromEntries([...VR_COLS_LABEL(), ['note_color', '비고 글자색']]),
@@ -4642,7 +4755,7 @@ function fmtVal(table, k, v) {
   if (k === 'hotel_status') return optOf(HOTEL, v)?.label || v;
   if (k === 'priority') return optOf(PRI, v)?.label || v;
   if (k === 'venue_id') return S.venues.find(x => x.id === v)?.name || '(장소)';
-  if (k === 'pillar_id') return S.pillars.find(x => x.id === v)?.name || '(필라)';
+  if (k === 'pillar_id') return S.pillars.find(x => x.id === v)?.name || '(트랙)';
   if (k === 'category') return (CATS.find(c => c[0] === v) || [, v])[1];
   if (k === 'day') return v + '일';
   if (k === 'start_time' || k === 'end_time') return fmtAP(v);
@@ -4783,11 +4896,12 @@ function loadXLSX() {
   });
 }
 const SP_COLS = [
-  ['그룹', s => optOf(GROUPS, s.grp)?.label || '', 12], ['이름', s => s.name, 24], ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 16],
+  ['그룹', s => optOf(GROUPS, s.grp)?.label || '', 12], ['이름', s => s.name, 24], ['국문명', s => s.name_ko || '', 14], ['영문명', s => s.name_en || '', 22], ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 16],
   ['국적', s => natOf(s.nationality_id)?.name || '', 10], ['중요도', s => optOf(PRI, s.priority)?.label || '', 8],
   ['항공', s => (optOf(FLIGHT, s.flight_status) || FLIGHT[0]).k === 'none' ? '' : optOf(FLIGHT, s.flight_status).label, 11],
   ['숙박', s => (optOf(HOTEL, s.hotel_status) || HOTEL[0]).k === 'none' ? '' : optOf(HOTEL, s.hotel_status).label, 11],
   ['완료', s => s.done ? 'O' : '', 6],
+  ['메모 · 보고용', s => s.memo || '', 50],
   ['여권 영문명', s => s.passport_name, 20], ['여권번호', s => s.passport_no, 14], ['생년월일', s => s.birth_date, 12],
   ['분야', s => (s.fields || []).join(', '), 16], ['키워드', s => (s.keywords || []).join(', '), 20],
   ['Title', s => s.title_en, 24], ['Affil', s => s.affil_en, 24], ['Bio', s => s.bio_en, 50],
@@ -4843,7 +4957,7 @@ async function seExport() {
   const t = v => v ? apLabel(hm2m(v)) : '';
   const cols = [
     ['날짜', s => s.day ? s.day + '일' : '미정', 7], ['시작', s => t(s.start_time), 10], ['종료', s => t(s.end_time), 10],
-    ['장소', s => venueOf(s.venue_id)?.name || '', 14], ['필라', s => pillarOf(s.pillar_id)?.name || '', 10], ['세션 이름', s => s.name, 28],
+    ['장소', s => venueOf(s.venue_id)?.name || '', 14], [PIL(), s => pillarOf(s.pillar_id)?.name || '', 10], [`${SEW()} 이름`, s => s.name, 28],
     ['영문제목', s => s.title_en, 30], ['국문제목', s => s.title_ko, 30], ['Speaker', s => ppl(s, 'speaker'), 26], ['Moderator', s => ppl(s, 'moderator'), 20],
     ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 14], ['공개 여부', s => s.is_public === false ? '비공개' : '공개', 9],
     ['영문시놉', s => s.synop_en, 50], ['국문시놉', s => s.synop_ko, 50],
@@ -5361,13 +5475,13 @@ function vrPasteModal() {
 /* =====================================================================
    v10 · 여권번호·생년월일 편집자 전용
    ===================================================================== */
-const PRIV_KEYS = ['passport_no', 'birth_date'];
+const PRIV_KEYS = ['passport_no', 'birth_date', 'memo'];
 const LOCK_CELL = '<span class="priv-lock" title="여권번호·생년월일은 편집자만 볼 수 있어요">🔒</span>';
 function spMergePriv(rows) {
-  (rows || []).forEach(r => { const s = spOf(r.speaker_id); if (s) { s.passport_no = r.passport_no || ''; s.birth_date = r.birth_date || ''; } });
+  (rows || []).forEach(r => { const s = spOf(r.speaker_id); if (s) { s.passport_no = r.passport_no || ''; s.birth_date = r.birth_date || ''; s.memo = r.memo || ''; } });
 }
 async function loadSpPriv(pid) {
-  if (!canEdit(pid)) { S.speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; }); return; }
+  if (!canEdit(pid)) { S.speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; s.memo = ''; }); return; }
   try { spMergePriv(await api.speakerPrivate(pid)); } catch (e) { console.warn('speaker_private', e); }
 }
 
