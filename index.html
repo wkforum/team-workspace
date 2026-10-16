@@ -501,6 +501,10 @@ fieldset:disabled .file-item .icon-btn{display:none}
 .tt-missing{margin-top:14px;background:#fff;border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;font-size:13px}
 .tt-missing b{display:block;margin-bottom:8px;font-weight:600}
 .sec-hint{font-size:12px;font-weight:500;color:var(--muted);margin-left:6px}
+.pm-row td{background:#f8faff}
+.pm-name{display:flex;align-items:center;gap:8px;padding:0 10px;cursor:pointer;font-weight:600;min-width:0;overflow:hidden;white-space:nowrap}
+.pm-name span:last-child{overflow:hidden;text-overflow:ellipsis}.pm-name:hover span:last-child{text-decoration:underline}
+.pm-who{padding:0 10px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .se-side{margin-top:6px}
 .side-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
 .side-spk{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -3169,6 +3173,8 @@ function spPageHtml(s) {
       <span class="sp"></span>
       <button class="btn" data-act="pageNewWin" data-kind="sp" data-id="${s.id}" title="이 연사 페이지를 새 창(탭)에서 크게 열기">${ICON.expand}새 창</button>
       <button class="btn agenda-btn" data-act="spPdfOne" title="이 연사 프로필을 PDF로 내보내기">${ICON.pdf}PDF</button>
+      <button class="btn agenda-btn" data-act="spAgenda" data-lang="ko" title="이 연사의 세션·부대행사 일정만 한국어 Pre Agenda로">${ICON.pdf}Pre Agenda (한)</button>
+      <button class="btn agenda-btn" data-act="spAgenda" data-lang="en" title="이 연사의 세션·부대행사 일정만 영어 Pre Agenda로">${ICON.pdf}Pre Agenda (영)</button>
       <button class="btn" data-act="history" data-table="speakers" data-id="${s.id}" title="누가 언제 무엇을 바꿨는지 보기">${ICON.history}수정 기록</button>
       <button class="btn" data-act="spClose">닫기 ✕</button>
     </div>
@@ -3831,6 +3837,29 @@ function sePplLine(s) {
   return `<div class="se-ppl">${sp.length ? `<span><b>S</b> ${sp.join(', ')}</span>` : ''}${mo.length ? `<span><b>M</b> ${mo.join(', ')}</span>` : ''}</div>`;
 }
 
+/* ---------- 프리미팅 (자동): 세션 시작 30분 전(장충) / 20분 전(그 외), 연사라운지 ---------- */
+const isJangchung = v => /장충|jang\s*chung/i.test(v?.name || '');
+const PM_PLACE = { ko: '연사라운지', en: "Speaker's Lounge" };
+// s = 세션, ven = 그 세션의 장소 객체. 날짜·시작시간이 없으면 프리미팅도 없음
+function premeetOf(s, ven) {
+  if (!s?.day || !s.start_time) return null;
+  const st = hm2m(s.start_time), off = isJangchung(ven) ? 30 : 20;
+  return { day: s.day, start: m2hm(st - off), end: m2hm(st), mins: off, session: s };
+}
+const pmTimeLabel = pm => `${apLabel(hm2m(pm.start))}–${apLabel(hm2m(pm.end)).replace(/^(오전|오후) /, (x, ap) => apLabel(hm2m(pm.start)).startsWith(ap) ? '' : x)}`;
+function pmRowHtml(pm) {
+  const s = pm.session, ppl = S.sePeopleAll.filter(x => x.session_id === s.id).sort((a, b) => (a.role === 'moderator') - (b.role === 'moderator') || a.position - b.position);
+  const names = [...new Set(ppl.map(r => r.speaker_id))].map(id => esc(S.spkNames[id]?.name || '🔒'));
+  return `<tr class="pm-row" data-eid="${s.id}">
+    <td class="c-name"><a class="pm-name" data-act="seOpen" data-eid="${s.id}" title="세션 열기"><span class="tg tg-blue">Pre-meeting</span><span>${esc(s.name || '이름 없는 세션')}</span></a></td>
+    <td><div class="pm-who" title="${names.join(', ')}">${names.length ? names.join(', ') : '<span class="tg-empty">세션에 연사를 넣으면 자동으로 들어가요</span>'}</div></td>
+    <td><span class="tg tg-gray">${PM_PLACE.ko}</span></td>
+    <td><span class="muted" style="padding:0 10px;font-size:12px">${pm.mins}분 전${pm.mins === 30 ? ' · 장충' : ''}</span></td>
+    <td><span class="tg tg-gray" style="margin-left:8px">${pm.day}일</span></td>
+    <td><span style="padding:0 10px">${pmTimeLabel(pm)}</span></td>
+  </tr>`;
+}
+
 /* ---------- 목록 ---------- */
 function seListHtml() {
   const vis = seSort(seVisible()), ed = canEdit();
@@ -3839,7 +3868,17 @@ function seListHtml() {
   const body = vis.map(seRowHtml).join('')
     + (ed ? `<tr class="add-row"><td colspan="${nc}"><a class="add-link" data-act="seAdd">+ 새 ${SEW()}</a></td></tr>` : '')
     + (!vis.length && !ed ? `<tr><td colspan="${nc}" class="muted" style="padding:16px">${sideNow() ? '부대행사가' : '세션이'} 없어요</td></tr>` : '');
-  return `${seNote(vis)}<div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table se-table">${head}<tbody>${body}</tbody></table></fieldset></div>`;
+  if (side) return `${seNote(vis)}<div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table se-table">${head}<tbody>${body}</tbody></table></fieldset></div>`;
+  // 세션 마스터: '세션' / '프리미팅(자동)' 두 묶음, 각각 접고 펴기
+  const v = ssv(), gf = v.gfold || [];
+  const pms = vis.map(x => premeetOf(x, venueOf(x.venue_id))).filter(Boolean)
+    .sort((a, b) => a.day - b.day || hm2m(a.start) - hm2m(b.start) || (venueOf(a.session.venue_id)?.sort_order ?? 99) - (venueOf(b.session.venue_id)?.sort_order ?? 99));
+  const gh = (k, label, n, hint) => `<tr class="grp-head"><td colspan="${nc}"><div class="grp-h"><a class="fold" data-act="seGFold" data-g="${k}">${gf.includes(k) ? '▸' : '▾'}</a>
+    <span class="tg ${k === 'pm' ? 'tg-blue' : 'tg-gray'}">${label}</span><span class="cnt">${n}</span>${hint ? `<span class="hint" style="margin-left:6px">${hint}</span>` : ''}</div></td></tr>`;
+  return `${seNote(vis)}<div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table se-table">${head}
+    <tbody class="grp">${gh('se', '세션', vis.length, '')}${gf.includes('se') ? '' : body}</tbody>
+    <tbody class="grp">${gh('pm', '프리미팅', pms.length, '자동 생성 · 세션 시작 30분 전(장충) / 20분 전(그 외) · 연사라운지 · 담당자 칸에는 참석자(세션의 Speaker·Moderator)가 보여요')}${gf.includes('pm') ? '' : (pms.map(pmRowHtml).join('') || `<tr><td colspan="${nc}" class="muted" style="padding:12px 16px">날짜·시작 시간이 있는 세션이 생기면 자동으로 나와요</td></tr>`)}</tbody>
+  </table></fieldset></div>`;
 }
 // 부대행사 목록: 참석 연사 이름 (누르면 부대행사 페이지가 열려 추가·삭제)
 function seSpkCell(s) {
@@ -4282,8 +4321,8 @@ function sePageHtml(s) {
   <div class="sp-panel" data-eid="${s.id}">
     <div class="sp-top">${ed ? '' : '<span class="ro-note">보기 전용</span>'}<span class="sp"></span>
       <button class="btn" data-act="pageNewWin" data-kind="se" data-id="${s.id}" title="이 세션 페이지를 새 창(탭)에서 크게 열기">${ICON.expand}새 창</button>
-      <button class="btn agenda-btn" data-act="sePreAgenda" data-lang="ko" title="이 세션을 한국어 Pre Agenda PDF로 내보내기">${ICON.pdf}Pre Agenda (한)</button>
-      <button class="btn agenda-btn" data-act="sePreAgenda" data-lang="en" title="이 세션을 영어 Pre Agenda PDF로 내보내기">${ICON.pdf}Pre Agenda (영)</button>
+      <button class="btn agenda-btn" data-act="sePreAgenda" data-lang="ko" title="이 세션 전체 또는 연사별 한국어 Pre Agenda">${ICON.pdf}Pre Agenda (한)</button>
+      <button class="btn agenda-btn" data-act="sePreAgenda" data-lang="en" title="이 세션 전체 또는 연사별 영어 Pre Agenda">${ICON.pdf}Pre Agenda (영)</button>
       <button class="btn" data-act="history" data-table="sessions" data-id="${s.id}" title="누가 언제 무엇을 바꿨는지 보기">${ICON.history}수정 기록</button><button class="btn" data-act="spClose">닫기 ✕</button></div>
     <fieldset class="fs" ${dis}>
       <input class="sp-title" data-ef="name" value="${esc(s.name)}" placeholder="${SEW()} 이름" maxlength="200">
@@ -4456,6 +4495,50 @@ async function seFileDel(path) {
 }
 
 /* ---------- Pre Agenda (PDF 내보내기) ---------- */
+const AGENDA_CSS = `@page{size:A4;margin:15mm 14mm 16mm}
+*{box-sizing:border-box}
+body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#16181d;margin:0;font-size:10.5pt;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bar{position:sticky;top:0;display:flex;align-items:center;gap:14px;background:#1f2328;color:#fff;padding:12px 20px;font-size:13px;z-index:5}
+.bar span{opacity:.75;flex:1}
+.bar button{background:#4f46e5;color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.doc{max-width:190mm;margin:0 auto;padding:12mm 0 20mm}
+header{border-bottom:2.5px solid #16181d;padding-bottom:5mm;margin-bottom:6mm}
+header .k{font-size:9pt;letter-spacing:.18em;font-weight:700;color:#4f46e5;text-transform:uppercase}
+header h1{font-size:26pt;margin:1mm 0 1mm;letter-spacing:-.02em}
+header .m{color:#666;font-size:9.5pt}
+h2{font-size:14pt;margin:8mm 0 2mm;padding:2mm 3mm;background:#f1f1ef;border-radius:2mm;display:flex;justify-content:space-between}
+h2 small{font-weight:500;color:#666;font-size:9.5pt}
+.day:first-of-type h2{margin-top:0}
+.s{display:grid;grid-template-columns:40mm 1fr;gap:5mm;padding:4mm 0;border-bottom:.3mm solid #ddd;break-inside:avoid;page-break-inside:avoid}
+.when .t{font-weight:700;font-variant-numeric:tabular-nums}
+.when .v{color:#555;font-size:9.5pt;margin-top:.5mm}
+h3{font-size:12pt;margin:.5mm 0 1mm}
+.pill.cat{--c:#334155}.pill.priv{--c:#dc2626}
+.pill{margin-right:1.2mm}
+.pill{display:inline-block;font-size:8pt;font-weight:700;padding:.4mm 2mm;border-radius:1.2mm;background:color-mix(in srgb,var(--c) 15%,#fff);color:color-mix(in srgb,var(--c) 80%,#000)}
+.ti{font-size:10pt;color:#333}.ti.en{font-style:italic}
+.ppl{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin:2mm 0}
+.lab{font-size:8pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4f46e5}
+ul{margin:.5mm 0 0;padding-left:4mm}li{margin:.3mm 0}li span{color:#555}
+.syn{font-size:9.5pt;color:#333;white-space:pre-wrap;margin-top:1.5mm;padding-left:2.5mm;border-left:.6mm solid #e2e2de}
+.syn.en{color:#444}
+hr.split{border:0;border-top:.6mm solid #16181d;margin:9mm 0 6mm}
+.other h2{background:#eef0ff}
+.mt{margin-top:2.5mm;padding:2mm 3mm;background:#f7f7f5;border-radius:1.5mm}
+.mt table{border-collapse:collapse;width:100%;margin-top:1mm;font-size:9.5pt}
+.mt td{padding:.6mm 2mm .6mm 0;vertical-align:top}
+.mt .mw{white-space:nowrap;font-weight:600;width:40mm;font-variant-numeric:tabular-nums}
+.mt .mk{white-space:nowrap;width:1%}
+.mt .mp{color:#555}
+.empty{color:#888;padding:20mm 0;text-align:center}
+@media print{.bar{display:none}.doc{padding:0;max-width:none}}
+.role{display:inline-block;font-size:8pt;font-weight:800;padding:.4mm 2mm;border-radius:1.2mm;background:#4f46e5;color:#fff;margin-right:1.2mm;letter-spacing:.03em}
+article.pm{border-bottom-style:dashed}
+article.pm h3{font-size:11pt}
+li.me b{background:#fef3c7;padding:0 .8mm;border-radius:.6mm}
+header .who{font-size:11pt;color:#333;margin-top:.5mm;font-weight:600}
+.with{font-size:9pt;color:#555;margin-top:1mm}
+`;
 async function preAgenda(onlyId, lang = 'en') {
   const w = window.open('', '_blank');
   if (!w) return toast('팝업이 막혔어요. 주소창 오른쪽에서 이 사이트의 팝업을 허용해 주세요', true);
@@ -4502,6 +4585,11 @@ function agendaHtml(det, onlyId, lang = 'en', side = []) {
       <div class="body">${nm ? `<span class="pill" style="--c:${o ? safeColor(o.color) : '#64748b'}">${esc(nm)}</span>` : ''}
         <h3>${esc(m.title || nm || T.other)}</h3>${!one && m._s ? `<div class="ti">${esc(sTitle(m._s) || '')}</div>` : ''}</div></article>`; };
   const otherHtml = allMeets.length ? `<hr class="split"><section class="other"><h2>${T.other}<small>${allMeets.length}</small></h2>${allMeets.map(meetRow).join('')}</section>` : '';
+  const pmCard = s => { const pm = sideNow() ? null : premeetOf(s, venueOf(s.venue_id)); if (!pm) return '';
+    return `<article class="s pm">
+      <div class="when"><div class="t">${enRange(pm.start, pm.end)}</div><div class="v">${KO ? PM_PLACE.ko : PM_PLACE.en}</div></div>
+      <div class="body"><span class="pill" style="--c:#2563eb">${KO ? '프리미팅' : 'Pre-meeting'}</span>
+        <h3>${KO ? '세션 프리미팅' : 'Pre-meeting for the session'}</h3><div class="ti${KO ? '' : ' en'}">${esc(sTitle(s) || T.untitled)}</div></div></article>`; };
   const sess = s => {
     const v = venueOf(s.venue_id), pl = pillarOf(s.pillar_id), sp = ppl(s, 'speaker'), mo = ppl(s, 'moderator');
     return `<article class="s">
@@ -4516,52 +4604,110 @@ function agendaHtml(det, onlyId, lang = 'en', side = []) {
   return `<!doctype html><html lang="${KO ? 'ko' : 'en'}"><head><meta charset="utf-8"><title>${esc(one ? (sTitle(one) || 'Session') : 'Pre Agenda')} · Pre Agenda (${KO ? '한' : '영'})</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-@page{size:A4;margin:15mm 14mm 16mm}
-*{box-sizing:border-box}
-body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#16181d;margin:0;font-size:10.5pt;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.bar{position:sticky;top:0;display:flex;align-items:center;gap:14px;background:#1f2328;color:#fff;padding:12px 20px;font-size:13px;z-index:5}
-.bar span{opacity:.75;flex:1}
-.bar button{background:#4f46e5;color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
-.doc{max-width:190mm;margin:0 auto;padding:12mm 0 20mm}
-header{border-bottom:2.5px solid #16181d;padding-bottom:5mm;margin-bottom:6mm}
-header .k{font-size:9pt;letter-spacing:.18em;font-weight:700;color:#4f46e5;text-transform:uppercase}
-header h1{font-size:26pt;margin:1mm 0 1mm;letter-spacing:-.02em}
-header .m{color:#666;font-size:9.5pt}
-h2{font-size:14pt;margin:8mm 0 2mm;padding:2mm 3mm;background:#f1f1ef;border-radius:2mm;display:flex;justify-content:space-between}
-h2 small{font-weight:500;color:#666;font-size:9.5pt}
-.day:first-of-type h2{margin-top:0}
-.s{display:grid;grid-template-columns:40mm 1fr;gap:5mm;padding:4mm 0;border-bottom:.3mm solid #ddd;break-inside:avoid;page-break-inside:avoid}
-.when .t{font-weight:700;font-variant-numeric:tabular-nums}
-.when .v{color:#555;font-size:9.5pt;margin-top:.5mm}
-h3{font-size:12pt;margin:.5mm 0 1mm}
-.pill.cat{--c:#334155}.pill.priv{--c:#dc2626}
-.pill{margin-right:1.2mm}
-.pill{display:inline-block;font-size:8pt;font-weight:700;padding:.4mm 2mm;border-radius:1.2mm;background:color-mix(in srgb,var(--c) 15%,#fff);color:color-mix(in srgb,var(--c) 80%,#000)}
-.ti{font-size:10pt;color:#333}.ti.en{font-style:italic}
-.ppl{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin:2mm 0}
-.lab{font-size:8pt;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#4f46e5}
-ul{margin:.5mm 0 0;padding-left:4mm}li{margin:.3mm 0}li span{color:#555}
-.syn{font-size:9.5pt;color:#333;white-space:pre-wrap;margin-top:1.5mm;padding-left:2.5mm;border-left:.6mm solid #e2e2de}
-.syn.en{color:#444}
-hr.split{border:0;border-top:.6mm solid #16181d;margin:9mm 0 6mm}
-.other h2{background:#eef0ff}
-.mt{margin-top:2.5mm;padding:2mm 3mm;background:#f7f7f5;border-radius:1.5mm}
-.mt table{border-collapse:collapse;width:100%;margin-top:1mm;font-size:9.5pt}
-.mt td{padding:.6mm 2mm .6mm 0;vertical-align:top}
-.mt .mw{white-space:nowrap;font-weight:600;width:40mm;font-variant-numeric:tabular-nums}
-.mt .mk{white-space:nowrap;width:1%}
-.mt .mp{color:#555}
-.empty{color:#888;padding:20mm 0;text-align:center}
-@media print{.bar{display:none}.doc{padding:0;max-width:none}}
-</style></head><body>
+${AGENDA_CSS}</style></head><body>
 <div class="bar"><b>Pre Agenda (${KO ? '한' : '영'})</b><span>인쇄 창에서 대상(프린터)을 'PDF로 저장'으로 고르면 PDF 파일로 저장돼요.</span><button onclick="window.print()">PDF로 저장</button></div>
 <div class="doc">
 <header><div class="k">Pre Agenda</div><h1>${esc(one ? (sTitle(one) || T.untitled) : T.overview)}</h1><div class="m">${one ? '' : T.sessions(SS.length) + ' · '}${esc(T.asof(stamp))}</div></header>
-${groups.length ? groups.map(g => `<section class="day"><h2>${g.label}<small>${T.sessions(g.list.length)}</small></h2>${g.list.map(sess).join('')}</section>`).join('') : `<div class="empty">${T.empty}</div>`}
+${groups.length ? groups.map(g => `<section class="day"><h2>${g.label}<small>${T.sessions(g.list.length)}</small></h2>${g.list.map(x => pmCard(x) + sess(x)).join('')}</section>`).join('') : `<div class="empty">${T.empty}</div>`}
 ${otherHtml}
 </div>
 <script>(document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ setTimeout(function(){ window.print(); }, 300); });<\/script>
 </body></html>`;
+}
+
+/* ---------- 연사별 Pre Agenda: 그 연사의 세션 + 부대행사만 (누를 때마다 최신 내용으로) ---------- */
+function agName(d, KO) {
+  let name = (KO ? d?.name_ko : d?.name_en) || d?.name || '';
+  if (!KO && /[가-힣]/.test(name) && d?.passport_name) { const w = d.passport_name.trim().split(/[\s,]+/).map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()); name = w.length > 1 ? [...w.slice(1), w[0]].join(' ') : w[0]; }
+  return name;
+}
+async function speakerAgendaData(spkId) {
+  const projs = S.projects.filter(p => isSessionProject(p) && sameEdition(p) && isMember(p.id));
+  const items = []; let me = spOf(spkId) || null;
+  for (const p of projs) {
+    const [evs, vens, pils] = await Promise.all([api.sessions(p.id), api.opts('session_venues', p.id), api.opts('session_pillars', p.id)]);
+    if (!evs.length) continue;
+    const ppl = await api.sessionPeopleFor(evs.map(e => e.id));
+    const mine = ppl.filter(r => r.speaker_id === spkId); if (!mine.length) continue;
+    let cards = []; try { cards = await api.sessionSpeakerCards(p.id); } catch (_) {}
+    const cm = Object.fromEntries(cards.map(c => [c.id, c]));
+    if (!me && cm[spkId]) me = cm[spkId];
+    for (const sid of [...new Set(mine.map(r => r.session_id))]) {
+      const e = evs.find(x => x.id === sid); if (!e) continue;
+      items.push({ e, side: isSideProject(p), roles: [...new Set(mine.filter(r => r.session_id === sid).map(r => r.role))],
+        ven: vens.find(v => v.id === e.venue_id), pil: pils.find(x => x.id === e.pillar_id),
+        people: ppl.filter(x => x.session_id === sid).sort((a, b) => a.position - b.position).map(x => ({ role: x.role, d: cm[x.speaker_id], self: x.speaker_id === spkId })) });
+    }
+  }
+  if (!me) me = S.spkCards?.[spkId] || S.spkNames?.[spkId] || null;
+  return { me, items };
+}
+async function speakerAgenda(spkId, lang = 'en') {
+  const w = window.open('', '_blank');
+  if (!w) return toast('팝업이 막혔어요. 주소창 오른쪽에서 이 사이트의 팝업을 허용해 주세요', true);
+  w.document.write('<p style="font-family:sans-serif;padding:40px;color:#555">연사별 Pre Agenda를 만드는 중…</p>');
+  try { const data = await speakerAgendaData(spkId); w.document.open(); w.document.write(speakerAgendaHtml(data, lang)); w.document.close(); }
+  catch (e) { w.close(); err(e); }
+}
+function speakerAgendaHtml({ me, items }, lang = 'en') {
+  const KO = lang === 'ko', now = new Date();
+  const stamp = KO ? `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${apLabel(now.getHours() * 60 + now.getMinutes())}`
+    : now.toLocaleString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  const T = KO ? { tbdTime:'시간 미정', tbdVenue:'장소 미정', tbdDate:'날짜 미정', untitled:'(이름 없는 세션)', noname:'(이름 없음)', other:'기타일정', asof: x => `${x} 기준`, empty:'아직 배정된 세션이 없어요', n: n => `${n}건` }
+    : { tbdTime:'Time TBD', tbdVenue:'Venue TBD', tbdDate:'Date TBD', untitled:'(Untitled session)', noname:'(No name)', other:'Other Schedule', asof: x => `As of ${x}`, empty:'No sessions assigned yet', n: n => `${n}` };
+  const tm = t => { const m = hm2m(t), h = Math.floor(m / 60); return KO ? apLabel(m) : `${((h + 11) % 12) + 1}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+  const range = (a, b) => a ? tm(a) + (b ? ' – ' + tm(b) : '') : '';
+  const ord = n => KO ? n + '일' : n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th');
+  const one = t => { const parts = String(t || '').split(' · ').map(x => x.trim()); return KO ? (parts[1] || parts[0]) : parts[0]; };
+  const title = e => KO ? (e.title_ko || e.name || e.title_en) : (e.title_en || e.name);
+  const byTime = (a, b) => (a.e.day || 99) - (b.e.day || 99) || (a.e.start_time ? hm2m(a.e.start_time) : 9999) - (b.e.start_time ? hm2m(b.e.start_time) : 9999);
+  const roleTag = r => `<span class="role">${r === 'moderator' ? 'Moderator' : 'Speaker'}</span>`;
+  const person = x => { const role = (KO ? [x.d?.title_ko || x.d?.title_en, x.d?.affil_ko || x.d?.affil_en] : [x.d?.title_en, x.d?.affil_en]).filter(Boolean).join(', ');
+    return `<li class="${x.self ? 'me' : ''}"><b>${esc(agName(x.d, KO) || T.noname)}</b>${role ? `<span> · ${esc(role)}</span>` : ''}</li>`; };
+  const main = items.filter(i => !i.side).sort(byTime), other = items.filter(i => i.side).sort(byTime);
+  const pmc = i => { const pm = i.side ? null : premeetOf(i.e, i.ven); if (!pm) return '';
+    return `<article class="s pm">
+      <div class="when"><div class="t">${range(pm.start, pm.end)}</div><div class="v">${KO ? PM_PLACE.ko : PM_PLACE.en}</div></div>
+      <div class="body"><span class="pill" style="--c:#2563eb">${KO ? '프리미팅' : 'Pre-meeting'}</span>
+        <h3>${KO ? '세션 프리미팅' : 'Pre-meeting for the session'}</h3><div class="ti${KO ? '' : ' en'}">${esc(title(i.e) || T.untitled)}</div></div></article>`; };
+  const card = i => { const e = i.e, sp = i.people.filter(x => x.role === 'speaker'), mo = i.people.filter(x => x.role === 'moderator');
+    return pmc(i) + `<article class="s">
+      <div class="when"><div class="t">${range(e.start_time, e.end_time) || T.tbdTime}</div><div class="v">${i.ven ? esc(i.ven.name) : T.tbdVenue}</div></div>
+      <div class="body">${i.roles.map(roleTag).join('')}${i.pil ? `<span class="pill" style="--c:${safeColor(i.pil.color)}">${esc(one(i.pil.name))}</span>` : ''}
+        <h3>${esc(title(e) || T.untitled)}</h3>
+        ${sp.length || mo.length ? `<div class="ppl">${sp.length ? `<div><span class="lab">Speaker${sp.length > 1 ? 's' : ''}</span><ul>${sp.map(person).join('')}</ul></div>` : ''}${mo.length ? `<div><span class="lab">Moderator${mo.length > 1 ? 's' : ''}</span><ul>${mo.map(person).join('')}</ul></div>` : ''}</div>` : ''}
+        ${KO ? (e.synop_ko ? `<div class="syn">${esc(e.synop_ko)}</div>` : '') : (e.synop_en ? `<div class="syn en">${esc(e.synop_en)}</div>` : '')}
+      </div></article>`; };
+  const orow = i => { const e = i.e, nm = i.pil ? one(i.pil.name) : '';
+    return `<article class="s">
+      <div class="when"><div class="t">${range(e.start_time, e.end_time) || T.tbdTime}</div><div class="v">${[e.day ? ord(e.day) : T.tbdDate, i.ven ? esc(i.ven.name) : T.tbdVenue].join(' · ')}</div></div>
+      <div class="body">${nm ? `<span class="pill" style="--c:${i.pil ? safeColor(i.pil.color) : '#64748b'}">${esc(nm)}</span>` : ''}<h3>${esc(title(e) || nm || T.other)}</h3></div></article>`; };
+  const groups = [...DAYS.map((d, k) => ({ label: `Day ${k + 1} · ${ord(d)}`, list: main.filter(i => i.e.day === d) })), { label: T.tbdDate, list: main.filter(i => !i.e.day) }].filter(g => g.list.length);
+  const nm = agName(me, KO) || T.noname, who = (KO ? [me?.title_ko || me?.title_en, me?.affil_ko || me?.affil_en] : [me?.title_en, me?.affil_en]).filter(Boolean).join(', ');
+  return `<!doctype html><html lang="${KO ? 'ko' : 'en'}"><head><meta charset="utf-8"><title>${esc(nm)} · Pre Agenda (${KO ? '한' : '영'})</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+${AGENDA_CSS}</style></head><body>
+<div class="bar"><b>Pre Agenda (${KO ? '한' : '영'}) · ${esc(nm)}</b><span>인쇄 창에서 대상(프린터)을 'PDF로 저장'으로 고르면 PDF 파일로 저장돼요.</span><button onclick="window.print()">PDF로 저장</button></div>
+<div class="doc">
+<header><div class="k">Pre Agenda</div><h1>${esc(nm)}</h1>${who ? `<div class="who">${esc(who)}</div>` : ''}<div class="m">${esc(T.asof(stamp))}</div></header>
+${groups.length ? groups.map(g => `<section class="day"><h2>${g.label}<small>${T.n(g.list.length)}</small></h2>${g.list.map(card).join('')}</section>`).join('') : `<div class="empty">${T.empty}</div>`}
+${other.length ? `<hr class="split"><section class="other"><h2>${T.other}<small>${other.length}</small></h2>${other.map(orow).join('')}</section>` : ''}
+</div>
+<script>(document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ setTimeout(function(){ window.print(); }, 300); });<\/script>
+</body></html>`;
+}
+// Pre Agenda 버튼 → '세션 전체' 또는 연사별
+function agendaMenu(el) {
+  const lang = el.dataset.lang || 'en', s = seOf(S.seId); if (!s) return;
+  const ppl = S.sePeopleAll.filter(x => x.session_id === s.id).sort((a, b) => (a.role === 'moderator') - (b.role === 'moderator') || a.position - b.position);
+  const seen = new Set(), opts = [{ v: '__all', text: '전체', html: `<b>이 ${SEW()} 전체</b>` }];
+  ppl.forEach(r => { if (seen.has(r.speaker_id)) return; seen.add(r.speaker_id);
+    const nm = S.spkNames[r.speaker_id]?.name || '볼 수 없는 연사';
+    opts.push({ v: r.speaker_id, text: nm, html: `${tag(r.role === 'moderator' ? 'blue' : 'purple', r.role === 'moderator' ? 'Moderator' : 'Speaker')}<span>${esc(nm)}의 일정만</span>` }); });
+  if (opts.length === 1) return preAgenda(s.id, lang);
+  pickList(el, { title: `Pre Agenda (${lang === 'ko' ? '한' : '영'}) · 연사별로 뽑으면 그 연사의 세션·부대행사만 나와요`, options: opts,
+    onPick: v => v === '__all' ? preAgenda(s.id, lang) : speakerAgenda(v, lang) });
 }
 
 /* ---------- 연사 전체 PDF ---------- */
@@ -5837,7 +5983,9 @@ const ACT = {
   seTime: el => seTimePick(el),
   spSessOpen: async el => { const { id, pid } = el.dataset; if (!isMember(pid)) return toast('그 프로젝트에 초대받지 않아 열 수 없어요', true); await openProject(pid); if (seOf(id)) openSePage(id); },
   preAgenda: () => preAgenda(),
-  sePreAgenda: el => { if (S.seId) preAgenda(S.seId, el.dataset.lang || 'en'); },
+  sePreAgenda: el => { if (S.seId) agendaMenu(el); },
+  seGFold: el => { const v = ssv(), k = el.dataset.g; v.gfold = (v.gfold || []).includes(k) ? v.gfold.filter(x => x !== k) : [...(v.gfold || []), k]; renderSeBody(true); },
+  spAgenda: el => { if (S.spId) speakerAgenda(S.spId, el.dataset.lang || 'en'); },
   spPdfOne: () => { if (S.spId) spPdf(S.spId); },
   spField: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v, cur = s.fields || [];
     updateSpeaker(s.id, { fields: cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v] }); },
