@@ -1359,6 +1359,13 @@ fieldset:disabled .ph-pick{pointer-events:none}
   #spage.docked .sp-panel{padding:0 12px 30px}
   .split-dock{min-height:60vh}
 }
+
+/* v20 상세 한 페이지 */
+.d-sec{scroll-margin-top:110px}
+.d-body .d-sec{display:flex;flex-direction:column;gap:12px}
+.d-sh{font-size:15px;font-weight:700;margin:14px 0 0;display:flex;align-items:center;gap:6px}
+#dsec-cmt{margin-top:14px}
+.sp20 .d-tabs{box-shadow:0 1px 0 #e3e5ea}
 </style>
 </head>
 <body>
@@ -3398,6 +3405,7 @@ function renderSpPage(force) {
   const sc = root.querySelector('.sp-panel')?.scrollTop || 0;
   root.innerHTML = spPageHtml(s);
   root.querySelector('.sp-panel').scrollTop = sc;
+  dSpy();
   $$('textarea.ta', root).forEach(autosize);
   hydrateFiles(root);
 }
@@ -3435,7 +3443,7 @@ function spPageHtml(s) {
   const nm = nameParts(s);
   const tabCnt = { sched: (S.spSess || []).length, files: attOf(s).filter(a => a.path || (a.files || []).length).length, cmt: CMT.key === 'speakers:' + s.id && CMT.loaded ? CMT.list.length : 0 };
 
-  const body = tab === 'basic' ? `
+  const secOf = tab => tab === 'basic' ? `
       <div class="fx-card fx-main">
         <div class="ph-drop">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 올리기<br><small>클릭해서 고르기</small></span>'}
           <label class="ph-pick" title="${s.photo_path ? '사진 바꾸기' : '사진 올리기'}"><input type="file" accept="image/*" data-upload="photo" class="vh"></label>
@@ -3495,7 +3503,8 @@ function spPageHtml(s) {
   : tab === 'pass' ? `<div class="fx-card"><div class="fx-grid">${fx('여권 영문명', 'passport_name', 'HONG GILDONG')}
         ${ed ? fx('여권번호', 'passport_no', '', 'text', 40) : fxp('여권번호', lock)}${ed ? fx('생년월일', 'birth_date', 'YYYY-MM-DD', 'text', 10) : fxp('생년월일', lock)}</div>
         <p class="hint" style="margin:10px 0 0">여권번호·생년월일은 편집자만 볼 수 있어요. 여권 영문명은 차량 스케줄의 영문 성·이름에 쓰여요.</p></div>`
-  : cmtHtml('speakers:' + s.id);
+  : '';
+  const body = SP_DTABS.filter(([k]) => k !== 'cmt').map(([k, l]) => `<section class="d-sec" id="dsec-${k}" data-sec="${k}">${k === 'basic' ? '' : `<h3 class="d-sh">${l}${k === 'pass' ? ' 🔒' : ''}</h3>`}${secOf(k)}</section>`).join('');
 
   return `<div class="sp-backdrop" data-act="spClose"></div>
   <div class="sp-panel sp20" data-sid="${s.id}">
@@ -3513,13 +3522,33 @@ function spPageHtml(s) {
     ${s.grp === 0 ? '<div class="d-guide">가이드 항목이에요 (연사가 아닌 안내 문서). 아래 정보는 자유롭게 써도 돼요.</div>' : `
     <div class="stage">${GROUPS.filter(g => g.k !== 0).map(g => `<button type="button" class="st-b st-${g.tone} ${s.grp === g.k ? 'on' : ''}" data-act="spGrp" data-v="${g.k}" ${dis}>${s.grp === g.k ? '✓ ' : ''}${g.label}<small>${cnt(g.k)}</small></button>`).join('')}</div>`}
     <div class="years" id="spYears">${spYearsHtml(s)}</div>
-    <div class="d-tabs">${SP_DTABS.map(([k, l]) => `<button type="button" class="d-tab ${tab === k ? 'on' : ''}" data-act="spDTab" data-t="${k}">${l}${k === 'pass' ? ' 🔒' : ''}${tabCnt[k] ? ` <small>${tabCnt[k]}</small>` : ''}</button>`).join('')}</div>
+    <div class="d-tabs">${SP_DTABS.map(([k, l]) => `<button type="button" class="d-tab ${k === 'basic' ? 'on' : ''}" data-act="dJump" data-t="${k}">${l}${k === 'pass' ? ' 🔒' : ''}${tabCnt[k] ? ` <small>${tabCnt[k]}</small>` : ''}</button>`).join('')}</div>
     <fieldset class="fs d-body" ${dis}>${body}</fieldset>
+    <section class="d-sec" id="dsec-cmt" data-sec="cmt">${cmtHtml('speakers:' + s.id)}</section>
     <div class="sp-foot">
       <span>${creator ? esc(creator.full_name || creator.email) + ' 님이 만듦 · ' : ''}${fmtDT(s.created_at)} · 마지막 수정 ${fmtDT(s.updated_at)}</span>
     </div>
   </div>`;
 }
+
+/* ---------- 상세: 한 페이지로 쭉 + 위쪽 탭은 바로가기 (스크롤하면 지금 위치가 표시됨) ---------- */
+function dOffset(panel) { const t = panel.querySelector('.d-tabs'); return t ? t.getBoundingClientRect().bottom - panel.getBoundingClientRect().top + 6 : 0; }
+function dJump(k) {
+  const panel = $('#spage .sp-panel'), el = $('#spage #dsec-' + k); if (!panel || !el) return;
+  const top = el.getBoundingClientRect().top - panel.getBoundingClientRect().top + panel.scrollTop - dOffset(panel);
+  panel.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  $$('#spage .d-tab').forEach(b => b.classList.toggle('on', b.dataset.t === k));
+  S.dJumpLock = Date.now();
+}
+function dSpy() {
+  const panel = $('#spage .sp-panel'); if (!panel || !panel.querySelector('.d-tabs') || Date.now() - (S.dJumpLock || 0) < 700) return;
+  const off = dOffset(panel) + panel.getBoundingClientRect().top + 30;
+  let cur = null; $$('#spage .d-sec').forEach(sec => { if (sec.getBoundingClientRect().top <= off) cur = sec.dataset.sec; });
+  if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 4) cur = $$('#spage .d-sec').pop()?.dataset.sec || cur;
+  cur ||= 'basic';
+  $$('#spage .d-tab').forEach(b => b.classList.toggle('on', b.dataset.t === cur));
+}
+document.addEventListener('scroll', e => { if (e.target?.classList?.contains('sp20')) dSpy(); }, true);
 
 /* ---------- 피칭 연도: 같은 연사(person_id)를 연도별로 ---------- */
 function spYearsHtml(s) {
@@ -4645,6 +4674,7 @@ function renderSePage(force) {
   const sc = root.querySelector('.sp-panel')?.scrollTop || 0;
   root.innerHTML = sePageHtml(s);
   root.querySelector('.sp-panel').scrollTop = sc;
+  dSpy();
   $$('textarea.ta', root).forEach(autosize);
 }
 function fileKind(f) {
@@ -4678,7 +4708,7 @@ function sePageHtml(s) {
   const cell = (label, inner) => `<div class="is-cell"><span>${label}</span>${inner}</div>`;
   const cmtN = CMT.key === 'sessions:' + s.id && CMT.loaded ? CMT.list.length : 0;
 
-  const body = tab === 'basic' ? `
+  const secOf = tab => tab === 'basic' ? `
       <div class="fx-two">${pplCol('speaker', 'Speaker')}${pplCol('moderator', 'Moderator')}</div>
       ${pm ? `<div class="pm-line"><b>프리미팅 자동</b><span>${pm.day}일 ${pmTimeLabel(pm)} · ${PM_PLACE.ko} · ${pmNames.length ? pmNames.map(esc).join(', ') : '연사를 넣으면 자동으로 참석'}</span></div>` : ''}
       <div class="fx-card"><div class="fx-two">
@@ -4702,7 +4732,8 @@ function sePageHtml(s) {
           <button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button></div>`; }).join('') : `<div class="hint">첨부된 ${FILEW()}가 없어요</div>`}
         <label class="btn file-btn">+ 파일 첨부<input type="file" accept="${SE_ACCEPT}" multiple data-upload="session" class="vh"></label>
       </div></div>`
-  : cmtHtml('sessions:' + s.id);
+  : '';
+  const body = [['basic', '기본'], ['files', FILEW()]].map(([k, l]) => `<section class="d-sec" id="dsec-${k}" data-sec="${k}">${k === 'basic' ? '' : `<h3 class="d-sh">${l}</h3>`}${secOf(k)}</section>`).join('');
 
   return `<div class="sp-backdrop" data-act="spClose"></div>
   <div class="sp-panel sp20" data-eid="${s.id}">
@@ -4726,8 +4757,9 @@ function sePageHtml(s) {
         ${side ? '' : cell('공개', `<div class="pub-seg"><button type="button" class="${s.is_public !== false ? 'on' : ''}" data-act="sePub" data-v="1">공개</button><button type="button" class="${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>`)}
       </div>
     </fieldset>
-    <div class="d-tabs">${[['basic', '기본'], ['files', FILEW()], ['cmt', '댓글']].map(([k, l]) => `<button type="button" class="d-tab ${tab === k ? 'on' : ''}" data-act="seDTab" data-t="${k}">${l}${k === 'files' && files.length ? ` <small>${files.length}</small>` : ''}${k === 'cmt' && cmtN ? ` <small>${cmtN}</small>` : ''}</button>`).join('')}</div>
+    <div class="d-tabs">${[['basic', '기본'], ['files', FILEW()], ['cmt', '댓글']].map(([k, l]) => `<button type="button" class="d-tab ${k === 'basic' ? 'on' : ''}" data-act="dJump" data-t="${k}">${l}${k === 'files' && files.length ? ` <small>${files.length}</small>` : ''}${k === 'cmt' && cmtN ? ` <small>${cmtN}</small>` : ''}</button>`).join('')}</div>
     <fieldset class="fs d-body" ${dis}>${body}</fieldset>
+    <section class="d-sec" id="dsec-cmt" data-sec="cmt">${cmtHtml('sessions:' + s.id)}</section>
     <div class="sp-foot"><span>${creator ? esc(creator.full_name || creator.email) + ' 님이 만듦 · ' : ''}${fmtDT(s.created_at)} · 마지막 수정 ${fmtDT(s.updated_at)}</span></div>
   </div>`;
 }
@@ -6340,7 +6372,7 @@ const ACT = {
   spTab: el => { closePop(); S.stab = el.dataset.tab; renderMain(); },
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
-  spDTab: el => { S.spDTab = el.dataset.t; renderSpPage(true); const s = spOf(S.spId); if (S.spDTab === 'cmt' && s) cmtSet('speakers:' + s.id); },
+  dJump: el => dJump(el.dataset.t),
   spGrp: el => { const s = spOf(S.spId), v = Number(el.dataset.v); if (s && canEdit() && s.grp !== v) updateSpeaker(s.id, { grp: v }); },
   spPri: el => { const s = spOf(S.spId), v = el.dataset.v; if (s && canEdit()) updateSpeaker(s.id, { priority: s.priority === v ? null : v }); },
   spDiet: () => { const s = spOf(S.spId); if (s && canEdit()) updateSpeaker(s.id, { diet_flag: !s.diet_flag }); },
@@ -6403,7 +6435,6 @@ const ACT = {
   seTab: el => { closePop(); S.setab = el.dataset.tab; renderMain(); },
   seAdd: el => seAdd(el),
   seOpen: el => openSePage(el.dataset.eid),
-  seDTab: el => { S.seDTab = el.dataset.t; renderSePage(true); if (S.seDTab === 'cmt' && S.seId) cmtSet('sessions:' + S.seId); },
   seSDay: el => { ssv().sday = el.dataset.k; renderSeBody(true); },
   seMore: el => { const s = seOf(S.seId); if (!s) return;
     const opts = [{ v: 'win', text: '새 창', html: '새 창으로 크게 열기' }, { v: 'hist', text: '기록', html: '수정 기록' },
