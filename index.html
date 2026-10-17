@@ -1366,6 +1366,13 @@ fieldset:disabled .ph-pick{pointer-events:none}
 .d-sh{font-size:15px;font-weight:700;margin:14px 0 0;display:flex;align-items:center;gap:6px}
 #dsec-cmt{margin-top:14px}
 .sp20 .d-tabs{box-shadow:0 1px 0 #e3e5ea}
+
+.pdf-pre{display:flex;gap:6px;margin:4px 0 10px}
+.pdf-pre .btn{padding:5px 10px;font-size:12.5px}
+.pdf-opts{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;max-height:50vh;overflow:auto}
+.pdf-opt{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:6px;cursor:pointer;font-size:13.5px}
+.pdf-opt:hover{background:var(--hover)}
+.pdf-opt input{accent-color:var(--accent);width:16px;height:16px}
 </style>
 </head>
 <body>
@@ -2855,11 +2862,23 @@ function sv() { return (S.svs[S.pid] ||= { nat:[], ev:[], diet:false, asg:[], so
 const filterCount = () => { const v = sv(); return v.nat.length + v.ev.length + (v.diet ? 1 : 0) + v.asg.length; };
 function resetFilters(withSearch) { const v = sv(); v.nat = []; v.ev = []; v.diet = false; v.asg = []; if (withSearch) v.q = ''; S.pinned.clear(); }
 
+// 검색: 연사의 모든 글자 칸(메모·특이식성·Bio·항공·숙박·연락처·수행원 등)과 국적·담당자 이름까지
+const SP_HAY_SKIP = new Set(['id', 'project_id', 'person_id', 'created_by', 'created_at', 'updated_at', 'photo_path', 'nationality_id', 'flight_status', 'hotel_status', 'position']);
+function spHay(s) {
+  const out = [];
+  const walk = v => { if (v == null || typeof v === 'boolean' || typeof v === 'number') return;
+    if (typeof v === 'string') out.push(v); else if (Array.isArray(v)) v.forEach(walk); else if (typeof v === 'object') Object.entries(v).forEach(([k, x]) => { if (k !== 'path' && k !== 'id') walk(x); }); };
+  Object.entries(s).forEach(([k, v]) => { if (!SP_HAY_SKIP.has(k)) walk(v); });
+  out.push(natOf(s.nationality_id)?.name || '', ...(s.assignees || []).map(pname), optOf(FLIGHT, s.flight_status)?.label || '', optOf(HOTEL, s.hotel_status)?.label || '', optOf(PRI, s.priority)?.label || '', optOf(GROUPS, s.grp)?.label || '');
+  if (s.diet_flag) out.push('특이식성');
+  EVENTS.forEach(e => { if (s[e.f]) out.push(e.label); });
+  return norm(out.join(' '));
+}
 function spVisible() {
   const v = sv(), q = norm(v.q);
   return S.speakers.filter(s => {
     if (S.pinned.has(s.id)) return true;
-    if (q && ![s.name, s.name_ko, s.name_en, ...NAME_PARTS.map(k => s[k]), s.passport_name, ...(s.keywords || []), ...(s.fields || []), s.affil_en, s.affil_ko, s.title_en, s.title_ko].some(x => norm(x).includes(q))) return false;
+    if (q && !spHay(s).includes(q)) return false;
     if (v.nat.length && !v.nat.includes(s.nationality_id)) return false;
     if (v.ev.some(f => !s[f])) return false;
     if (v.diet && !s.diet_flag) return false;
@@ -3523,9 +3542,7 @@ function spPageHtml(s) {
       <span class="d-alt">${esc([[nm.name_en_last, nm.name_en_first].filter(Boolean).join(', '), [nm.name_ko_last, nm.name_ko_first].filter(Boolean).join(' ')].filter(Boolean).join(' · '))}</span>
       <span class="d-saved" id="spSaved">${ed ? '● 저장됨' : '보기 전용'}</span>
       <span class="sp"></span>
-      <button class="btn agenda-btn" data-act="spAgenda" data-doc="Pre Agenda" title="이 연사의 세션·부대행사 일정 Pre Agenda">${ICON.pdf}Pre Agenda</button>
-      <button class="btn agenda-btn" data-act="spAgenda" data-doc="Final Agenda" title="이 연사의 세션·부대행사 일정 Final Agenda">${ICON.pdf}Final Agenda</button>
-      <button class="btn" data-act="spPdfOne" title="연사 프로필 PDF (회장 보고용)">PDF</button>
+      <button class="btn agenda-btn" data-act="spPdfOne" title="이 연사 정보를 PDF로 · 담을 내용을 골라요">${ICON.pdf}PDF</button>
       <button class="btn d-more" data-act="spMore" aria-label="더보기 (새 창, 수정 기록, 완료 표시, 삭제)">⋯</button>
       <button class="btn d-close" data-act="spClose" aria-label="닫기">✕</button>
     </div>
@@ -4153,7 +4170,8 @@ function seVisible() {
   const v = ssv(), q = norm(v.q);
   return S.sessions.filter(s => {
     if (S.pinned.has(s.id)) return true;
-    if (q && ![s.name, s.title_en, s.title_ko].some(x => norm(x).includes(q))) return false;
+    if (q && !norm([s.name, s.title_en, s.title_ko, s.synop_en, s.synop_ko, venueOf(s.venue_id)?.name, pillarOf(s.pillar_id)?.name, ...(s.assignees || []).map(pname),
+      ...(s.files || []).map(f => f.name), ...S.sePeopleAll.filter(r => r.session_id === s.id).map(r => S.spkNames[r.speaker_id]?.name)].filter(Boolean).join(' ')).includes(q)) return false;
     if (v.day.length && !v.day.includes(String(s.day ?? 'none'))) return false;
     if (v.venue.length && !v.venue.includes(s.venue_id || 'none')) return false;
     if (v.pillar.length && !v.pillar.includes(s.pillar_id || 'none')) return false;
@@ -5135,16 +5153,39 @@ function agendaMenu(el) {
 }
 
 /* ---------- 연사 전체 PDF ---------- */
-async function spPdf(onlyId) {
+const PDF_OPTS = [['photo', '사진'], ['status', '진행 단계·등급·국적'], ['role', '소속·직함 (국문·영문)'], ['memo', '메모 · 보고용'], ['bio_en', 'Bio (영문)'], ['bio_ko', '국문 Bio'],
+  ['kw', '분야·키워드'], ['asg', '담당자'], ['attend', '참석일·행사 참석'], ['diet', '특이식성'], ['sched', '일정 (세션·부대행사)'], ['flight', '항공 (상태·항공 정보·비고)'],
+  ['hotel', '숙박 (상태·날짜·비고)'], ['contact', '연락처 (이메일·컨택·현장)'], ['agency', '에이전시·소개 경로'], ['ent', '수행 정보'], ['pass', '여권 정보 (여권 영문명·번호·생년월일)']];
+const PDF_REPORT = ['photo', 'status', 'role', 'memo', 'bio_en', 'bio_ko', 'kw'];
+function pdfOptsLoad() { try { const v = JSON.parse(localStorage.getItem('spPdfOpts') || 'null'); if (Array.isArray(v)) return v; } catch (_) {} return PDF_OPTS.map(o => o[0]).filter(k => k !== 'pass'); }
+function spPdfModal(id) {
+  const s = spOf(id); if (!s) return;
+  let on = new Set(pdfOptsLoad());
+  const draw = () => { const box = $('#pdfOpts'); if (box) box.innerHTML = PDF_OPTS.filter(([k]) => k !== 'pass' || canEdit()).map(([k, l]) =>
+    `<label class="pdf-opt"><input type="checkbox" data-pk="${k}" ${on.has(k) ? 'checked' : ''}>${esc(l)}</label>`).join(''); };
+  openModal(`<h3>PDF에 담을 내용</h3>
+    <p class="sub">'${esc(s.name || '이 연사')}' PDF에 넣을 항목을 골라요. 고른 항목은 다음에도 기억돼요. 빈 칸은 PDF에 나오지 않아요.</p>
+    <div class="pdf-pre"><button type="button" class="btn" id="pdfAll">전체</button><button type="button" class="btn" id="pdfRep">회장 보고용</button><button type="button" class="btn" id="pdfNone">모두 해제</button></div>
+    <div class="pdf-opts" id="pdfOpts"></div>
+    <div class="modal-foot"><button class="btn" data-act="closeModal">취소</button><button class="btn-primary" id="pdfGo">${ICON.pdf}PDF 만들기</button></div>`);
+  draw();
+  $('#pdfOpts').addEventListener('change', e => { const k = e.target.dataset.pk; if (!k) return; e.target.checked ? on.add(k) : on.delete(k); });
+  $('#pdfAll').onclick = () => { on = new Set(PDF_OPTS.map(o => o[0]).filter(k => k !== 'pass' || canEdit())); draw(); };
+  $('#pdfRep').onclick = () => { on = new Set(PDF_REPORT); draw(); };
+  $('#pdfNone').onclick = () => { on = new Set(); draw(); };
+  $('#pdfGo').onclick = () => { const v = [...on]; try { localStorage.setItem('spPdfOpts', JSON.stringify(v)); } catch (_) {} closeModal(); spPdf(id, v); };
+}
+async function spPdf(onlyId, optsList) {
   const w = window.open('', '_blank');
   if (!w) return toast('팝업이 막혔어요. 주소창 오른쪽에서 이 사이트의 팝업을 허용해 주세요', true);
   w.document.write('<p style="font-family:sans-serif;padding:40px;color:#555">연사 PDF를 만드는 중…</p>');
   const list = onlyId ? [spOf(onlyId)].filter(Boolean) : spSort(S.speakers.filter(s => s.grp !== 0));
   const photos = {};
   await Promise.all(list.filter(s => s.photo_path).map(async s => { try { photos[s.id] = await fileUrl(s.photo_path); } catch (_) {} }));
-  w.document.open(); w.document.write(spPdfHtml(list, photos, !!onlyId)); w.document.close();
+  w.document.open(); w.document.write(spPdfHtml(list, photos, !!onlyId, optsList)); w.document.close();
 }
-function spPdfHtml(list, photos, single) {
+function spPdfHtml(list, photos, single, optsList) {
+  const O = new Set(optsList || PDF_OPTS.map(o => o[0]).filter(k => k !== 'pass')), on = k => O.has(k);
   const p = curProject(), now = new Date();
   const stamp = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${apLabel(now.getHours() * 60 + now.getMinutes())}`;
   const pill = (tone, t) => `<span class="pill t-${tone}">${esc(t)}</span>`;
@@ -5155,20 +5196,27 @@ function spPdfHtml(list, photos, single) {
     const evs = EVENTS.filter(e => s[e.f]).map(e => e.label).join(', ');
     const role = (t, a) => [t, a].filter(Boolean).map(esc).join(' · ');
     const asg = (s.assignees || []).map(pname).filter(Boolean).join(', ');
-    return `<article class="sp">
-      <div class="ph">${photos[s.id] ? `<img src="${esc(photos[s.id])}" alt="">` : `<div class="noimg">${esc((s.name || '?').trim()[0] || '?')}</div>`}</div>
+    const sched = x => (S.spId === x.id && S.spSess ? S.spSess : []).map(r => r.session).length ? [...S.spSess].sort((a, b) => (a.session.day || 99) - (b.session.day || 99) || String(a.session.start_time || '99').localeCompare(String(b.session.start_time || '99')))
+      .map(r => esc([r.session.day ? r.session.day + '일' : '날짜 미정', r.session.start_time ? fmtAP(r.session.start_time) : '', r.session.name || '', `(${r.role === 'moderator' ? 'Moderator' : 'Speaker'})`, projName(r.session.project_id).replace(/^\[\d{4}\]\s*/, '')].filter(Boolean).join(' '))).join('<br>') : '';
+    return `<article class="sp ${on('photo') ? '' : 'nophoto'}">
+      ${on('photo') ? `<div class="ph">${photos[s.id] ? `<img src="${esc(photos[s.id])}" alt="">` : `<div class="noimg">${esc((s.name || '?').trim()[0] || '?')}</div>`}</div>` : ''}
       <div class="bd">
-        <div class="pills">${g ? pill(g.tone, g.label) : ''}${pr ? pill(pr.tone, pr.label) : ''}${n ? `<span class="pill t-gray">${esc(n.name)}</span>` : ''}${s.done ? pill('green', '완료') : ''}</div>
+        ${!on('status') ? '' : `<div class="pills">${g ? pill(g.tone, g.label) : ''}${pr ? pill(pr.tone, pr.label) : ''}${n ? `<span class="pill t-gray">${esc(n.name)}</span>` : ''}${s.done ? pill('green', '완료') : ''}${s.priority_note ? `<span class="pill t-gray">${esc(s.priority_note)}</span>` : ''}</div>`}
         <h3>${esc(s.name || '(이름 없음)')}${(() => { const n = nameParts(s), alt = [[n.name_ko_last, n.name_ko_first].filter(Boolean).join(' '), [n.name_en_last, n.name_en_first].filter(Boolean).join(' ')].filter(Boolean); return alt.length ? `<small class="alt">${esc(alt.join(' · '))}</small>` : ''; })()}</h3>
-        ${role(s.affil_ko, s.title_ko) ? `<div class="ro ko1">${role(s.affil_ko, s.title_ko)}</div>` : ''}
-        ${role(s.affil_en, s.title_en) ? `<div class="ro en">${role(s.affil_en, s.title_en)}</div>` : ''}
-        ${s.memo ? `<div class="memo"><b>메모 · 보고</b>${esc(s.memo)}</div>` : ''}
-        ${s.bio_en ? `<div class="bio en">${esc(s.bio_en)}</div>` : ''}${s.bio_ko ? `<div class="bio">${esc(s.bio_ko)}</div>` : ''}
-        <table class="kv">${row('분야', esc((s.fields || []).join(', ')))}${row('키워드', esc((s.keywords || []).join(', ')))}
-          ${row('담당자', esc(asg))}${row('참석 가능일', days)}${row('행사 참석', esc(evs))}
-          ${row('항공', f && f.k !== 'none' ? esc(f.label) : '')}${row('숙박', [h && h.k !== 'none' ? h.label : '', s.check_in || s.check_out ? `${s.check_in || '?'} ~ ${s.check_out || '?'}` : ''].filter(Boolean).map(esc).join(' · '))}
-          ${row('특이식성', s.diet_flag ? esc(s.diet_note || '있음') : '')}
-          ${row('연사 이메일', esc(s.speaker_email))}${row('컨택 담당자', esc([s.contact_name, s.contact_email].filter(Boolean).join(' · ')))}${row('현장 연락처', esc(s.onsite_phone))}</table>
+        ${on('role') && role(s.affil_ko, s.title_ko) ? `<div class="ro ko1">${role(s.affil_ko, s.title_ko)}</div>` : ''}
+        ${on('role') && role(s.affil_en, s.title_en) ? `<div class="ro en">${role(s.affil_en, s.title_en)}</div>` : ''}
+        ${on('memo') && s.memo ? `<div class="memo"><b>메모 · 보고</b>${esc(s.memo)}</div>` : ''}
+        ${on('bio_en') && s.bio_en ? `<div class="bio en">${esc(s.bio_en)}</div>` : ''}${on('bio_ko') && s.bio_ko ? `<div class="bio">${esc(s.bio_ko)}</div>` : ''}
+        <table class="kv">${on('kw') ? row('분야', esc((s.fields || []).join(', '))) + row('키워드', esc((s.keywords || []).join(', '))) : ''}
+          ${on('asg') ? row('담당자', esc(asg)) : ''}${on('attend') ? row('참석 가능일', days) + row('행사 참석', esc(evs)) : ''}
+          ${on('diet') ? row('특이식성', s.diet_flag ? esc(s.diet_note || '있음') : '') : ''}
+          ${on('sched') ? row('일정', sched(s)) : ''}
+          ${on('flight') ? row('항공', [f && f.k !== 'none' ? esc(f.label) : '', s.flight_info ? `<span class="pre">${esc(s.flight_info)}</span>` : '', s.flight_note ? `<span class="pre">${esc(s.flight_note)}</span>` : ''].filter(Boolean).join('<br>')) : ''}
+          ${on('hotel') ? row('숙박', [[h && h.k !== 'none' ? h.label : '', s.check_in || s.check_out ? `${s.check_in || '?'} ~ ${s.check_out || '?'}` : ''].filter(Boolean).map(esc).join(' · '), s.hotel_note ? `<span class="pre">${esc(s.hotel_note)}</span>` : ''].filter(Boolean).join('<br>')) : ''}
+          ${on('contact') ? row('연사 이메일', esc(s.speaker_email)) + row('컨택 담당자', esc([s.contact_name, s.contact_email].filter(Boolean).join(' · '))) + row('현장 연락처', esc(s.onsite_phone)) : ''}
+          ${on('agency') ? row('에이전시', s.agency ? `<span class="pre">${esc(s.agency)}</span>` : '') + row('소개 경로', s.referral ? `<span class="pre">${esc(s.referral)}</span>` : '') : ''}
+          ${on('ent') ? row('수행 정보', (Array.isArray(s.entourage) ? s.entourage : []).filter(x => x.name || x.affil || x.note).map(x => esc([x.name, x.affil, x.note].filter(Boolean).join(' · '))).join('<br>')) : ''}
+          ${on('pass') && canEdit() ? row('여권 영문명', esc(s.passport_name)) + row('여권번호', esc(s.passport_no)) + row('생년월일', esc(s.birth_date)) : ''}</table>
       </div></article>`;
   };
   const groups = GROUPS.filter(g => g.k !== 0).map(g => ({ g, list: list.filter(s => (s.grp ?? 1) === g.k) })).filter(x => x.list.length);
@@ -5189,6 +5237,7 @@ header .m{color:#666;font-size:9.5pt}
 h2{font-size:13pt;margin:8mm 0 1mm;padding:2mm 3mm;background:#f1f1ef;border-radius:2mm;display:flex;justify-content:space-between;break-after:avoid}
 h2 small{font-weight:500;color:#666;font-size:9.5pt}
 section:first-of-type h2{margin-top:0}
+.sp.nophoto{grid-template-columns:1fr}.pre{white-space:pre-wrap}
 .sp{display:grid;grid-template-columns:30mm 1fr;gap:5mm;padding:5mm 0;border-bottom:.3mm solid #ddd;break-inside:avoid;page-break-inside:avoid}
 .ph img,.noimg{width:30mm;height:36mm;border-radius:2mm;object-fit:cover;display:block;background:#eef0f3}
 .noimg{display:grid;place-items:center;font-size:20pt;font-weight:700;color:#9aa1ad}
@@ -6427,7 +6476,7 @@ const ACT = {
   sePreAgenda: el => { if (S.seId) agendaMenu(el); },
   seGFold: el => { const v = ssv(), k = el.dataset.g; v.gfold = (v.gfold || []).includes(k) ? v.gfold.filter(x => x !== k) : [...(v.gfold || []), k]; renderSeBody(true); },
   spAgenda: el => { if (S.spId) { AG_NAME = el.dataset.doc || 'Pre Agenda'; speakerAgenda(S.spId, 'en'); } },
-  spPdfOne: () => { if (S.spId) spPdf(S.spId); },
+  spPdfOne: () => { if (S.spId) spPdfModal(S.spId); },
   spField: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v, cur = s.fields || [];
     updateSpeaker(s.id, { fields: cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v] }); },
   spKwDel: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; updateSpeaker(s.id, { keywords: (s.keywords || []).filter(x => x !== el.dataset.v) }); setTimeout(() => $('#kwIn')?.focus(), 30); },
