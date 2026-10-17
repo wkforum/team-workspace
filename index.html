@@ -1135,237 +1135,6 @@ body.page-full #spage [data-act="pageNewWin"]{display:none}
 .pc-name.pc-locked{cursor:default;color:var(--text)}
 .pc-name.pc-locked:hover{text-decoration:none}
 .pc-name.pc-locked .pc-go{font-size:10px;opacity:.6}
-
-/* =====================================================================
-   v20 새 레이아웃 — 위쪽 가로 메뉴 (왼쪽 사이드바 없앰)
-   ===================================================================== */
-#app{grid-template-columns:minmax(0,1fr) 320px!important;grid-template-rows:48px minmax(0,1fr)}
-#app.people-closed{grid-template-columns:minmax(0,1fr) 0!important}
-#sidebar{grid-column:1/-1;grid-row:1;flex-direction:row;align-items:center;gap:6px;height:48px;padding:0 12px;background:#1b1d22;color:#fff;border:0;min-width:0}
-#sidebar .ws{padding:0 10px 0 0;gap:8px;font-size:14px;flex:none}
-#sidebar .ws .logo{width:24px;height:24px;border-radius:6px;font-size:12px}
-#sidebar .ws .bell{color:#c9ccd3;order:3}
-#sidebar .ws .bell:hover{background:#2a2d34;color:#fff}
-#sidebar nav{flex:1;display:flex;flex-direction:row;align-items:center;gap:6px;padding:0;overflow:hidden;min-width:0}
-#sidebar .nav-label{display:none}
-#projectList{display:flex;align-items:center;gap:8px;min-width:0;flex:1;order:1}
-#navMy{order:2;width:auto;margin:0;color:#c9ccd3;padding:6px 10px;flex:none}
-#navMy .nav-ico{display:none}
-#navMy:hover{background:#2a2d34;color:#fff}
-#navMy.active{background:#2a2d34;color:#fff}
-.nav-tabs{display:flex;align-items:stretch;height:48px;overflow-x:auto;min-width:0;scrollbar-width:none}
-.nav-tabs::-webkit-scrollbar{display:none}
-#sidebar .nav-item{width:auto;margin:0;border-radius:0;padding:0 14px;height:48px;color:#b9bcc4;gap:7px;white-space:nowrap;flex:none}
-#sidebar .nav-item:hover{background:transparent;color:#fff}
-#sidebar .nav-item.active{background:transparent;color:#fff;font-weight:700;box-shadow:inset 0 -3px 0 #6d8cff}
-#sidebar .nav-item .dot{width:7px;height:7px;border-radius:50%}
-#sidebar .nav-item.nd-before{box-shadow:inset 3px 0 0 #6d8cff}
-#sidebar .nav-item.nd-after{box-shadow:inset -3px 0 0 #6d8cff}
-.nav-lock{font-size:11px}
-.ed-sel select{height:30px;border-radius:7px;border:1px solid #3a3d44;background:#1b1d22;color:#fff;padding:0 8px;font-size:13px;font-weight:700;cursor:pointer}
-#sidebar .empty-sm{color:#b9bcc4}
-#sidebar .me{border:0;padding:0;gap:4px;flex:none}
-.me-btn{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;color:#e6e7ea;max-width:180px}
-.me-btn:hover{background:#2a2d34}
-.me-btn .n{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#sidebar .me .icon-btn{color:#c9ccd3}
-#sidebar .me .icon-btn:hover{background:#2a2d34;color:#fff}
-#sidebar #addProjectBtn{display:none}
-#main{grid-column:1;grid-row:2}
-#people{grid-column:2;grid-row:2}
-@media (max-width:1180px){
-  #app,#app.people-closed{grid-template-columns:minmax(0,1fr)!important}
-}
-@media (max-width:760px){
-  #app,#app.people-closed{grid-template-columns:minmax(0,1fr)!important}
-  #sidebar .ws .ws-n,.me-btn .n,#navMy{display:none}
-  #sidebar .nav-item{padding:0 10px}
-}
-
-/* ---------- v20 프로젝트 머리: 한 줄 (보기 탭 왼쪽 · 버튼 오른쪽) ---------- */
-.ph{display:flex;align-items:stretch;gap:16px;padding:0 20px;height:46px;min-height:46px}
-.ph .ph-top{order:2;margin-left:auto;min-height:0;gap:8px}
-.ph .ph-top h1{display:none}
-.ph .ph-top .btn{padding:5px 10px;font-size:12.5px}
-.ph .tabs{order:1;margin:0;align-items:stretch;overflow-x:auto;scrollbar-width:none}
-.ph .tab{display:flex;align-items:center;padding:0 12px;white-space:nowrap}
-.sp-toolbar{padding:8px 20px}
-.content{padding:16px 20px 40px}
-
-/* ---------- v20 목록 + 오른쪽 상세 ---------- */
-.split{flex:1;min-height:0;display:flex}
-.split-side{width:340px;flex:none;display:flex;flex-direction:column;min-height:0;background:#fff;border-right:1px solid var(--line);overflow:hidden;padding:0!important}
-.split-dock{flex:1;min-width:0;position:relative;background:#f4f5f8;overflow:hidden}
-.dock-empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
-#spage.docked{position:absolute;inset:0;z-index:2;display:none;pointer-events:auto}
-#spage.docked.open{display:block}
-#spage.docked .sp-backdrop{display:none}
-#spage.docked .sp-panel{position:absolute;inset:0;width:auto;box-shadow:none;padding:0 24px 40px;background:#f4f5f8}
-#spage.docked .d-close{display:none}
-.ss-top{padding:10px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid #eceef2;flex:none}
-.ss-row{display:flex;gap:6px;align-items:center}
-.ss-row.f3>*{flex:1;min-width:0}
-.ss-search{flex:1;display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:1px solid #d9dce2;border-radius:8px;color:var(--muted)}
-.ss-search svg{width:14px;height:14px;flex:none}
-.ss-search input{border:0;outline:0;width:100%;background:transparent;font-size:13px}
-.ss-row .btn-primary{height:34px;padding:0 12px}
-.ss-sel{height:30px;border:1px solid #d9dce2;border-radius:7px;background:#fff;font-size:12.5px;padding:0 6px}
-.ss-mine{height:30px;border:1px solid #d9dce2;border-radius:7px;font-size:12.5px}
-.ss-mine.on{background:#eef2ff;border-color:#c9d3ff;color:#2f4bd1;font-weight:600}
-.ss-list{flex:1;min-height:0;overflow:auto}
-.ss-gh{display:flex;justify-content:space-between;align-items:center;width:100%;height:28px;padding:0 12px;background:#f6f7f9;font-size:12px;font-weight:700;position:sticky;top:0;z-index:1;border-bottom:1px solid #eceef2}
-.ss-gh small{color:var(--muted);font-weight:500}
-.ss-gh.t-green{color:#1f7a4d}.ss-gh.t-yellow{color:#8a5a00}.ss-gh.t-purple{color:#6e56cf}.ss-gh.t-red{color:#b42318}.ss-gh.t-gray{color:#5f6368}
-.ss-empty{color:#9a9ea6;font-size:12px;padding:8px 14px}
-.sc{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:8px 12px;border-bottom:1px solid #f0f1f4;text-align:left}
-.sc:hover{background:#f8f9fb}
-.sc.on{background:#eef2ff;box-shadow:inset 3px 0 0 var(--accent)}
-.sc.is-done .sc-b b{text-decoration:line-through;color:var(--muted)}
-.sc-av{width:34px;height:34px;border-radius:50%;background:#e3e6ed;display:grid;place-items:center;font-size:11.5px;font-weight:700;color:#4b4f58;flex:none}
-.sc-b{flex:1;min-width:0;display:flex;flex-direction:column}
-.sc-b b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sc-b small{font-size:12px;color:#5f6368;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sc-diet{color:#dc2626;font-size:10px}
-.sc-pri{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;font-size:11.5px;font-weight:800;flex:none}
-.pri-S{background:#fff1c2;color:#8a5a00}.pri-A{background:#eef2ff;color:#2f4bd1}.pri-B{background:#f0f1f4;color:#4b4f58}.pri-C{background:#f0f1f4;color:#6b6f78}
-.sc-pri.none{border:1px dashed #c4c7ce;color:#9a9ea6}
-.ss-foot{flex:none;display:flex;justify-content:space-between;align-items:center;height:38px;padding:0 12px;border-top:1px solid #eceef2;font-size:12px;color:var(--muted)}
-.ss-foot a{color:var(--accent);cursor:pointer}
-
-/* ---------- v20 연사 상세 ---------- */
-.sp20 .d-head{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:14px 0 10px;background:inherit}
-#spage:not(.docked) .sp20{background:#f4f5f8}
-.d-name{font-size:22px;font-weight:700;border:0;outline:0;background:transparent;min-width:120px;max-width:340px;padding:4px 6px;border-radius:6px;letter-spacing:-.2px}
-.d-name:hover:not(:disabled){background:#fff}
-.d-name:focus{background:#fff;box-shadow:inset 0 0 0 2px var(--accent-line)}
-.d-alt{color:#5f6368;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.d-saved{color:#1f7a4d;font-size:12px;white-space:nowrap}
-.d-head .sp{flex:1}
-.d-head .btn{padding:6px 11px;font-size:12.5px}
-.d-head .btn.agenda-btn svg{color:#dc2626}
-.d-guide{padding:10px 12px;border-radius:8px;background:#fff;border:1px solid var(--line);color:var(--muted);margin-bottom:10px}
-.stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 120px;gap:6px;margin-bottom:10px}
-.st-b{height:42px;border-radius:8px;border:1px solid #d9dce2;background:#fff;font-weight:600;color:#4b4f58;display:flex;align-items:center;justify-content:center;gap:6px}
-.st-b small{font-weight:500;color:#9a9ea6;font-size:12px}
-.st-b:hover:not(:disabled){border-color:#9aa3b5}
-.st-b.on{color:#fff;border-color:transparent}
-.st-b.on small{color:rgba(255,255,255,.85)}
-.st-b.on.st-purple{background:#6e56cf}.st-b.on.st-yellow{background:#b7791f}.st-b.on.st-green{background:#1f7a4d}.st-b.on.st-red{background:#b42318}
-.years{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:30px}
-.yr-l{font-size:12px;color:#5f6368;margin-right:2px}
-.yr{height:28px;padding:0 11px;border-radius:14px;border:1px solid #d9dce2;background:#fff;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center}
-.yr.on{border-color:#2f5bea;background:#eef2ff;color:#2f4bd1}
-.yr.has{color:#1f7a4d}.yr.has:hover{border-color:#1f7a4d}
-.yr.none{border-style:dashed;color:#6b6f78;font-weight:500}.yr.none:hover:not(:disabled){color:var(--accent);border-color:var(--accent)}
-.yr:disabled{opacity:.5;cursor:default}
-.yr-link{font-size:12px;color:var(--accent);margin-left:6px}
-.d-tabs{display:flex;gap:2px;border-bottom:1px solid #e3e5ea;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;position:sticky;top:62px;z-index:4;background:inherit}
-.d-tab{padding:8px 12px;color:#5f6368;white-space:nowrap;font-size:13px}
-.d-tab small{font-size:11.5px;color:#9a9ea6}
-.d-tab.on{color:#1b1d22;font-weight:700;box-shadow:inset 0 -2px 0 var(--accent)}
-.d-body{display:flex;flex-direction:column;gap:12px}
-.fx-card{background:#fff;border:1px solid #e3e5ea;border-radius:12px;padding:14px 16px;min-width:0}
-.fx-main{display:flex;gap:18px}
-.fx-h{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:8px}
-.fx-h small{font-weight:500;color:var(--muted);font-size:12px}
-.fx-h{white-space:nowrap}.fx-h .fx-pick{width:auto;flex:none;min-height:30px}
-.fx-h .copy-btn{margin-left:auto}
-.fx-grid{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px;align-content:start}
-.fx-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-.fx{display:flex;flex-direction:column;gap:4px;min-width:0}
-.fx>span{font-size:12px;color:#5f6368}
-.fx>span small{color:#9a9ea6}
-.fx-in{height:34px;padding:0 10px;border:1px solid #d9dce2;border-radius:7px;background:#fff;font-size:13px;min-width:0;width:100%}
-.fx-in::placeholder{color:#c2c5cc}
-.fx-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
-fieldset:disabled .fx-in{background:#fafafa;color:#55595f}
-.fx-pick{min-height:34px;border:1px solid #d9dce2;border-radius:7px;padding:3px 8px;justify-content:flex-start;flex-wrap:wrap;gap:4px;width:100%}
-.fx-kw{min-height:34px;border-radius:7px;padding:3px 6px}
-.ph-drop{position:relative;width:160px;height:200px;flex:none;border:1.5px dashed #c4c7ce;border-radius:10px;display:grid;place-items:center;text-align:center;color:#6b6f78;font-size:12.5px;line-height:1.6;overflow:hidden;background:#fafbfc}
-.ph-drop img{width:100%;height:100%;object-fit:cover}
-.ph-drop small{color:#9a9ea6}
-.ph-pick{position:absolute;inset:0;cursor:pointer}
-fieldset:disabled .ph-pick{pointer-events:none}
-.ph-del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:12px;z-index:2}
-.fx-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.fx-rows{display:flex;flex-direction:column;gap:10px}
-.fx-row{display:flex;align-items:center;gap:10px;min-width:0}
-.fx-l{font-size:12px;color:#5f6368;width:44px;flex:none}
-.pri-seg{display:flex;gap:5px;flex:none}
-.pri-b{width:36px;height:32px;border-radius:7px;border:1px solid #d9dce2;background:#fff;font-weight:800}
-.pri-b.on{border-width:1.5px}
-.pri-b.on.pri-S{border-color:#d9a400}.pri-b.on.pri-A{border-color:#6d8cff}.pri-b.on.pri-B{border-color:#7a7f89}.pri-b.on.pri-C{border-color:#9a9ea6}
-.pri-b:not(.on){background:#fff;color:#1b1d22}
-.chip-row{display:flex;flex-wrap:wrap;gap:6px}
-.chip{height:30px;padding:0 11px;border-radius:15px;border:1px solid #d9dce2;background:#fff;font-size:12.5px}
-.chip.on-y{border-color:#f0c94a;background:#fff6d6}
-.chip.on-g{border-color:#8fd1ad;background:#e3f6ec;color:#1f7a4d}
-.chip.on-r{border-color:#f2a7a2;background:#fdecec;color:#b42318}
-.memo-card{background:#fffbea;border-color:#f3e3a1;display:flex;flex-direction:column}
-.memo-h{font-size:12px;font-weight:700;color:#8a5a00;margin-bottom:6px}
-.memo-h span{font-weight:500}
-.memo-card .memo-ta{flex:1;background:transparent;border-color:#f0dc8f;min-height:96px}
-.sp20 .sp-foot{margin-top:14px}
-.sp20 .cmts{background:#fff;border:1px solid #e3e5ea;border-radius:12px;padding:4px 16px 14px}
-@media (max-width:1180px){
-  .split-side{width:290px}
-  .fx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .fx-two{grid-template-columns:1fr}
-}
-@media (max-width:760px){
-  .split{flex-direction:column}
-  .split-side{width:auto;max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}
-  .fx-main{flex-direction:column}
-  .fx-grid{grid-template-columns:1fr}
-  .stage{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .d-head{flex-wrap:wrap}
-}
-
-/* ---------- v20 세션 상세 ---------- */
-.info-strip{display:grid;grid-template-columns:110px 210px repeat(3,minmax(0,1fr)) 150px;background:#fff;border:1px solid #e3e5ea;border-radius:10px}
-.info-strip.side{grid-template-columns:110px 210px repeat(3,minmax(0,1fr))}
-.is-cell{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-right:1px solid #eceef2;min-width:0}
-.is-cell:last-child{border-right:0}
-.is-cell>span{font-size:11.5px;color:#5f6368}
-.is-cell>span small{color:#9a9ea6}
-.is-cell .fx-pick{border:0;padding:2px 0;min-height:28px}
-.is-time{display:flex;align-items:center;gap:4px}
-.is-time .tm-btn{padding:2px 6px}
-.pub-seg{display:flex;gap:4px}
-.pub-seg button{height:28px;padding:0 9px;border-radius:6px;border:1px solid #d9dce2;font-size:12.5px}
-.pub-seg button.on{background:#e3f6ec;border-color:#8fd1ad;color:#1f7a4d;font-weight:600}
-.pub-seg button.on.lock{background:#fdecec;border-color:#f2a7a2;color:#b42318}
-.ppl20 .pp-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;background:#f6f7f9;margin-bottom:6px}
-.ppl20 .pp-b{flex:1;min-width:0;display:flex;flex-direction:column}
-.ppl20 .pp-b small{font-size:12px;color:#5f6368}
-.ppl20 .pc-name{font-weight:600}
-.pm-line{display:flex;gap:10px;align-items:center;padding:9px 14px;border-radius:10px;background:#eef2ff;color:#2f4bd1;font-size:13px}
-.fx-lab{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#5f6368}
-.fx-lab .copy-btn{font-size:11px;padding:1px 6px}
-.se-c .se-t{width:52px;flex:none;display:flex;flex-direction:column;font-variant-numeric:tabular-nums}
-.se-c .se-t b{font-weight:700}
-.se-c .se-t small{font-size:11.5px;color:#6b6f78}
-.sc-b small.warn{color:#b42318}
-.day-seg{display:flex;background:#f0f1f4;border-radius:8px;padding:3px;flex:1}
-.day-seg button{flex:1;height:26px;border-radius:6px;font-size:12.5px;color:#4b4f58}
-.day-seg button.on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:700;color:#1b1d22}
-@media (max-width:1180px){.info-strip,.info-strip.side{grid-template-columns:repeat(3,minmax(0,1fr))}.is-cell{border-bottom:1px solid #eceef2}}
-
-@media (max-width:760px){
-  #sidebar .nav-item .nm{display:inline}
-  .ph{height:auto;min-height:0;flex-wrap:wrap;padding:6px 12px;gap:6px}
-  .ph .ph-top{margin-left:0;flex-wrap:wrap}
-  .ph .tabs{height:40px;width:100%}
-  #spage.docked .sp-panel{padding:0 12px 30px}
-  .split-dock{min-height:60vh}
-}
-
-/* v20 상세 한 페이지 */
-.d-sec{scroll-margin-top:110px}
-.d-body .d-sec{display:flex;flex-direction:column;gap:12px}
-.d-sh{font-size:15px;font-weight:700;margin:14px 0 0;display:flex;align-items:center;gap:6px}
-#dsec-cmt{margin-top:14px}
-.sp20 .d-tabs{box-shadow:0 1px 0 #e3e5ea}
 </style>
 </head>
 <body>
@@ -1462,7 +1231,7 @@ function err(e) {
   console.error(e);
   const m = e?.message || '';
   toast(/row-level security|permission denied|violates/i.test(m) ? '편집 권한이 없어요 (뷰어는 보기만 가능해요)'
-    : /does not exist|schema cache|could not find/i.test(m) ? '데이터베이스 설정이 아직 안 됐어요. setup 폴더의 SQL을 순서대로(최신 schema_v19_person_link까지) 실행해 주세요.'
+    : /does not exist|schema cache|could not find/i.test(m) ? '데이터베이스 설정이 아직 안 됐어요. setup 폴더의 SQL을 순서대로(최신 schema_v18_name_parts까지) 실행해 주세요.'
     : (m || '오류가 발생했어요'), true);
 }
 
@@ -1569,9 +1338,6 @@ function supabaseApi() {
     createSpeaker: s => q(sb.from('speakers').insert(s).select().single()),
     updateSpeaker: (id, patch) => q(sb.from('speakers').update(patch).eq('id', id).select('id,updated_at').single()),
     deleteSpeaker: id => q(sb.from('speakers').delete().eq('id', id)),
-    personRows: person => q(sb.from('speakers').select('id,project_id,grp,name').eq('person_id', person)),
-    personOf: id => q(sb.from('speakers').select('id,person_id').eq('id', id).single()),
-    relinkPerson: (from, to) => q(sb.from('speakers').update({ person_id: to }).eq('person_id', from)),
     links: sid => q(sb.from('speaker_links').select('*').eq('speaker_id', sid).order('created_at')),
     addLink: (speaker_id, target_type, target_id) => q(sb.from('speaker_links').insert({ speaker_id, target_type, target_id }).select().single()),
     removeLink: id => q(sb.from('speaker_links').delete().eq('id', id)),
@@ -1718,14 +1484,13 @@ function demoApi() {
   const projects = [
     { id:'p1', name:'[2027] 연사 마스터', color:'#4f46e5', sort_order:1, kind:'speaker', edition:'2027' },
     { id:'p2', name:'[2027] 세션 마스터', color:'#0891b2', sort_order:2, kind:'session', edition:'2027' },
-    { id:'p6', name:'[2026] 연사 마스터', color:'#4f46e5', sort_order:1, kind:'speaker', edition:'2026' },
     { id:'p5', name:'[2027] 부대행사 마스터', color:'#be123c', sort_order:5, kind:'session', side_events:true, edition:'2027' },
     { id:'p3', name:'[2027] 연사 대외비', color:'#dc2626', sort_order:3, kind:'secret', sync_confirmed:true, edition:'2027' },
     { id:'p4', name:'[2027] 차량 스케줄', color:'#d97706', sort_order:4, kind:'basic', sync_confirmed:true, vehicle_tab:true, edition:'2027' },
   ];
   const members = [];
   const add = (pid, u, role = 'editor') => { if (!members.some(m => m.project_id === pid && m.user_id === u)) members.push({ project_id: pid, user_id: u, role }); };
-  ['p1','p2','p3','p4','p5','p6'].forEach(p => add(p, 'u1'));
+  ['p1','p2','p3','p4','p5'].forEach(p => add(p, 'u1'));
   add('p1','u2'); add('p2','u2'); add('p5','u2'); add('p5','u3'); add('p1','u3'); add('p2','u3'); add('p3','u3'); add('p4','u4'); add('p1','u5','viewer');
   const nats = [['미국','#2563eb'],['한국','#dc2626'],['일본','#db2777'],['중국','#ea580c'],['프랑스','#4f46e5'],['독일','#57534e'],['싱가포르','#0d9488'],['호주','#ca8a04'],['영국','#7c3aed'],['이탈리아','#16a34a']]
     .map(([name, color], i) => ({ id:'n' + (i + 1), name, color, sort_order:i + 1 }));
@@ -1743,10 +1508,6 @@ function demoApi() {
     { name:'Li Wei', grp:1, assignees:[], nationality_id:'n4', priority:'C' },
     { name:'Oliver Smith', grp:4, assignees:['u2'], nationality_id:'n9', flight_status:'na', hotel_status:'na', priority:'B' },
   ].map((o, i) => SPD(o, i + 1));
-  // 2026 연사 (같은 사람은 person_id로 2027과 연결 — schema_v19)
-  speakers.push(SPD({ project_id:'p6', name:'John Carter', person_id:'s2', grp:3, title_en:'CEO', affil_en:'Northwind Labs', title_ko:'대표이사', affil_ko:'노스윈드 랩스', nationality_id:'n1', priority:'A' }, 21),
-                SPD({ project_id:'p6', name:'Marie Dubois', person_id:'s5', grp:4, nationality_id:'n5', priority:'B' }, 22));
-  speakers.forEach(x => { x.person_id ||= x.id; x.priority_note ||= ''; });
   // 여권번호·생년월일은 편집자 전용 표에 따로 (schema_v10)
   const priv = speakers.filter(s => s.passport_no || s.birth_date || s.memo).map(s => ({ speaker_id:s.id, project_id:s.project_id, passport_no:s.passport_no, birth_date:s.birth_date, memo:s.memo }));
   speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; s.memo = ''; });
@@ -1888,10 +1649,7 @@ function demoApi() {
     nationalities: () => ret(nats),
     addNationality: (name, color, sort_order) => { const n = { id:newId(), name, color, sort_order }; nats.push(n); return ret(n); },
     speakers: pid => ret(speakers.filter(s => s.project_id === pid).sort((a, b) => a.position - b.position)),
-    personRows: person => ret(speakers.filter(x => x.person_id === person).map(x => ({ id:x.id, project_id:x.project_id, grp:x.grp, name:x.name }))),
-    personOf: id => ret((x => x ? { id:x.id, person_id:x.person_id } : null)(speakers.find(x => x.id === id))),
-    relinkPerson: (from, to) => { speakers.forEach(x => { if (x.person_id === from) x.person_id = to; }); return ret(null); },
-    createSpeaker: s => { const n = SPD({ ...s, id:newId(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, 0); n.id = s.id || n.id; n.person_id ||= n.id; speakers.push(n); if (n.grp === 3) syncAdd(n); return ret(n); },
+    createSpeaker: s => { const n = SPD({ ...s, id:newId(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, 0); n.id = s.id || n.id; speakers.push(n); if (n.grp === 3) syncAdd(n); return ret(n); },
     updateSpeaker: (id, patch) => { const s = speakers.find(x => x.id === id); logCh('speakers', s, 'update'); const before = { grp:s.grp, name:s.name, passport_name:s.passport_name }; Object.assign(s, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); syncSp(s, before); return ret({ id, updated_at:s.updated_at }); },
     deleteSpeaker: id => { const i = speakers.findIndex(x => x.id === id); if (i > -1) { logCh('speakers', speakers[i], 'delete'); speakers.splice(i, 1); syncRemove(id); }
       for (let j = sPeople.length - 1; j >= 0; j--) if (sPeople[j].speaker_id === id) sPeople.splice(j, 1); return ret(null); },
@@ -2008,9 +1766,9 @@ const api = DEMO ? demoApi() : supabaseApi();
    상태
    ===================================================================== */
 const S = { me:null, profiles:[], projects:[], members:[], view:'mytasks', pid:null, tab:'board', tasks:[], docs:[], docId:null, search:'',
-  nats:[], speakers:[], svs:{}, stab:'cards', spId:null, spLinks:[], spTargets:{}, spLinksLoaded:false, pinned:new Set(),
-  stab:'cards', spDTab:'basic', seDTab:'basic', dashKey:null, lpKey:null, lpBack:null, spSess:null,
-  sessions:[], venues:[], pillars:[], meetTypes:[], secret:[], setab:'cards', seId:null, sePeopleAll:[], spkNames:{},
+  nats:[], speakers:[], svs:{}, stab:'list', spId:null, spLinks:[], spTargets:{}, spLinksLoaded:false, pinned:new Set(),
+  stab:'list', dashKey:null, lpKey:null, lpBack:null, spSess:null,
+  sessions:[], venues:[], pillars:[], meetTypes:[], secret:[], setab:'list', seId:null, sePeopleAll:[], spkNames:{},
   vruns:[], vopts:[], undo:[], notifs:[], notifMissing:false, my:null, myHideDone:(() => { try { return localStorage.getItem('myHideDone') === '1'; } catch (_) { return false; } })() };
 const isAdmin = () => S.me?.role === 'admin';
 const prof = id => S.profiles.find(p => p.id === id);
@@ -2175,34 +1933,29 @@ function edAddModal() {
   };
 }
 function renderSidebar() {
-  // 위쪽 가로 메뉴: 연도 선택 + 그 연도의 프로젝트 탭 (순서 = sort_order, 관리자가 끌어서 바꿈)
+  // 순서 = sort_order (관리자가 끌어서 바꿈)
   const list = myProjects().map((p, i) => [p, i]).sort((a, b) => (a[0].sort_order ?? 0) - (b[0].sort_order ?? 0) || a[1] - b[1]).map(x => x[0]);
+  const item = p => `
+    <button class="nav-item ${S.view === 'project' && S.pid === p.id ? 'active' : ''}" data-act="project" data-pid="${p.id}" title="${esc(p.name)}${isAdmin() ? ' · 끌어서 순서 바꾸기' : ''}" ${isAdmin() ? 'draggable="true"' : ''}>
+      <span class="dot" style="background:${esc(p.color)}"></span><span class="nm">${esc(multi && p.edition ? p.name.replace(/^\[\d{4}\]\s*/, '') : p.name)}</span>
+    </button>`;
   const eds = [...new Set(list.map(p => p.edition ?? ''))].sort((a, b) => (b || '0').localeCompare(a || '0'));
-  const curEd = (S.view === 'project' && curProject()) ? (curProject().edition ?? '') : (eds.includes(S.navEd) ? S.navEd : (eds[0] ?? ''));
-  S.navEd = curEd;
-  const L = list.filter(p => (p.edition ?? '') === curEd);
-  const short = p => (p.edition ? p.name.replace(/^\[\d{4}\]\s*/, '') : p.name).replace(/\s*마스터$/, '');
-  const item = p => `<button class="nav-item ${S.view === 'project' && S.pid === p.id ? 'active' : ''}" data-act="project" data-pid="${p.id}" title="${esc(p.name)}${isAdmin() ? ' · 끌어서 순서 바꾸기' : ''}" ${isAdmin() ? 'draggable="true"' : ''}>
-      <span class="dot" style="background:${esc(p.color)}"></span><span class="nm">${esc(short(p))}</span>${p.kind === 'secret' ? '<span class="nav-lock">🔒</span>' : ''}</button>`;
-  const edSel = (eds.length > 1 || (eds[0] ?? '') !== '' || isAdmin())
-    ? `<label class="ed-sel" title="연도(세트) 바꾸기"><select id="edSel" aria-label="연도">${eds.map(e => `<option value="${esc(e)}" ${e === curEd ? 'selected' : ''}>${e ? esc(e) : '기타'}</option>`).join('')}${isAdmin() && list.some(p => p.edition) ? '<option value="__add">+ 연도 추가…</option>' : ''}</select></label>` : '';
-  $('#projectList').innerHTML = edSel + (L.length ? `<div class="nav-tabs">${L.map(item).join('')}</div>` : '<div class="empty-sm">초대받은 프로젝트가 없어요. 관리자에게 초대를 요청하세요.</div>');
+  const fold = edFold();
+  const multi = eds.length > 1 || (eds[0] ?? '') !== '';
+  $('#projectList').innerHTML = (multi ? eds.map(ed => { const L = list.filter(p => (p.edition ?? '') === ed), closed = fold.includes(ed) && !L.some(p => p.id === S.pid);
+    return `<div class="ed-group ${closed ? 'closed' : ''}"><button class="ed-h" data-act="edToggle" data-ed="${esc(ed)}" title="접기/펴기"><span class="caret">▾</span><span class="ed-n">${ed ? esc(ed) : '기타'}</span><span class="cnt">${L.length}</span></button>
+      <div class="ed-items">${L.map(item).join('')}</div></div>`; }).join('') : list.map(item).join(''))
+    + (isAdmin() && list.some(p => p.edition) ? '<button class="ed-add" data-act="edAdd" title="이전 연도 세트를 복사해 새 연도 프로젝트를 만들어요">+ 연도 추가</button>' : '')
+    || '<div class="empty-sm">초대받은 프로젝트가 없어요.<br>관리자에게 초대를 요청하세요.</div>';
   $('#navMy').classList.toggle('active', S.view === 'mytasks');
   $('#addProjectBtn').classList.toggle('hidden', !isAdmin());
   const me = S.me;
-  $('#meBox').innerHTML = `<button class="me-btn" data-act="editName" title="${esc(me.full_name || me.email)} · 이름 바꾸기">${avatar(me, 28)}<span class="n">${esc(me.full_name || me.email)}</span></button>
-    <button class="icon-btn" data-act="logout" title="로그아웃" aria-label="로그아웃">
+  $('#meBox').innerHTML = `${avatar(me, 32)}
+    <div class="info" data-act="editName" title="이름 바꾸기"><div class="n">${esc(me.full_name || me.email)}</div><div class="e">${esc(me.email)}</div></div>
+    <button class="icon-btn" data-act="logout" title="로그아웃">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3H3.5v10H6M10.5 5l3 3-3 3M13.5 8H6.5"/></svg>
     </button>`;
 }
-document.addEventListener('change', e => {
-  if (e.target.id !== 'edSel') return;
-  const v = e.target.value;
-  if (v === '__add') { e.target.value = S.navEd; return edAddModal(); }
-  S.navEd = v;
-  const first = myProjects().filter(p => (p.edition ?? '') === v).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
-  if (first) openProject(first.id); else renderSidebar();
-});
 
 /* ---------- 프로젝트 순서: 관리자가 왼쪽 목록에서 끌어서 (같은 연도 안에서) ---------- */
 let navDrag = null;
@@ -2219,7 +1972,7 @@ document.addEventListener('dragover', e => {
   const a = S.projects.find(p => p.id === navDrag), b = S.projects.find(p => p.id === it.dataset.pid);
   if ((a?.edition ?? '') !== (b?.edition ?? '')) return;   // 다른 연도로는 못 옮김
   e.preventDefault();
-  const r = it.getBoundingClientRect(); it.classList.add(e.clientX < r.left + r.width / 2 ? 'nd-before' : 'nd-after');
+  const r = it.getBoundingClientRect(); it.classList.add(e.clientY < r.top + r.height / 2 ? 'nd-before' : 'nd-after');
 });
 document.addEventListener('drop', async e => {
   if (!navDrag) return;
@@ -2247,11 +2000,9 @@ function togglePeople() {
   const closed = $('#app').classList.toggle('people-closed');
   try { localStorage.setItem('peopleClosed', closed ? '1' : '0'); } catch (_) {}
 }
-// 새 레이아웃: 팀원 패널은 기본으로 닫힘 (팀원 버튼으로 열기)
-try { if (localStorage.getItem('peopleClosed') !== '0') document.getElementById('app').classList.add('people-closed'); } catch (_) { document.getElementById('app').classList.add('people-closed'); }
+try { if (localStorage.getItem('peopleClosed') === '1') document.getElementById('app').classList.add('people-closed'); } catch (_) {}
 
 function renderMain() {
-  undockPage();
   flushDoc();
   const m = $('#main');
   if (S.view !== 'project' || !curProject()) return renderMyWork();
@@ -2389,7 +2140,6 @@ function renderPeopleList() {
    ===================================================================== */
 let unsubRT = null;
 function leaveProject() {
-  undockPage();
   flushDoc(); closePop(); closeSpPage(); closeDrawer(); if (S.ttFull) closeTTFull();
   if (unsubRT) { try { unsubRT(); } catch (_) {} unsubRT = null; }
 }
@@ -2817,7 +2567,7 @@ const HOTEL = [
 const PRI = [{ k:'S', label:'S급', tone:'red' }, { k:'A', label:'A급', tone:'yellow' }, { k:'B', label:'B급', tone:'blue' }, { k:'C', label:'C급', tone:'green' }];
 const FIELDS = ['경제', '인문', 'AI', '산업', '경영', '지정학'];
 const EVENTS = [{ f:'opening', label:'개막식' }, { f:'vip_dinner', label:'VIP 만찬' }, { f:'gala', label:'갈라디너' }];
-const SP_TABS = [['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['dash','대시보드']];
+const SP_TABS = [['list','목록'], ['status','연사 현황'], ['flight','항공 관리'], ['hotel','숙박 관리'], ['avail','참석가능일'], ['dash','대시보드']];
 const SORTS = [{ k:'manual', label:'기본 순서' }, { k:'assignee', label:'담당자별' }, { k:'alpha', label:'알파벳순 (이름)' },
   { k:'created', label:'생성일 (최신순)' }, { k:'updated', label:'마지막 수정일 (최신순)' }];
 const NAT_COLORS = ['#0891b2','#be123c','#65a30d','#9333ea','#b45309','#0f766e','#c026d3','#1e40af','#a16207','#475569','#e11d48','#15803d'];
@@ -2882,29 +2632,15 @@ function spSort(list) {
 /* ---------- 화면 틀 ---------- */
 function renderSpeakerMain(p) {
   const tabs = SP_TABS.map(([k, l]) => `<button class="tab ${S.stab === k ? 'active' : ''}" data-act="spTab" data-tab="${k}">${l}</button>`).join('');
-  if (S.stab === 'cards') {
-    $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
-      <div class="split"><aside class="split-side" id="spBody"></aside><section class="split-dock" id="spDock"><div class="dock-empty">왼쪽에서 연사를 고르세요</div></section></div>`;
-    dockPage($('#spDock'));
-    renderSpBody(true);
-    if (!S.spId || !spOf(S.spId)) { const first = (S.spLast && spOf(S.spLast)) || spSort(spVisible()).find(x => x.grp !== 0); if (first) openSpPage(first.id); }
-    else { $('#spage').classList.add('open'); renderSpPage(true); }
-    return;
-  }
   $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
     ${S.stab === 'dash' ? '' : toolbarHtml()}
     <div class="content" id="spBody"></div>`;
   renderSpBody(true);
 }
-// 상세 칸을 화면 오른쪽에 붙이기 / 떼기 (같은 #spage 요소를 옮겨서 모든 기능을 그대로 씀)
-function spageEl() { let r = document.getElementById('spage'); if (!r) { r = document.createElement('div'); r.id = 'spage'; document.body.appendChild(r); } return r; }
-function dockPage(host) { const r = spageEl(); r.classList.add('docked'); host.appendChild(r); }
-function undockPage() { const r = document.getElementById('spage'); if (!r) return spageEl(); if (r.classList.contains('docked')) { if (S.spId) S.spLast = S.spId; if (S.seId) S.seLast = S.seId; closeSpPage(); r.classList.remove('docked'); document.body.appendChild(r); } }
-const isDocked = () => !!document.getElementById('spage')?.classList.contains('docked');
 function toolbarHtml() {
   const v = sv();
   return `<div class="sp-toolbar">
-    ${canEdit() ? '<button class="btn-primary" data-act="spAdd">+ 연사 추가</button>' : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
+    ${canEdit() ? '<button class="btn-primary" data-act="spAdd">+ 작업 추가</button>' : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
     <div class="sp-tools">
       <button class="tool" data-act="spExport" title="지금 보이는 연사 목록(필터·검색·정렬 적용)을 엑셀 파일로 내려받기">${ICON.download}엑셀 내려받기</button>
       <button class="tool" id="spFilterBtn" data-act="spFilter"></button>
@@ -2932,7 +2668,6 @@ function renderSpBody(force) {
   if (!force && inputFocusedIn('#spBody')) { pendBody = true; return; }
   pendBody = false;
   const sc = b.scrollTop, sl = b.querySelector('.sp-wrap, .sboard')?.scrollLeft || 0;
-  if (S.stab === 'cards') { const L = b.querySelector('#ssList'), st = L?.scrollTop || 0; b.innerHTML = spSideHtml(); const L2 = b.querySelector('#ssList'); if (L2) L2.scrollTop = st; return; }
   b.innerHTML = S.stab === 'list' ? spListHtml() : S.stab === 'status' ? spBoardHtml('grp')
     : S.stab === 'flight' ? spBoardHtml('flight_status') : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : spDashHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard'); if (w) w.scrollLeft = sl;
@@ -2993,7 +2728,7 @@ function spBoardHtml(field) {
     return `<section class="scol" data-sdrop="${o.k}" data-sfield="${field}">
       <header>${field === 'grp' ? `<span class="gnum">${o.k}</span>` : ''}${tag(o.tone, o.label)}<span class="cnt">${items.length}</span></header>
       <div class="scards">${items.map(s => spCardHtml(s, field)).join('')}</div>
-      ${ed ? `<button class="scol-add" data-act="spAdd" data-field="${field}" data-val="${o.k}">+ 연사 추가</button>` : ''}
+      ${ed ? `<button class="scol-add" data-act="spAdd" data-field="${field}" data-val="${o.k}">+ 작업 추가</button>` : ''}
     </section>`;
   }).join('')}</div>`;
 }
@@ -3387,10 +3122,8 @@ function openSpPage(id, focusName) {
   CMT.cur = null; CMT.key = 'speakers:' + id; CMT.list = []; CMT.loaded = false; CMT.error = null;
   $('#spage').classList.add('open');
   renderSpPage(true);
-  if (focusName) setTimeout(() => $('#spage .d-name, #spage .sp-title')?.focus(), 60);
+  if (focusName) setTimeout(() => $('#spage .sp-title')?.focus(), 60);
   S.spVr = null; loadLinks(); loadSpVr(id); cmtSet('speakers:' + id);
-  S.spYears = null; loadSpYears(spOf(id));
-  if (S.stab === 'cards') $$('#ssList .sc').forEach(c => c.classList.toggle('on', c.dataset.sid === id));
 }
 function closeSpPage() {
   const a = document.activeElement; if (a && a.closest && a.closest('#spage')) a.blur();
@@ -3405,7 +3138,6 @@ function renderSpPage(force) {
   const sc = root.querySelector('.sp-panel')?.scrollTop || 0;
   root.innerHTML = spPageHtml(s);
   root.querySelector('.sp-panel').scrollTop = sc;
-  dSpy();
   $$('textarea.ta', root).forEach(autosize);
   hydrateFiles(root);
 }
@@ -3424,240 +3156,145 @@ const nameParts = s => Object.fromEntries(NAME_PARTS.map(k => [k, s[k] || '']));
 function psec(key, title, body, sum = '', hint = '') {
   return `<details class="psec" data-sec="${key}" ${secIsOpen(key) ? 'open' : ''}><summary><span class="ps-car">▸</span><span class="ps-t">${title}</span>${sum ? `<span class="ps-sum">${sum}</span>` : ''}${hint ? `<span class="sec-hint">${hint}</span>` : ''}</summary><div class="ps-b">${body}</div></details>`;
 }
-/* =====================================================================
-   v20 새 레이아웃 · 연사 상세 (오른쪽 고정 칸) — 단계 버튼 · 피칭 연도 · 탭 · 3단 입력칸
-   ===================================================================== */
-const SP_DTABS = [['basic', '기본 정보'], ['sched', '일정'], ['logi', '항공 · 숙박'], ['bio', 'Bio'], ['contact', '연락처 · 수행'], ['files', '파일'], ['pass', '여권'], ['cmt', '댓글']];
 function spPageHtml(s) {
   const ed = canEdit(), dis = ed ? '' : 'disabled';
-  const f = optOf(FLIGHT, s.flight_status) || FLIGHT[0], h = optOf(HOTEL, s.hotel_status) || HOTEL[0];
-  const tab = SP_DTABS.some(t => t[0] === S.spDTab) ? S.spDTab : 'basic';
-  const sel = (field, inner) => `<button class="cell-btn fx-pick" data-act="spPick" data-field="${field}" data-sid="${s.id}">${inner}</button>`;
-  const fx = (label, field, ph = '', type = 'text', max = 200) => `<label class="fx"><span>${label}</span><input class="fx-in" type="${type}" data-sf="${field}" value="${esc(s[field] ?? '')}" placeholder="${ph}" maxlength="${max}"></label>`;
-  const fxp = (label, inner) => `<div class="fx"><span>${label}</span>${inner}</div>`;
-  const ta = (field, ph = '', rows = 3) => `<textarea class="ta" data-sf="${field}" rows="${rows}" placeholder="${ph}">${esc(s[field] || '')}</textarea>`;
+  const f = optOf(FLIGHT, s.flight_status) || FLIGHT[0], h = optOf(HOTEL, s.hotel_status) || HOTEL[0], pr = optOf(PRI, s.priority), g = optOf(GROUPS, s.grp) || GROUPS[1];
+  const sel = (field, inner) => `<button class="cell-btn pv-btn" data-act="spPick" data-field="${field}" data-sid="${s.id}">${inner}</button>`;
+  const inp = (field, ph = '비어 있음', type = 'text', max = 200) => `<input class="pin" type="${type}" data-sf="${field}" value="${esc(s[field] ?? '')}" placeholder="${ph}" maxlength="${max}">`;
+  const ta = (field, ph = '', rows = 1) => `<textarea class="ta" data-sf="${field}" rows="${rows}" placeholder="${ph}">${esc(s[field] || '')}</textarea>`;
+  const fld = (label, field, ph = '', copy = true, rows = 1) => `<div class="fbox"><div class="fl"><span>${label}</span>${copy ? `<a class="copy-btn" data-act="spCopy" data-f="${field}" role="button" title="${label} 복사">${ICON.copy}복사</a>` : ''}</div>${ta(field, ph, rows)}</div>`;
+  const cell = (label, inner) => `<div class="pcell"><label>${label}</label><div class="pv">${inner}</div></div>`;
   const lock = '<span class="priv-note">🔒 편집자만 볼 수 있어요</span>';
-  const ent = Array.isArray(s.entourage) ? s.entourage : [];
-  const cnt = k => S.speakers.filter(x => x.grp === k).length;
   const creator = prof(s.created_by);
-  const nm = nameParts(s);
-  const tabCnt = { sched: (S.spSess || []).length, files: attOf(s).filter(a => a.path || (a.files || []).length).length, cmt: CMT.key === 'speakers:' + s.id && CMT.loaded ? CMT.list.length : 0 };
-
-  const secOf = tab => tab === 'basic' ? `
-      <div class="fx-card fx-main">
-        <div class="ph-drop">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 올리기<br><small>클릭해서 고르기</small></span>'}
-          <label class="ph-pick" title="${s.photo_path ? '사진 바꾸기' : '사진 올리기'}"><input type="file" accept="image/*" data-upload="photo" class="vh"></label>
-          ${s.photo_path && ed ? '<button type="button" class="ph-del" data-act="spPhotoDel" title="사진 삭제" aria-label="사진 삭제">✕</button>' : ''}</div>
-        <div class="fx-grid">
-          ${fx('국문 성', 'name_ko_last', '홍', 'text', 60)}${fx('국문 이름', 'name_ko_first', '길동', 'text', 60)}${fxp('국적', sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY))}
-          ${fx('영문 성 (Last)', 'name_en_last', 'HONG', 'text', 60)}${fx('영문 이름 (First)', 'name_en_first', 'Gildong', 'text', 60)}${fxp('담당자', sel('assignees', asgHtml(s)))}
-          ${fx('국문 소속', 'affil_ko', 'OO그룹')}${fx('국문 직함', 'title_ko', '대표이사')}${fxp('분야', `<button class="cell-btn fx-pick" data-act="spFieldPick">${(s.fields || []).length ? (s.fields || []).map(x => `<span class="tg tg-gray">${esc(x)}</span>`).join('') : EMPTY}</button>`)}
-          ${fx('영문 소속 (Affil)', 'affil_en', 'OO Group')}${fx('영문 직함 (Title)', 'title_en', 'CEO')}
-          <div class="fx"><span>키워드 <small>입력 후 Enter</small></span><div class="kw-box fx-kw">${(s.keywords || []).map(k => `<span class="kw">${esc(k)}<a class="kw-x" data-act="spKwDel" data-v="${esc(k)}" title="빼기">×</a></span>`).join('')}<input class="kw-in" id="kwIn" placeholder="${(s.keywords || []).length ? '' : '키워드'}" maxlength="40" autocomplete="off"></div></div>
+  const ent = Array.isArray(s.entourage) ? s.entourage : [];
+  const days = [1, 2, 3].filter(d => s['day' + d]);
+  const evN = EVENTS.filter(ev => s[ev.f]).length;
+  const memoSum = !ed ? '🔒 편집자 전용' : s.memo ? esc(String(s.memo).split('\n')[0].slice(0, 40)) + (String(s.memo).length > 40 ? '…' : '') : '';
+  return `<div class="sp-backdrop" data-act="spClose"></div>
+  <div class="sp-panel" data-sid="${s.id}">
+    <div class="sp-top">
+      ${S.lpBack ? '<button class="btn" data-act="lpBack">← 목록</button>' : ''}
+      <button class="done-btn ${s.done ? 'on' : ''}" data-act="spDone" data-sid="${s.id}" ${dis}>${s.done ? '✓ 완료됨' : '✓ 완료로 표시'}</button>
+      ${ed ? '' : '<span class="ro-note">보기 전용</span>'}
+      <span class="sp"></span>
+      <button class="btn" data-act="pageNewWin" data-kind="sp" data-id="${s.id}" title="이 연사 페이지를 새 창(탭)에서 크게 열기">${ICON.expand}새 창</button>
+      <button class="btn agenda-btn" data-act="spPdfOne" title="이 연사 프로필을 PDF로 내보내기">${ICON.pdf}PDF</button>
+      <button class="btn agenda-btn" data-act="spAgenda" data-doc="Pre Agenda" title="이 연사의 세션·부대행사 일정만 Pre Agenda로">${ICON.pdf}Pre Agenda</button>
+      <button class="btn agenda-btn" data-act="spAgenda" data-doc="Final Agenda" title="이 연사의 세션·부대행사 일정만 Final Agenda로">${ICON.pdf}Final Agenda</button>
+      <button class="btn" data-act="history" data-table="speakers" data-id="${s.id}" title="누가 언제 무엇을 바꿨는지 보기">${ICON.history}수정 기록</button>
+      <button class="btn" data-act="spClose">닫기 ✕</button>
+    </div>
+    <fieldset class="fs" ${dis}>
+      <div class="sp-hero">
+        <div class="hero-ph" title="사진은 아래 '사진 · Bio'에서 바꿀 수 있어요">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="">` : `<span>${esc((s.name || '?').trim()[0] || '?')}</span>`}</div>
+        <div class="hero-main">
+          <input class="sp-title" data-sf="name" value="${esc(s.name)}" placeholder="이름 없음" maxlength="120">
+          ${(() => { const n = nameParts(s); const f = (k, ph, w) => `<input class="pin" data-sf="${k}" value="${esc(n[k])}" placeholder="${ph}" maxlength="60" style="flex:${w}">`;
+            return `<div class="name-row">
+            <div class="nm-grp"><span class="nm-lab">국문명</span><label><small>성</small>${f('name_ko_last', '홍', 1)}</label><label><small>이름</small>${f('name_ko_first', '길동', 2)}</label></div>
+            <div class="nm-grp"><span class="nm-lab">영문명</span><label><small>성</small>${f('name_en_last', 'HONG', 1)}</label><label><small>이름</small>${f('name_en_first', 'Gildong', 1)}</label></div>
+          </div>`; })()}
         </div>
       </div>
-      <div class="fx-two">
-        <div class="fx-card fx-rows">
-          <div class="fx-row"><span class="fx-l">등급</span><div class="pri-seg">${PRI.map(p => `<button type="button" class="pri-b pri-${p.k} ${s.priority === p.k ? 'on' : ''}" data-act="spPri" data-v="${p.k}" title="${p.label}${s.priority === p.k ? ' · 다시 누르면 해제' : ''}">${p.k}</button>`).join('')}</div>
-            <input class="fx-in" data-sf="priority_note" value="${esc(s.priority_note || '')}" placeholder="등급 메모 (예: 기조연설 후보)" maxlength="200" aria-label="등급 메모"></div>
-          <div class="fx-row"><span class="fx-l">참석일</span><div class="chip-row">${[1, 2, 3].map(d => `<button type="button" class="chip ${s['day' + d] ? 'on-y' : ''}" data-act="spFlip" data-f="day${d}">${s['day' + d] ? '✓ ' : ''}${d}일차</button>`).join('')}</div></div>
-          <div class="fx-row"><span class="fx-l">행사</span><div class="chip-row">${EVENTS.map(ev => `<button type="button" class="chip ${s[ev.f] ? 'on-g' : ''}" data-act="spSet" data-f="${ev.f}" data-v="${s[ev.f] ? 0 : 1}">${s[ev.f] ? '✓ ' : ''}${ev.label}</button>`).join('')}
-            <button type="button" class="chip ${s.diet_flag ? 'on-r' : ''}" data-act="spDiet">${s.diet_flag ? '✓ 특이식성' : '특이식성'}</button></div></div>
-          ${s.diet_flag ? `<div class="fx-row"><span class="fx-l"></span><input class="fx-in diet-in" data-sf="diet_note" value="${esc(s.diet_note || '')}" placeholder="예: 채식(비건), 견과류 알레르기, 할랄" maxlength="300"></div>` : ''}
+      <div class="pgrid">
+        ${cell(`${ICON.user}담당자`, sel('assignees', asgHtml(s)))}
+        ${cell(`${ICON.group}그룹`, sel('grp', `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}`))}
+        ${cell('★ 중요도', sel('priority', pr ? tag(pr.tone, pr.label) : EMPTY))}
+        ${cell('국적', sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY))}
+        ${cell('항공', sel('flight_status', tag(f.tone, f.label)))}
+        ${cell('숙박', sel('hotel_status', tag(h.tone, h.label)))}
+      </div>
+
+      <div class="role-grid">
+        ${fld('소속', 'affil_ko', '예: OO그룹')}${fld('직함', 'title_ko', '예: 대표이사')}
+        ${fld('Affil', 'affil_en', 'e.g. OO Group')}${fld('Title', 'title_en', 'e.g. CEO')}
+      </div>
+
+      ${psec('memo', '메모 · 보고용', ed ? `<textarea class="ta memo-ta" data-sf="memo" rows="5" placeholder="주요 경력 · 이슈 및 특징 · 가능한 강연 주제 · 예상/논의된 연사료와 조건 등을 자유롭게 적어 주세요.&#10;연사 PDF(회장 보고용)에 그대로 들어가요.">${esc(s.memo || '')}</textarea>` : lock, memoSum, '편집자만 보여요 · PDF에 포함')}
+
+      ${psec('links', '연결', `<div class="two-col">
+          <div><label class="sl">${ICON.link}종속관계</label><div class="links" id="spLinks">${linksHtml()}</div></div>
+          <div><label class="sl">${ICON.cal}참여 세션 · 부대행사</label><div class="links" id="spSess">${spSessHtml()}</div></div></div>`)}
+
+      ${psec('kw', '분야 / 키워드', `<label class="sl" style="margin-top:0">분야 <span class="hint">복수 선택</span></label>
+      <div class="opt-chips">${FIELDS.map(x => { const on = (s.fields || []).includes(x);
+        return `<button type="button" class="ochip ck ${on ? 'on' : ''}" data-act="spField" data-v="${esc(x)}"><span class="obox">${on ? '✓' : ''}</span>${esc(x)}</button>`; }).join('')}</div>
+      <label class="sl">키워드 <span class="hint">직접 입력 후 Enter</span></label>
+      <div class="kw-box">${(s.keywords || []).map(k => `<span class="kw">${esc(k)}<a class="kw-x" data-act="spKwDel" data-v="${esc(k)}" title="빼기">×</a></span>`).join('')}
+        <input class="kw-in" id="kwIn" placeholder="키워드 입력" maxlength="40" autocomplete="off"></div>`,
+        [...(s.fields || []), ...(s.keywords || [])].slice(0, 4).map(esc).join(' · '))}
+
+      ${psec('bio', '사진 · Bio', `<div class="bio-row">
+        <div class="photo-col">
+          <div class="photo-box">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 없음</span>'}</div>
+          <div class="photo-actions">
+            <label class="btn file-btn">${s.photo_path ? '사진 바꾸기' : '사진 첨부'}<input type="file" accept="image/*" data-upload="photo" class="vh"></label>
+            ${s.photo_path ? `<div class="ph-links"><a class="link-btn" data-act="spFileOpen" data-path="${esc(s.photo_path)}">원본 보기</a><button type="button" class="btn-danger" data-act="spPhotoDel">삭제</button></div>` : ''}
+            <div class="hint">이미지 · 20MB 이하</div>
+          </div>
         </div>
-        <div class="fx-card memo-card">
-          <div class="memo-h">메모 · 보고용 <span>· 편집자만 · PDF에 포함</span></div>
-          ${ed ? `<textarea class="ta memo-ta" data-sf="memo" rows="5" placeholder="주요 경력 · 이슈 및 특징 · 가능한 강연 주제 · 예상/논의된 연사료와 조건">${esc(s.memo || '')}</textarea>` : lock}
-        </div>
-      </div>`
-  : tab === 'sched' ? `
-      <div class="fx-card"><div class="fx-h">참여 세션 · 부대행사 <small>세션·부대행사 마스터에서 이 연사를 넣으면 여기 나와요</small></div><div class="links" id="spSess">${spSessHtml()}</div></div>
-      <div class="fx-card"><div class="fx-h">연결된 항목 <small>다른 프로젝트의 연사·작업과 이어 두기</small></div><div class="links" id="spLinks">${linksHtml()}</div></div>`
-  : tab === 'logi' ? `
-      <div class="fx-two">
-        <div class="fx-card"><div class="fx-h">항공 ${sel('flight_status', tag(f.tone, f.label))}</div>
-          <label class="sl">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등', 4)}
-          <label class="sl">비고</label>${ta('flight_note', '', 2)}
-          <div id="spVrBox">${spVrHtml(s)}</div></div>
-        <div class="fx-card"><div class="fx-h">숙박 ${sel('hotel_status', tag(h.tone, h.label))}</div>
-          <div class="fx-grid two">${fx('체크인', 'check_in', '', 'date')}${fx('체크아웃', 'check_out', '', 'date')}</div>
-          <label class="sl">비고 및 특이사항</label>${ta('hotel_note', '', 3)}</div>
-      </div>`
-  : tab === 'bio' ? `
-      <div class="fx-two">
-        <div class="fx-card"><div class="fx-h">Bio <a class="copy-btn" data-act="spCopy" data-f="bio_en" role="button">${ICON.copy}복사</a></div>${ta('bio_en', 'English bio', 12)}</div>
-        <div class="fx-card"><div class="fx-h">국문 Bio <a class="copy-btn" data-act="spCopy" data-f="bio_ko" role="button">${ICON.copy}복사</a></div>${ta('bio_ko', '국문 약력', 12)}</div>
-      </div>`
-  : tab === 'contact' ? `
-      <div class="fx-card"><div class="fx-grid">${fx('연사 이메일', 'speaker_email', 'speaker@example.com', 'email')}${fx('현장 연락처', 'onsite_phone', '+82 10-0000-0000', 'tel', 40)}<div></div>
-        ${fx('컨택 담당자', 'contact_name')}${fx('담당자 이메일', 'contact_email', 'contact@example.com', 'email')}</div>
-        <div class="fx-two" style="margin-top:10px"><div><label class="sl">에이전시</label>${ta('agency', '소속 에이전시, 담당 에이전트, 연락 방식 등', 3)}</div><div><label class="sl">소개 경로</label>${ta('referral', '누구의 소개로, 언제 처음 접촉했는지 등', 3)}</div></div></div>
-      <div class="fx-card"><div class="fx-h">수행 정보 <small>함께 오는 수행원 · 여러 명</small></div>
-        <div class="ent-list">${ent.map(x => `<div class="ent-row" data-entid="${esc(x.id)}">
+        <div class="bio-col">${fld('Bio', 'bio_en', '', true, 4)}${fld('국문 Bio', 'bio_ko', '', true, 4)}</div>
+      </div>`, [s.photo_path ? '사진 있음' : '사진 없음', s.bio_en || s.bio_ko ? 'Bio 있음' : ''].filter(Boolean).join(' · '))}
+
+      ${psec('contact', '연락처 · 컨택 포인트', `<div class="pgrid two">
+        ${cell('연사 이메일', inp('speaker_email', 'speaker@example.com', 'email'))}
+        ${cell('현장 연락처', inp('onsite_phone', '+82 10-0000-0000', 'tel', 40))}
+        ${cell('컨택 담당자', inp('contact_name'))}
+        ${cell('담당자 이메일', inp('contact_email', 'contact@example.com', 'email'))}
+      </div>
+      <div class="two-col" style="margin-top:8px">
+        <div><label class="sl">에이전시</label>${ta('agency', '소속 에이전시, 담당 에이전트, 연락 방식·소요 시간 등', 2)}</div>
+        <div><label class="sl">소개 경로</label>${ta('referral', '누구의 소개로, 언제 처음 접촉했는지 등', 2)}</div>
+      </div>`, esc([s.speaker_email, s.contact_name].filter(Boolean).join(' · ')))}
+
+      ${psec('att', '첨부파일', attHtml(s), '', '칸 이름은 눌러서 바꿀 수 있어요 · 칸 추가 가능 · 50MB 이하')}
+
+      ${psec('attend', '참석 · 식성', `<div class="attend-grid">
+        <div><label class="sl" style="margin-top:0">참석 가능일</label>
+          <div class="dayboxes sm">${[1, 2, 3].map(d => `<button type="button" class="daybox ${s['day' + d] ? 'on' : ''}" data-act="spFlip" data-f="day${d}">
+            <span class="dck">${s['day' + d] ? '✓' : ''}</span>${d}일차</button>`).join('')}</div>
+          <label class="sl">특이식성</label>
+          <div class="diet">
+            <label class="diet-chk"><input type="checkbox" data-sf="diet_flag" ${s.diet_flag ? 'checked' : ''}>있음</label>
+            <input class="pin diet-in" data-sf="diet_note" value="${esc(s.diet_note)}" maxlength="300"
+              placeholder="${s.diet_flag ? '예: 채식, 견과류 알레르기, 할랄' : '있음을 체크하면 적을 수 있어요'}" ${s.diet_flag ? '' : 'disabled'}>
+          </div></div>
+        <div><label class="sl" style="margin-top:0">행사 참석</label>
+          <div class="events">${EVENTS.map(ev => `<div class="ev-row"><span>${ev.label}</span><div class="seg">
+            <button type="button" class="${s[ev.f] ? 'on-yes' : ''}" data-act="spSet" data-f="${ev.f}" data-v="1">참석</button>
+            <button type="button" class="${s[ev.f] ? '' : 'on-no'}" data-act="spSet" data-f="${ev.f}" data-v="0">미참석</button></div></div>`).join('')}</div></div>
+      </div>`, [days.length ? days.map(d => d + '일차').join('·') : '', evN ? `행사 ${evN}개 참석` : '', s.diet_flag ? '<b class="diet-red">특이식성</b>' : ''].filter(Boolean).join(' · '))}
+
+      ${psec('flight', '항공', `<label class="sl" style="margin-top:0">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등을 자유롭게 적어 주세요', 3)}
+        <label class="sl">비고</label>${ta('flight_note', '', 2)}
+        <div id="spVrBox">${spVrHtml(s)}</div>`, tag(f.tone, f.label))}
+
+      ${psec('hotel', '숙박', `<div class="pgrid two">
+          ${cell('체크인', inp('check_in', '', 'date'))}${cell('체크아웃', inp('check_out', '', 'date'))}</div>
+        <label class="sl">비고 및 특이사항</label>${ta('hotel_note', '', 2)}`,
+        tag(h.tone, h.label) + (s.check_in || s.check_out ? ` ${esc(fmtDate(s.check_in) || '?')} ~ ${esc(fmtDate(s.check_out) || '?')}` : ''))}
+
+      ${psec('ent', '수행 정보', `<div class="ent-list">${ent.map(x => `<div class="ent-row" data-entid="${esc(x.id)}">
           <input class="pin" data-ent="name" value="${esc(x.name || '')}" placeholder="이름" maxlength="80">
           <input class="pin" data-ent="affil" value="${esc(x.affil || '')}" placeholder="소속" maxlength="120">
           <input class="pin" data-ent="note" value="${esc(x.note || '')}" placeholder="비고 (직책, 연락처, 동선 등)" maxlength="300">
-          <button type="button" class="icon-btn" data-act="entDel" data-entid="${esc(x.id)}" title="삭제">✕</button></div>`).join('') || '<div class="hint" style="margin:0 0 4px">아직 수행원이 없어요</div>'}
-          <button type="button" class="meet-add" data-act="entAdd">+ 수행원 추가</button></div></div>`
-  : tab === 'files' ? `<div class="fx-card"><div class="fx-h">첨부파일 <small>칸 이름은 눌러서 바꿀 수 있어요 · 칸 추가 가능 · 50MB 이하</small></div>${attHtml(s)}</div>`
-  : tab === 'pass' ? `<div class="fx-card"><div class="fx-grid">${fx('여권 영문명', 'passport_name', 'HONG GILDONG')}
-        ${ed ? fx('여권번호', 'passport_no', '', 'text', 40) : fxp('여권번호', lock)}${ed ? fx('생년월일', 'birth_date', 'YYYY-MM-DD', 'text', 10) : fxp('생년월일', lock)}</div>
-        <p class="hint" style="margin:10px 0 0">여권번호·생년월일은 편집자만 볼 수 있어요. 여권 영문명은 차량 스케줄의 영문 성·이름에 쓰여요.</p></div>`
-  : '';
-  const body = SP_DTABS.filter(([k]) => k !== 'cmt').map(([k, l]) => `<section class="d-sec" id="dsec-${k}" data-sec="${k}">${k === 'basic' ? '' : `<h3 class="d-sh">${l}${k === 'pass' ? ' 🔒' : ''}</h3>`}${secOf(k)}</section>`).join('');
+          <button type="button" class="icon-btn" data-act="entDel" data-entid="${esc(x.id)}" title="삭제">✕</button></div>`).join('')
+        || '<div class="hint" style="margin:0 0 4px">아직 수행원이 없어요</div>'}
+        <button type="button" class="meet-add" data-act="entAdd">+ 수행원 추가</button></div>`, ent.length ? `${ent.length}명` : '', '함께 오는 수행원 · 여러 명 가능')}
 
-  return `<div class="sp-backdrop" data-act="spClose"></div>
-  <div class="sp-panel sp20" data-sid="${s.id}">
-    <div class="d-head">
-      <input class="d-name" data-sf="name" value="${esc(s.name)}" placeholder="이름 (Pre Agenda·PDF에 이대로 나와요)" maxlength="120" ${dis}>
-      <span class="d-alt">${esc([[nm.name_en_last, nm.name_en_first].filter(Boolean).join(', '), [nm.name_ko_last, nm.name_ko_first].filter(Boolean).join(' ')].filter(Boolean).join(' · '))}</span>
-      <span class="d-saved" id="spSaved">${ed ? '● 저장됨' : '보기 전용'}</span>
-      <span class="sp"></span>
-      <button class="btn agenda-btn" data-act="spAgenda" data-doc="Pre Agenda" title="이 연사의 세션·부대행사 일정 Pre Agenda">${ICON.pdf}Pre Agenda</button>
-      <button class="btn agenda-btn" data-act="spAgenda" data-doc="Final Agenda" title="이 연사의 세션·부대행사 일정 Final Agenda">${ICON.pdf}Final Agenda</button>
-      <button class="btn" data-act="spPdfOne" title="연사 프로필 PDF (회장 보고용)">PDF</button>
-      <button class="btn d-more" data-act="spMore" aria-label="더보기 (새 창, 수정 기록, 완료 표시, 삭제)">⋯</button>
-      <button class="btn d-close" data-act="spClose" aria-label="닫기">✕</button>
-    </div>
-    ${s.grp === 0 ? '<div class="d-guide">가이드 항목이에요 (연사가 아닌 안내 문서). 아래 정보는 자유롭게 써도 돼요.</div>' : `
-    <div class="stage">${GROUPS.filter(g => g.k !== 0).map(g => `<button type="button" class="st-b st-${g.tone} ${s.grp === g.k ? 'on' : ''}" data-act="spGrp" data-v="${g.k}" ${dis}>${s.grp === g.k ? '✓ ' : ''}${g.label}<small>${cnt(g.k)}</small></button>`).join('')}</div>`}
-    <div class="years" id="spYears">${spYearsHtml(s)}</div>
-    <div class="d-tabs">${SP_DTABS.map(([k, l]) => `<button type="button" class="d-tab ${k === 'basic' ? 'on' : ''}" data-act="dJump" data-t="${k}">${l}${k === 'pass' ? ' 🔒' : ''}${tabCnt[k] ? ` <small>${tabCnt[k]}</small>` : ''}</button>`).join('')}</div>
-    <fieldset class="fs d-body" ${dis}>${body}</fieldset>
-    <section class="d-sec" id="dsec-cmt" data-sec="cmt">${cmtHtml('speakers:' + s.id)}</section>
+      ${psec('pass', '여권 정보', `<div class="pgrid three">
+        ${cell('여권 영문명', inp('passport_name', 'HONG GILDONG'))}
+        ${cell('여권번호', ed ? inp('passport_no', '비어 있음', 'text', 40) : lock)}
+        ${cell('생년월일', ed ? inp('birth_date', 'YYYY-MM-DD', 'text', 10) : lock)}
+      </div>`, esc(s.passport_name || ''), '여권번호·생년월일은 편집자만 보여요')}
+    </fieldset>
+    ${cmtHtml('speakers:' + s.id)}
     <div class="sp-foot">
       <span>${creator ? esc(creator.full_name || creator.email) + ' 님이 만듦 · ' : ''}${fmtDT(s.created_at)} · 마지막 수정 ${fmtDT(s.updated_at)}</span>
+      ${ed ? '<button class="btn-danger" data-act="spDelete">연사 삭제</button>' : ''}
     </div>
   </div>`;
 }
-
-/* ---------- 상세: 한 페이지로 쭉 + 위쪽 탭은 바로가기 (스크롤하면 지금 위치가 표시됨) ---------- */
-function dOffset(panel) { const t = panel.querySelector('.d-tabs'); return t ? t.getBoundingClientRect().bottom - panel.getBoundingClientRect().top + 6 : 0; }
-function dJump(k) {
-  const panel = $('#spage .sp-panel'), el = $('#spage #dsec-' + k); if (!panel || !el) return;
-  const top = el.getBoundingClientRect().top - panel.getBoundingClientRect().top + panel.scrollTop - dOffset(panel);
-  panel.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-  $$('#spage .d-tab').forEach(b => b.classList.toggle('on', b.dataset.t === k));
-  S.dJumpLock = Date.now();
-}
-function dSpy() {
-  const panel = $('#spage .sp-panel'); if (!panel || !panel.querySelector('.d-tabs') || Date.now() - (S.dJumpLock || 0) < 700) return;
-  const off = dOffset(panel) + panel.getBoundingClientRect().top + 30;
-  let cur = null; $$('#spage .d-sec').forEach(sec => { if (sec.getBoundingClientRect().top <= off) cur = sec.dataset.sec; });
-  if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 4) cur = $$('#spage .d-sec').pop()?.dataset.sec || cur;
-  cur ||= 'basic';
-  $$('#spage .d-tab').forEach(b => b.classList.toggle('on', b.dataset.t === cur));
-}
-document.addEventListener('scroll', e => { if (e.target?.classList?.contains('sp20')) dSpy(); }, true);
-
-/* ---------- 피칭 연도: 같은 연사(person_id)를 연도별로 ---------- */
-function spYearsHtml(s) {
-  const projs = S.projects.filter(p => isSpeakerProject(p) && p.edition && (isMember(p.id) || p.id === s.project_id)).sort((a, b) => String(a.edition).localeCompare(String(b.edition)));
-  if (projs.length < 1 || !s.person_id) return '';
-  const rows = S.spYears?.person === s.person_id ? S.spYears.rows : null;
-  const chip = p => {
-    const r = rows?.find(x => x.project_id === p.id);
-    if (p.id === s.project_id) return `<span class="yr on" title="지금 보고 있는 연도">● ${esc(p.edition)}</span>`;
-    if (r) return `<button type="button" class="yr has" data-act="spYearGo" data-id="${r.id}" data-pid="${p.id}" title="${esc(p.edition)} 기록으로 이동">● ${esc(p.edition)}</button>`;
-    return `<button type="button" class="yr none" data-act="spYearCopy" data-pid="${p.id}" ${canEdit(p.id) ? '' : 'disabled'} title="${canEdit(p.id) ? `${esc(p.edition)} 연사 마스터에 이 연사를 복사해 연결` : '그 연도 편집 권한이 없어요'}">+ ${esc(p.edition)}</button>`;
-  };
-  return `<span class="yr-l">피칭 연도</span>${rows ? projs.map(chip).join('') : '<span class="hint">불러오는 중…</span>'}
-    ${canEdit() ? `<button type="button" class="yr-link" data-act="spYearLink" title="다른 연도에 이미 있는 같은 사람과 연결">다른 연도 연사와 연결</button>` : ''}
-    ${rows && rows.length > 1 && canEdit() ? `<button type="button" class="yr-link" data-act="spYearUnlink" title="이 연도 기록만 연결에서 빼기">연결 해제</button>` : ''}`;
-}
-async function loadSpYears(s) {
-  if (!s?.person_id) return;
-  const person = s.person_id;
-  S.spYears = { person, rows: null };
-  try { const rows = await api.personRows(person); if (S.spYears?.person === person) S.spYears.rows = rows; }
-  catch (e) { console.warn('person rows', e); if (S.spYears?.person === person) S.spYears.rows = [{ id: s.id, project_id: s.project_id }]; }
-  const box = $('#spYears'); const cur = spOf(S.spId); if (box && cur?.person_id === person) box.innerHTML = spYearsHtml(cur);
-}
-const SP_COPY_KEYS = ['name', 'name_ko', 'name_en', 'name_ko_last', 'name_ko_first', 'name_en_last', 'name_en_first', 'title_en', 'affil_en', 'bio_en', 'title_ko', 'affil_ko', 'bio_ko',
-  'nationality_id', 'speaker_email', 'contact_name', 'contact_email', 'onsite_phone', 'agency', 'referral', 'fields', 'keywords', 'priority', 'priority_note', 'passport_name'];
-async function spYearCopy(pid) {
-  const s = spOf(S.spId), p = S.projects.find(x => x.id === pid); if (!s || !p) return;
-  if (!confirm(`'${s.name || '이 연사'}'를 ${p.edition} 연사 마스터에 복사해 같은 사람으로 연결할까요?\n\n이름·소속·직함·Bio·연락처·분야·등급만 복사되고, 진행 단계는 '아이디어 피칭'으로 시작해요. (항공·숙박·일정·파일은 복사되지 않아요)`)) return;
-  const row = { project_id: pid, grp: 1, position: Date.now(), person_id: s.person_id };
-  SP_COPY_KEYS.forEach(k => { if (s[k] !== undefined && s[k] !== null && s[k] !== '') row[k] = Array.isArray(s[k]) ? [...s[k]] : s[k]; });
-  try { await api.createSpeaker(row); toast(`${p.edition} 연사 마스터에 복사했어요`); loadSpYears(s); }
-  catch (e) { err(e); }
-}
-function spYearLinkModal() {
-  const s = spOf(S.spId); if (!s) return;
-  const pids = S.projects.filter(p => isSpeakerProject(p) && p.id !== s.project_id && isMember(p.id)).map(p => p.id);
-  if (!pids.length) return toast('연결할 다른 연도의 연사 마스터가 없어요 (초대받은 연도만 보여요)', true);
-  openModal(`<h3>다른 연도 연사와 연결</h3>
-    <p class="sub">'${esc(s.name || '이 연사')}'와 같은 사람인 다른 연도의 연사를 고르세요. 연결하면 피칭 연도 칩으로 서로 오갈 수 있어요. 내용은 합쳐지지 않아요.</p>
-    <input type="text" id="lkQ" placeholder="이름으로 검색" value="${esc(s.name || '')}" autocomplete="off">
-    <div id="lkRes" class="lk-res"></div>
-    <div class="modal-foot"><button class="btn" data-act="closeModal">닫기</button></div>`);
-  let seq = 0, timer;
-  const run = async () => {
-    const my = ++seq, q = $('#lkQ')?.value.trim() || '', box = $('#lkRes'); if (!box) return;
-    box.innerHTML = '<div class="hint" style="padding:10px">검색 중…</div>';
-    try {
-      const res = (await api.searchSpeakers(q, pids)).filter(r => r.id !== s.id);
-      if (my !== seq || !$('#lkRes')) return;
-      box.innerHTML = res.length ? res.map(r => `<button type="button" class="lk-opt" data-id="${r.id}"><span class="tg tg-gray">${esc(S.projects.find(p => p.id === r.project_id)?.edition || '')}</span>${esc(r.name || '이름 없음')}${r.passport_name ? ` <span class="muted">· ${esc(r.passport_name)}</span>` : ''}</button>`).join('')
-        : '<div class="hint" style="padding:10px">찾는 연사가 없어요</div>';
-    } catch (e) { box.innerHTML = '<div class="hint" style="padding:10px">검색하지 못했어요</div>'; }
-  };
-  $('#lkQ').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 200); });
-  $('#lkRes').addEventListener('click', async e => {
-    const b = e.target.closest('.lk-opt'); if (!b) return;
-    try {
-      const other = (await api.personOf(b.dataset.id));
-      if (!other?.person_id) throw new Error('연결 정보를 찾지 못했어요. setup 폴더의 schema_v19를 실행했는지 확인해 주세요.');
-      await api.relinkPerson(s.person_id, other.person_id);
-      S.speakers.forEach(x => { if (x.person_id === s.person_id) x.person_id = other.person_id; });
-      closeModal(); toast('같은 연사로 연결했어요'); loadSpYears(spOf(s.id)); renderSpPage(true);
-    } catch (er) { err(er); }
-  });
-  run();
-}
-async function spYearUnlink() {
-  const s = spOf(S.spId); if (!s || !confirm('이 연도 기록을 다른 연도와의 연결에서 뺄까요? (내용은 그대로예요)')) return;
-  const nid = (crypto.randomUUID ? crypto.randomUUID() : newId());
-  if (await updateSpeaker(s.id, { person_id: nid }, null, { noUndo: true })) { toast('연결을 해제했어요'); loadSpYears(spOf(s.id)); }
-}
-async function spYearGo(id, pid) {
-  if (pid === S.pid) return openSpPage(id);
-  await openProject(pid);
-  if (spOf(id)) openSpPage(id);
-}
-
-/* ---------- 왼쪽 연사 카드 목록 ---------- */
-function spSideHtml() {
-  const v = sv(), ed = canEdit(), all = spSort(spVisible());
-  const list = all.filter(s => (!v.grpF || String(s.grp) === v.grpF) && (!v.priF || (v.priF === 'none' ? !s.priority : s.priority === v.priF)) && (!v.mine || (s.assignees || []).includes(S.me.id)));
-  const card = s => { const pr = optOf(PRI, s.priority), role = [s.affil_ko || s.affil_en, s.title_ko || s.title_en].filter(Boolean).join(' · ');
-    const ini = (s.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    return `<button type="button" class="sc ${S.spId === s.id ? 'on' : ''} ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}">
-      <span class="sc-av">${esc(ini)}</span>
-      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
-      ${s.diet_flag ? '<span class="sc-diet" title="특이식성">●</span>' : ''}
-      ${pr ? `<span class="sc-pri pri-${pr.k}">${pr.k}</span>` : '<span class="sc-pri none">–</span>'}</button>`; };
-  const groups = GROUPS.map(g => ({ g, L: list.filter(s => (s.grp ?? 1) === g.k) })).filter(x => x.L.length || (!v.grpF && x.g.k !== 0));
-  const opt = (k, val, label) => `<option value="${val}" ${String(v[k] || '') === String(val) ? 'selected' : ''}>${label}</option>`;
-  return `<div class="ss-top">
-      <div class="ss-row"><label class="ss-search">${ICON.search}<input id="spSearchIn" placeholder="이름·소속·키워드" value="${esc(v.q)}" autocomplete="off"></label>
-        ${ed ? '<button class="btn-primary" data-act="spAdd">+ 연사</button>' : ''}</div>
-      <div class="ss-row f3">
-        <select class="ss-sel" data-ssf="grpF" aria-label="진행 단계">${opt('grpF', '', '진행 전체')}${GROUPS.map(g => opt('grpF', g.k, g.label)).join('')}</select>
-        <select class="ss-sel" data-ssf="priF" aria-label="등급">${opt('priF', '', '등급 전체')}${PRI.map(p => opt('priF', p.k, p.label)).join('')}${opt('priF', 'none', '등급 없음')}</select>
-        <button type="button" class="ss-mine ${v.mine ? 'on' : ''}" data-act="spMine">${v.mine ? '✓ ' : ''}담당: 나</button>
-      </div></div>
-    <div class="ss-list" id="ssList">${groups.map(({ g, L }) => { const folded = v.fold.includes(g.k);
-      return `<div class="ss-g"><button type="button" class="ss-gh t-${g.tone}" data-act="spFold" data-grp="${g.k}"><span>${folded ? '▸' : '▾'} ${g.label}</span><small>${L.length}</small></button>
-        ${folded ? '' : (L.map(card).join('') || '<div class="ss-empty">없음</div>')}</div>`; }).join('') || '<div class="ss-empty" style="padding:20px">조건에 맞는 연사가 없어요</div>'}</div>
-    <div class="ss-foot"><span>${list.length}명${list.length < S.speakers.length ? ` / 전체 ${S.speakers.length}` : ''}</span>
-      <span><a data-act="spFilter" id="spFilterBtn2">필터</a> · <a data-act="spExport">엑셀</a> · <a data-act="spTab" data-tab="list">표로 보기</a></span></div>`;
-}
-document.addEventListener('change', e => {
-  const k = e.target.dataset?.ssf; if (!k) return;
-  sv()[k] = e.target.value; S.pinned.clear(); renderSpBody(true);
-});
 
 /* ---------- 종속관계 ---------- */
 function linksHtml() {
@@ -4059,7 +3696,7 @@ document.addEventListener('drop', e => {
 /* =====================================================================
    세션 마스터 (projects.kind = 'session')
    ===================================================================== */
-const SE_TABS = [['cards','목록'], ['list','표'], ['board','보드'], ['pillar','트랙'], ['tt','시간표']];
+const SE_TABS = [['list','목록'], ['board','보드'], ['pillar','트랙'], ['tt','시간표']];
 const DAYS = [7, 8, 9];
 const CATS = [['luncheon','Luncheon · 오찬'], ['session','Session · 세션'], ['private','Private · 프라이빗'], ['dinner','Dinner · 만찬'], ['interview','Interview · 인터뷰'], ['te','T.E'], ['special','Special Event · 스페셜 이벤트']];
 const CAT_LABEL = Object.fromEntries(CATS);
@@ -4165,19 +3802,9 @@ function renderSessionMain(p) {
   seRange();
   const tabs = SE_TABS.map(([k, l]) => `<button class="tab ${S.setab === k ? 'active' : ''}" data-act="seTab" data-tab="${k}">${k === 'pillar' ? PIL() : l}</button>`).join('');
   const v = ssv();
-  if (S.setab === 'cards') {
-    $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
-      <div class="split"><aside class="split-side" id="seBody"></aside><section class="split-dock" id="seDock"><div class="dock-empty">왼쪽에서 ${SEW()}을 고르세요</div></section></div>`;
-    dockPage($('#seDock'));
-    renderSeBody(true);
-    const keep = (S.seId && seOf(S.seId)) || (S.seLast && seOf(S.seLast));
-    if (keep) openSePage(keep.id);
-    else { const first = [...S.sessions].sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999))[0]; if (first) openSePage(first.id); }
-    return;
-  }
   $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
     <div class="sp-toolbar">
-      ${canEdit() ? `<button class="btn-primary" data-act="seAdd">+ ${SEW()} 추가</button>` : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
+      ${canEdit() ? '<button class="btn-primary" data-act="seAdd">+ 작업 추가</button>' : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
       <div class="sp-tools">
         <button class="tool" data-act="seExport" title="지금 보이는 세션 목록(필터·검색·정렬 적용)을 엑셀 파일로 내려받기">${ICON.download}엑셀 내려받기</button>
         <button class="tool" id="seFilterBtn" data-act="seFilter"></button>
@@ -4199,7 +3826,6 @@ function renderSeBody(force) {
   const b = $('#seBody'); if (!b) return; seRange();
   if (!force && inputFocusedIn('#seBody')) { pendBody = true; return; }
   pendBody = false;
-  if (S.setab === 'cards') { const L = b.querySelector('#ssList'), st0 = L?.scrollTop || 0; b.innerHTML = seSideHtml(); const L2 = b.querySelector('#ssList'); if (L2) L2.scrollTop = st0; return; }
   const sc = b.scrollTop, w0 = b.querySelector('.sp-wrap, .sboard, .tt-wrap'), sl = w0?.scrollLeft || 0, st = w0?.scrollTop || 0;
   b.innerHTML = S.setab === 'list' ? seListHtml() : S.setab === 'board' ? seBoardHtml('venue_id') : S.setab === 'pillar' ? seBoardHtml('pillar_id') : seTTHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard, .tt-wrap'); if (w) { w.scrollLeft = sl; w.scrollTop = st; }
@@ -4294,7 +3920,7 @@ function seBoardHtml(field) {
     return `<section class="scol" data-edrop="${c.k}" data-efield="${field}">
       <header>${c.head}<span class="cnt">${items.length}</span></header>
       <div class="scards">${items.map(s => seCardHtml(s, field)).join('')}</div>
-      ${ed ? `<button class="scol-add" data-act="seAdd" data-field="${field}" data-val="${c.k}">+ ${SEW()} 추가</button>` : ''}
+      ${ed ? `<button class="scol-add" data-act="seAdd" data-field="${field}" data-val="${c.k}">+ 작업 추가</button>` : ''}
     </section>`;
   }).join('')}</div>`;
 }
@@ -4663,8 +4289,7 @@ function openSePage(id, focusName) {
   CMT.cur = null; CMT.key = 'sessions:' + id; CMT.list = []; CMT.loaded = false; CMT.error = null;
   $('#spage').classList.add('open');
   renderSePage(true); cmtSet('sessions:' + id);
-  if (focusName) setTimeout(() => $('#spage .d-name, #spage .sp-title')?.focus(), 60);
-  if (S.setab === 'cards') $$('#ssList .se-c').forEach(c => c.classList.toggle('on', c.dataset.eid === id));
+  if (focusName) setTimeout(() => $('#spage .sp-title')?.focus(), 60);
 }
 function renderSePage(force) {
   const root = $('#spage'), s = seOf(S.seId);
@@ -4674,7 +4299,6 @@ function renderSePage(force) {
   const sc = root.querySelector('.sp-panel')?.scrollTop || 0;
   root.innerHTML = sePageHtml(s);
   root.querySelector('.sp-panel').scrollTop = sc;
-  dSpy();
   $$('textarea.ta', root).forEach(autosize);
 }
 function fileKind(f) {
@@ -4685,106 +4309,83 @@ function fileKind(f) {
 function sePageHtml(s) {
   seRange();
   const ed = canEdit(), dis = ed ? '' : 'disabled', side = sideNow();
-  const tab = ['basic', 'files', 'cmt'].includes(S.seDTab) ? S.seDTab : 'basic';
-  const sel = (field, inner) => `<button class="cell-btn fx-pick" data-act="sePick" data-field="${field}" data-eid="${s.id}">${inner}</button>`;
-  const ta = (f, label, rows, ph = '') => `<div class="fx"><span class="fx-lab">${label}<a class="copy-btn" data-act="seCopy" data-f="${f}" role="button">${ICON.copy}복사</a></span>
+  const sel = (field, inner) => `<button class="cell-btn pv-btn" data-act="sePick" data-field="${field}" data-eid="${s.id}">${inner}</button>`;
+  const ta = (f, label, rows, ph = '') => `<div class="copy-field"><div class="cf-h"><span class="sl">${label}</span>
+      <a class="copy-btn" data-act="seCopy" data-f="${f}" role="button">${ICON.copy}복사</a></div>
     <textarea class="ta" data-ef="${f}" rows="${rows}" placeholder="${ph}">${esc(s[f] || '')}</textarea></div>`;
   const ppl = role => S.sePeopleAll.filter(x => x.session_id === s.id && x.role === role).sort((a, b) => a.position - b.position);
-  const pplCol = (role, label) => { const L = ppl(role); return `<div class="fx-card ppl20"><div class="fx-h">${label}<small>${L.length}</small>
-      ${ed ? `<button type="button" class="add-link" style="margin-left:auto" data-act="sePersonAdd" data-role="${role}">+ 연사 찾기</button>` : ''}</div>
-    ${L.map(r => { const t = S.spkNames[r.speaker_id], c = S.spkCards?.[r.speaker_id], role2 = [c?.affil_ko || c?.affil_en, c?.title_ko || c?.title_en].filter(Boolean).join(' · ');
-      const ini = (t?.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      return `<div class="pp-row"><span class="sc-av">${esc(ini)}</span><div class="pp-b">${t
-        ? (isMember(t.project_id)
-          ? `<a class="pc-name" data-act="sePersonOpen" data-spk="${r.speaker_id}" data-pid="${t.project_id}" title="연사 마스터에서 열기">${t.name ? esc(t.name) : '이름 없음'} ↗</a>`
-          : `<span class="pc-name pc-locked" title="연사 마스터 권한이 없어서 연사 페이지는 열 수 없어요">${t.name ? esc(t.name) : '이름 없음'} 🔒</span>`) + clashBadge(s, r.speaker_id)
-        : '<span class="lk-lock">🔒 볼 수 없는 연사</span>'}${role2 ? `<small>${esc(role2)}</small>` : ''}</div>
-        ${ed ? `<button type="button" class="icon-btn sm" data-act="sePersonDel" data-id="${r.id}" title="빼기" aria-label="빼기">✕</button>` : ''}</div>`; }).join('')
-      || '<div class="tg-empty" style="padding:4px 2px">아직 없어요</div>'}</div>`; };
+  const pplCol = (role, label) => { const L = ppl(role); return `<div class="ppl-col"><div class="ppl-h">${label}<span class="cnt">${L.length}</span></div>
+    ${L.map(r => { const t = S.spkNames[r.speaker_id]; return `<div class="person-chip">${t
+      ? (isMember(t.project_id)
+        ? `<a class="pc-name" data-act="sePersonOpen" data-spk="${r.speaker_id}" data-pid="${t.project_id}" title="연사 마스터에서 열기">${t.name ? esc(t.name) : '이름 없음'}<span class="pc-go">↗</span></a>`
+        : `<span class="pc-name pc-locked" title="연사 마스터 권한이 없어서 연사 페이지는 열 수 없어요">${t.name ? esc(t.name) : '이름 없음'}<span class="pc-go">🔒</span></span>`) + clashBadge(s, r.speaker_id)
+      : '<span class="lk-lock">🔒 볼 수 없는 연사</span>'}${ed ? `<button type="button" class="icon-btn sm" data-act="sePersonDel" data-id="${r.id}" title="빼기">✕</button>` : ''}</div>`; }).join('')
+      || '<div class="tg-empty" style="padding:4px 2px">아직 없어요</div>'}
+    ${ed ? `<button type="button" class="add-link" data-act="sePersonAdd" data-role="${role}">+ ${label} 추가</button>` : ''}</div>`; };
   const files = Array.isArray(s.files) ? s.files : [];
   const creator = prof(s.created_by);
-  const pm = side ? null : premeetOf(s, venueOf(s.venue_id));
-  const pmNames = [...new Set(S.sePeopleAll.filter(x => x.session_id === s.id).map(x => x.speaker_id))].map(id => S.spkNames[id]?.name || '🔒');
-  const cell = (label, inner) => `<div class="is-cell"><span>${label}</span>${inner}</div>`;
-  const cmtN = CMT.key === 'sessions:' + s.id && CMT.loaded ? CMT.list.length : 0;
+  return `<div class="sp-backdrop" data-act="spClose"></div>
+  <div class="sp-panel" data-eid="${s.id}">
+    <div class="sp-top">${ed ? '' : '<span class="ro-note">보기 전용</span>'}<span class="sp"></span>
+      <button class="btn" data-act="pageNewWin" data-kind="se" data-id="${s.id}" title="이 세션 페이지를 새 창(탭)에서 크게 열기">${ICON.expand}새 창</button>
+      <button class="btn agenda-btn" data-act="sePreAgenda" data-doc="Pre Agenda" title="이 세션 전체 또는 연사별 Pre Agenda">${ICON.pdf}Pre Agenda</button>
+      <button class="btn agenda-btn" data-act="sePreAgenda" data-doc="Final Agenda" title="이 세션 전체 또는 연사별 Final Agenda">${ICON.pdf}Final Agenda</button>
+      <button class="btn" data-act="history" data-table="sessions" data-id="${s.id}" title="누가 언제 무엇을 바꿨는지 보기">${ICON.history}수정 기록</button><button class="btn" data-act="spClose">닫기 ✕</button></div>
+    <fieldset class="fs" ${dis}>
+      <input class="sp-title" data-ef="name" value="${esc(s.name)}" placeholder="${SEW()} 이름" maxlength="200">
+      <div class="props"><label>${ICON.user}담당자</label><div class="pv">${sel('assignees', asgHtml(s))}</div></div>
 
-  const secOf = tab => tab === 'basic' ? `
-      <div class="fx-two">${pplCol('speaker', 'Speaker')}${pplCol('moderator', 'Moderator')}</div>
-      ${pm ? `<div class="pm-line"><b>프리미팅 자동</b><span>${pm.day}일 ${pmTimeLabel(pm)} · ${PM_PLACE.ko} · ${pmNames.length ? pmNames.map(esc).join(', ') : '연사를 넣으면 자동으로 참석'}</span></div>` : ''}
-      <div class="fx-card"><div class="fx-two">
-        <label class="fx"><span class="fx-lab">영문 제목<a class="copy-btn" data-act="seCopy" data-f="title_en" role="button">${ICON.copy}복사</a></span><input class="fx-in" data-ef="title_en" value="${esc(s.title_en || '')}" placeholder="English title" maxlength="300"></label>
-        <label class="fx"><span class="fx-lab">국문 제목<a class="copy-btn" data-act="seCopy" data-f="title_ko" role="button">${ICON.copy}복사</a></span><input class="fx-in" data-ef="title_ko" value="${esc(s.title_ko || '')}" placeholder="국문 제목" maxlength="300"></label>
-        ${side ? '' : ta('synop_en', '영문 시놉시스', 6) + ta('synop_ko', '국문 시놉시스', 6)}
-      </div></div>
-      ${side || !(s.meetings || []).length ? '' : `<div class="fx-card"><div class="fx-h">기타일정 <small>예전에 적은 내용 · 이제 부대행사 마스터에서 관리해요</small></div>
+      <h4 class="sec">종속관계 <span class="sec-hint">[2027] 연사 마스터 (선행) → 이 ${SEW()} (후행)</span></h4>
+      <div class="ppl-grid">${pplCol('speaker', 'Speaker')}${pplCol('moderator', 'Moderator')}</div>
+
+      <table class="kv-table"><tbody>
+        <tr><th>장소</th><td>${sel('venue_id', colorTag(venueOf(s.venue_id)) || EMPTY)}</td></tr>
+        <tr><th>${PIL()}</th><td>${sel('pillar_id', colorTag(pillarOf(s.pillar_id)) || EMPTY)}</td></tr>
+      </tbody></table>
+
+      ${side ? '' : `<h4 class="sec">공개 여부</h4>
+      <div class="opt-chips"><button type="button" class="ochip ${s.is_public !== false ? 'on' : ''}" data-act="sePub" data-v="1">공개</button>
+        <button type="button" class="ochip ${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>`}
+
+      <h4 class="sec">${side ? '제목' : '제목 · 시놉시스'}</h4>
+      ${ta('title_en', '영문제목', 1)}${ta('title_ko', '국문제목', 1)}${side ? '' : ta('synop_en', '영문시놉', 4) + ta('synop_ko', '국문시놉', 4)}
+
+      <h4 class="sec">${FILEW()} <span class="sec-hint">PPTX, PDF, JPG, PNG, DOCX, MP4 등 · 여러 개 · 50MB 이하</span></h4>
+      <div class="files">
+        ${files.length ? files.map(x => { const [lbl, cls] = fileKind(x); return `<div class="file-item"><span class="fic ${cls}">${lbl}</span>
+          <a class="fname" data-act="seFileOpen" data-path="${esc(x.path)}" title="열기">${esc(x.name)}</a><span class="fsize">${fmtSize(x.size)}</span>
+          <button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button></div>`; }).join('') : `<div class="hint">첨부된 ${FILEW()}가 없어요</div>`}
+        <label class="btn file-btn">+ 파일 첨부<input type="file" accept="${SE_ACCEPT}" multiple data-upload="session" class="vh"></label>
+      </div>
+
+      <h4 class="sec">${side ? '일정' : '세션일정'}</h4>
+      <div class="props">
+        <label>날짜</label><div class="pv"><div class="seg">${DAYS.map(d => `<button type="button" class="${s.day === d ? 'on-yes' : ''}" data-act="seSetDay" data-day="${d}">${d}일</button>`).join('')}
+          <button type="button" class="${s.day ? '' : 'on-no'}" data-act="seSetDay" data-day="">미정</button></div></div>
+        <label>시간</label><div class="pv"><div class="time-range">
+          ${timeBtn(s, 'start_time', true)}<span>–</span>${timeBtn(s, 'end_time', true)}
+          <span class="hint">${ttHint(' ~ ')} · 10분 단위</span></div></div>
+      </div>
+      <p class="hint" style="margin-top:6px">날짜·장소·시간을 모두 넣으면 시간표 탭에 자동으로 나와요. 같은 날짜·장소에서 시간이 겹치면 입력할 수 없어요 (장소 미정은 제외).</p>
+
+      ${side || !(s.meetings || []).length ? '' : `<hr class="sched-div">
+      <h4 class="sec">기타일정 <span class="sec-hint">예전에 적은 내용 · 이제 오찬·만찬·인터뷰 등은 부대행사 마스터에서 관리해요</span></h4>
       <div class="meetings">${(s.meetings || []).map(m => `<div class="meet-row" data-mid="${esc(m.id)}">
           <button type="button" class="cell-btn mt-type" data-act="meetType" data-mid="${esc(m.id)}" title="미팅 종류 선택">${meetTypeHtml(m)}</button>
           <select class="mt-in" data-mf="day"><option value="">날짜</option>${DAYS.map(d => `<option value="${d}" ${m.day === d ? 'selected' : ''}>${d}일</option>`).join('')}</select>
           <div class="mt-time"><select class="mt-in" data-mf="time" title="시작 시간">${timeOptions(m.time || '').replace('>시간<', '>시작<')}</select><span>–</span>
             <select class="mt-in" data-mf="end" title="끝나는 시간">${timeOptions(m.end || '').replace('>시간<', '>종료<')}</select></div>
           <input class="mt-in" data-mf="title" value="${esc(m.title || '')}" placeholder="미팅 내용" maxlength="120">
-          <button type="button" class="cell-btn mt-type mt-place" data-act="meetPlace" data-mid="${esc(m.id)}" title="장소 선택">${meetPlaceHtml(m)}</button>
-          <button type="button" class="icon-btn" data-act="meetDel" data-mid="${esc(m.id)}" title="미팅 삭제">✕</button></div>`).join('')}</div></div>`}`
-  : tab === 'files' ? `<div class="fx-card"><div class="fx-h">${FILEW()} <small>PPTX, PDF, JPG, PNG, DOCX, MP4 등 · 여러 개 · 50MB 이하</small></div>
-      <div class="files">
-        ${files.length ? files.map(x => { const [lbl, cls] = fileKind(x); return `<div class="file-item"><span class="fic ${cls}">${lbl}</span>
-          <a class="fname" data-act="seFileOpen" data-path="${esc(x.path)}" title="열기">${esc(x.name)}</a><span class="fsize">${fmtSize(x.size)}</span>
-          <button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button></div>`; }).join('') : `<div class="hint">첨부된 ${FILEW()}가 없어요</div>`}
-        <label class="btn file-btn">+ 파일 첨부<input type="file" accept="${SE_ACCEPT}" multiple data-upload="session" class="vh"></label>
-      </div></div>`
-  : '';
-  const body = [['basic', '기본'], ['files', FILEW()]].map(([k, l]) => `<section class="d-sec" id="dsec-${k}" data-sec="${k}">${k === 'basic' ? '' : `<h3 class="d-sh">${l}</h3>`}${secOf(k)}</section>`).join('');
-
-  return `<div class="sp-backdrop" data-act="spClose"></div>
-  <div class="sp-panel sp20" data-eid="${s.id}">
-    <div class="d-head">
-      <input class="d-name" data-ef="name" value="${esc(s.name)}" placeholder="${SEW()} 이름" maxlength="200" ${dis}>
-      <span class="d-alt">${esc(s.title_en && s.title_en !== s.name ? s.title_en : '')}</span>
-      <span class="d-saved">${ed ? '● 저장됨' : '보기 전용'}</span>
-      <span class="sp"></span>
-      <button class="btn agenda-btn" data-act="sePreAgenda" data-doc="Pre Agenda" title="이 ${SEW()} 전체 또는 연사별 Pre Agenda">${ICON.pdf}Pre Agenda ▾</button>
-      <button class="btn agenda-btn" data-act="sePreAgenda" data-doc="Final Agenda" title="이 ${SEW()} 전체 또는 연사별 Final Agenda">${ICON.pdf}Final Agenda ▾</button>
-      <button class="btn d-more" data-act="seMore" aria-label="더보기 (새 창, 수정 기록, 삭제)">⋯</button>
-      <button class="btn d-close" data-act="spClose" aria-label="닫기">✕</button>
-    </div>
-    <fieldset class="fs" ${dis} style="margin-bottom:10px">
-      <div class="info-strip ${side ? 'side' : ''}">
-        ${cell('날짜', sel('day', s.day ? `<b>${s.day}일</b>` : '<span class="tg-empty">미정</span>'))}
-        ${cell(`시간 <small>${ttHint()}</small>`, `<div class="is-time">${timeBtn(s, 'start_time')}<span>–</span>${timeBtn(s, 'end_time')}</div>`)}
-        ${cell('장소', sel('venue_id', colorTag(venueOf(s.venue_id)) || EMPTY))}
-        ${cell(PIL(), sel('pillar_id', colorTag(pillarOf(s.pillar_id)) || EMPTY))}
-        ${cell('담당', sel('assignees', asgHtml(s)))}
-        ${side ? '' : cell('공개', `<div class="pub-seg"><button type="button" class="${s.is_public !== false ? 'on' : ''}" data-act="sePub" data-v="1">공개</button><button type="button" class="${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>`)}
-      </div>
+          <button type="button" class="cell-btn mt-type mt-place" data-act="meetPlace" data-mid="${esc(m.id)}" title="장소 선택 (세션 장소 토글과 같은 목록)">${meetPlaceHtml(m)}</button>
+          <button type="button" class="icon-btn" data-act="meetDel" data-mid="${esc(m.id)}" title="미팅 삭제">✕</button></div>`).join('')}
+        </div>`}
     </fieldset>
-    <div class="d-tabs">${[['basic', '기본'], ['files', FILEW()], ['cmt', '댓글']].map(([k, l]) => `<button type="button" class="d-tab ${k === 'basic' ? 'on' : ''}" data-act="dJump" data-t="${k}">${l}${k === 'files' && files.length ? ` <small>${files.length}</small>` : ''}${k === 'cmt' && cmtN ? ` <small>${cmtN}</small>` : ''}</button>`).join('')}</div>
-    <fieldset class="fs d-body" ${dis}>${body}</fieldset>
-    <section class="d-sec" id="dsec-cmt" data-sec="cmt">${cmtHtml('sessions:' + s.id)}</section>
-    <div class="sp-foot"><span>${creator ? esc(creator.full_name || creator.email) + ' 님이 만듦 · ' : ''}${fmtDT(s.created_at)} · 마지막 수정 ${fmtDT(s.updated_at)}</span></div>
+    ${cmtHtml('sessions:' + s.id)}
+    <div class="sp-foot">
+      <span>${creator ? esc(creator.full_name || creator.email) + ' 님이 만듦 · ' : ''}${fmtDT(s.created_at)} · 마지막 수정 ${fmtDT(s.updated_at)}</span>
+      ${ed ? '<button class="btn-danger" data-act="seDelete">세션 삭제</button>' : ''}
+    </div>
   </div>`;
-}
-
-/* ---------- 왼쪽 세션 목록 (날짜별) ---------- */
-function seSideHtml() {
-  const v = ssv(), ed = canEdit(), side = sideNow();
-  const dayF = v.sday || '';
-  const list = seSort(seVisible()).filter(s => !dayF || (dayF === 'none' ? !s.day : String(s.day) === dayF))
-    .sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999) || (venueOf(a.venue_id)?.sort_order ?? 99) - (venueOf(b.venue_id)?.sort_order ?? 99));
-  const nPpl = id => new Set(S.sePeopleAll.filter(x => x.session_id === id).map(x => x.speaker_id)).size;
-  const card = s => { const n = nPpl(s.id), meta = [venueOf(s.venue_id)?.name || '장소 미정', pillarOf(s.pillar_id)?.name, n ? `연사 ${n}` : ''].filter(Boolean).join(' · ');
-    return `<button type="button" class="sc se-c ${S.seId === s.id ? 'on' : ''}" data-act="seOpen" data-eid="${s.id}">
-      <span class="se-t">${s.start_time ? `<b>${hm(s.start_time).replace(/^0/, '')}</b><small>${s.end_time ? '–' + hm(s.end_time).replace(/^0/, '') : ''}</small>` : '<span class="muted">미정</span>'}</span>
-      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</b><small class="${!n && !side ? 'warn' : ''}">${esc(meta)}${!n && !side ? ' · 연사 없음' : ''}</small></span></button>`; };
-  const days = [...DAYS.map((d, i) => ({ k: String(d), label: `${d}일 (Day ${i + 1})`, L: list.filter(s => s.day === d) })), { k: 'none', label: '날짜 미정', L: list.filter(s => !s.day) }].filter(g => g.L.length);
-  const segB = (k, l) => `<button type="button" class="${dayF === k ? 'on' : ''}" data-act="seSDay" data-k="${k}">${l}</button>`;
-  return `<div class="ss-top">
-      <div class="ss-row"><label class="ss-search">${ICON.search}<input id="seSearchIn" placeholder="${SEW()} 이름·제목" value="${esc(v.q)}" autocomplete="off"></label>
-        ${ed ? `<button class="btn-primary" data-act="seAdd">+ ${SEW()}</button>` : ''}</div>
-      <div class="ss-row"><div class="day-seg">${segB('', '전체')}${DAYS.map(d => segB(String(d), d + '일')).join('')}${segB('none', '미정')}</div></div></div>
-    <div class="ss-list" id="ssList">${days.map(g => `<div class="ss-g"><div class="ss-gh t-gray"><span>${g.label}</span><small>${g.L.length}</small></div>${g.L.map(card).join('')}</div>`).join('')
-      || `<div class="ss-empty" style="padding:20px">${side ? '부대행사가' : '세션이'} 없어요</div>`}</div>
-    <div class="ss-foot"><span>${list.length}개${side ? '' : ' · 프리미팅은 자동'}</span>
-      <span><a data-act="seFilter" id="seFilterBtn2">필터</a> · <a data-act="seExport">엑셀</a> · <a data-act="seTab" data-tab="tt">시간표</a> · <a data-act="seTab" data-tab="list">표</a></span></div>`;
 }
 
 /* ---------- 오전/오후 시간 선택 ---------- */
@@ -5319,11 +4920,11 @@ function scHtml() {
     <td><input class="cell-in" data-cf="hotel" value="${esc(x.hotel)}" placeholder="숙박 내용" maxlength="300"></td>
   </tr>`).join('');
   return `<div class="sc-banner">🔒 <b>대외비</b> · 이 목록은 이 프로젝트에 초대받은 ${members}명만 볼 수 있어요. 편집자라도 초대받지 않았으면 내용은 보이지 않아요.</div>
-  <div class="sc-top">${ed ? '<button class="btn-primary" data-act="scAdd">+ 연사 추가</button>' : '<span class="ro-note">보기 전용</span>'}
+  <div class="sc-top">${ed ? '<button class="btn-primary" data-act="scAdd">+ 작업 추가</button>' : '<span class="ro-note">보기 전용</span>'}
     <span class="muted sc-hint">연사료는 달러(USD) 기준 · 무료는 0이나 빈칸</span></div>
   <div class="sp-wrap sc-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sc-table">
     <thead><tr><th class="sc-name">이름</th><th class="sc-asg">담당자</th><th class="num sc-fee">연사료 (USD)</th><th>항공권</th><th>숙박</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="5" class="muted" style="padding:18px">아직 없어요. 위의 <b>+ 연사 추가</b>로 시작하세요.</td></tr>'}</tbody>
+    <tbody>${rows || '<tr><td colspan="5" class="muted" style="padding:18px">아직 없어요. 위의 <b>+ 작업 추가</b>로 시작하세요.</td></tr>'}</tbody>
     <tfoot id="scFoot">${scFootHtml()}</tfoot>
   </table></fieldset></div>`;
 }
@@ -6372,23 +5973,6 @@ const ACT = {
   spTab: el => { closePop(); S.stab = el.dataset.tab; renderMain(); },
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
-  dJump: el => dJump(el.dataset.t),
-  spGrp: el => { const s = spOf(S.spId), v = Number(el.dataset.v); if (s && canEdit() && s.grp !== v) updateSpeaker(s.id, { grp: v }); },
-  spPri: el => { const s = spOf(S.spId), v = el.dataset.v; if (s && canEdit()) updateSpeaker(s.id, { priority: s.priority === v ? null : v }); },
-  spDiet: () => { const s = spOf(S.spId); if (s && canEdit()) updateSpeaker(s.id, { diet_flag: !s.diet_flag }); },
-  spMine: () => { const v = sv(); v.mine = !v.mine; S.pinned.clear(); renderSpBody(true); },
-  spFieldPick: el => { const s = spOf(S.spId); if (!s || !canEdit()) return;
-    pickList(el, { multi: true, value: s.fields || [], title: '분야 · 여러 개 고를 수 있어요', options: FIELDS.map(x => ({ v: x, text: x, html: `<span>${esc(x)}</span>` })),
-      onPick: vals => updateSpeaker(s.id, { fields: FIELDS.filter(x => vals.includes(x)) }) }); },
-  spMore: el => { const s = spOf(S.spId); if (!s) return; const ed = canEdit();
-    const opts = [{ v: 'win', text: '새 창', html: '새 창으로 크게 열기' }, { v: 'hist', text: '기록', html: '수정 기록' },
-      ...(ed ? [{ v: 'done', text: '완료', html: s.done ? '완료 표시 해제' : '✓ 완료로 표시' }, { v: 'del', text: '삭제', html: '<span style="color:#dc2626">이 연도 기록 삭제</span>' }] : [])];
-    pickList(el, { options: opts, onPick: v => v === 'win' ? ACT.pageNewWin({ dataset: { kind: 'sp', id: s.id } }) : v === 'hist' ? historyModal('speakers', s.id)
-      : v === 'done' ? updateSpeaker(s.id, { done: !s.done }) : spDelete() }); },
-  spYearGo: el => spYearGo(el.dataset.id, el.dataset.pid),
-  spYearCopy: el => spYearCopy(el.dataset.pid),
-  spYearLink: () => spYearLinkModal(),
-  spYearUnlink: () => spYearUnlink(),
   spClose: () => closeSpPage(),
   spDone: el => { const s = spOf(el.dataset.sid); if (s && canEdit()) updateSpeaker(s.id, { done: !s.done }); },
   spPick: el => spPick(el),
@@ -6435,11 +6019,6 @@ const ACT = {
   seTab: el => { closePop(); S.setab = el.dataset.tab; renderMain(); },
   seAdd: el => seAdd(el),
   seOpen: el => openSePage(el.dataset.eid),
-  seSDay: el => { ssv().sday = el.dataset.k; renderSeBody(true); },
-  seMore: el => { const s = seOf(S.seId); if (!s) return;
-    const opts = [{ v: 'win', text: '새 창', html: '새 창으로 크게 열기' }, { v: 'hist', text: '기록', html: '수정 기록' },
-      ...(canEdit() ? [{ v: 'del', text: '삭제', html: `<span style="color:#dc2626">${SEW()} 삭제</span>` }] : [])];
-    pickList(el, { options: opts, onPick: v => v === 'win' ? ACT.pageNewWin({ dataset: { kind: 'se', id: s.id } }) : v === 'hist' ? historyModal('sessions', s.id) : ACT.seDelete() }); },
   seDel: el => seDelete(el.dataset.eid),
   seDelete: () => seDelete(),
   sePick: el => sePick(el),
