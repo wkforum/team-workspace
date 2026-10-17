@@ -2927,12 +2927,22 @@ function inputFocusedIn(sel) {
   const a = document.activeElement;
   return !!(a && a.closest && a.closest(sel) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'checkbox' && a.type !== 'file');
 }
+// 왼쪽 목록 다시 그리기: 검색칸에 입력 중이면 검색칸은 그대로 두고 목록만 바꿈 (한글 입력이 끊기지 않게)
+function patchSide(b, html) {
+  const L = b.querySelector('#ssList'), st = L?.scrollTop || 0, top = b.querySelector('.ss-top');
+  if (top && top.contains(document.activeElement)) {
+    const t = document.createElement('div'); t.innerHTML = html;
+    const nl = t.querySelector('#ssList'), nf = t.querySelector('.ss-foot');
+    if (L && nl) L.replaceWith(nl); const of = b.querySelector('.ss-foot'); if (of && nf) of.replaceWith(nf);
+  } else b.innerHTML = html;
+  const L2 = b.querySelector('#ssList'); if (L2) L2.scrollTop = st;
+}
 function renderSpBody(force) {
   const b = $('#spBody'); if (!b) return;
   if (!force && inputFocusedIn('#spBody')) { pendBody = true; return; }
   pendBody = false;
   const sc = b.scrollTop, sl = b.querySelector('.sp-wrap, .sboard')?.scrollLeft || 0;
-  if (S.stab === 'cards') { const L = b.querySelector('#ssList'), st = L?.scrollTop || 0; b.innerHTML = spSideHtml(); const L2 = b.querySelector('#ssList'); if (L2) L2.scrollTop = st; return; }
+  if (S.stab === 'cards') { patchSide(b, spSideHtml()); return; }
   b.innerHTML = S.stab === 'list' ? spListHtml() : S.stab === 'status' ? spBoardHtml('grp')
     : S.stab === 'flight' ? spBoardHtml('flight_status') : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : spDashHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard'); if (w) w.scrollLeft = sl;
@@ -4199,7 +4209,7 @@ function renderSeBody(force) {
   const b = $('#seBody'); if (!b) return; seRange();
   if (!force && inputFocusedIn('#seBody')) { pendBody = true; return; }
   pendBody = false;
-  if (S.setab === 'cards') { const L = b.querySelector('#ssList'), st0 = L?.scrollTop || 0; b.innerHTML = seSideHtml(); const L2 = b.querySelector('#ssList'); if (L2) L2.scrollTop = st0; return; }
+  if (S.setab === 'cards') { patchSide(b, seSideHtml()); return; }
   const sc = b.scrollTop, w0 = b.querySelector('.sp-wrap, .sboard, .tt-wrap'), sl = w0?.scrollLeft || 0, st = w0?.scrollTop || 0;
   b.innerHTML = S.setab === 'list' ? seListHtml() : S.setab === 'board' ? seBoardHtml('venue_id') : S.setab === 'pillar' ? seBoardHtml('pillar_id') : seTTHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard, .tt-wrap'); if (w) { w.scrollLeft = sl; w.scrollTop = st; }
