@@ -1619,6 +1619,27 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 
 .ko-p{font-weight:500;color:var(--muted);font-size:.92em}
 .name-cell .nm-ko{flex:none;white-space:nowrap;padding-right:8px;font-size:12px}
+
+/* v22 */
+.fx-main{position:relative}
+.pub-tog{position:absolute;top:10px;right:12px;display:flex;align-items:center;gap:0;font-size:12px;z-index:2}
+.pub-tog>span{font-weight:700;margin-right:6px;color:var(--muted)}
+.pub-tog button{height:24px;padding:0 9px;border:1px solid var(--line2);background:#fff;font-size:11.5px;font-weight:700;color:#9aa1af}
+.pub-tog button:first-of-type{border-radius:6px 0 0 6px}.pub-tog button:last-of-type{border-radius:0 6px 6px 0;border-left:0}
+.pub-tog.on button.sel{background:#1f9d55;border-color:#1f9d55;color:#fff}
+.pub-tog.off button.sel{background:#d64545;border-color:#d64545;color:#fff}
+.pub-tog button:disabled{opacity:.5;cursor:default}
+.sp20 .fx-main .fx-grid{padding-top:22px}
+.sc-off{font-size:10.5px;padding:0 5px;vertical-align:1px}
+.bio-under .fx-two{gap:12px}
+.pm-line{flex-wrap:wrap;gap:6px 8px}
+.pm-t{width:58px;height:26px;border:1px solid #c9d3ff;border-radius:5px;padding:0 6px;font:inherit;font-variant-numeric:tabular-nums;background:#fff;color:var(--text)}
+.pm-v{height:26px;padding:0 8px;border:1px solid #c9d3ff;border-radius:5px;background:#fff;color:var(--text);font-size:12.5px}
+.pm-line .sp{flex:1}.pm-line small{color:#5b6fb8;font-size:11.5px}
+.pm-reset{font-size:12px;color:var(--accent);text-decoration:underline}
+.pm-who{color:var(--accent)}
+.ent-table{min-width:900px}.ent-table td{padding:0}.ent-sp a{display:block;padding:0 10px;cursor:pointer;font-weight:600}
+.se-spk{font-weight:500;color:var(--accent);font-size:12.5px}
 </style>
 </head>
 <body>
@@ -1974,7 +1995,7 @@ function demoApi() {
     { id:'p6', name:'[2026] 연사 마스터', color:'#4f46e5', sort_order:1, kind:'speaker', edition:'2026' },
     { id:'p5', name:'[2027] 부대행사 마스터', color:'#be123c', sort_order:5, kind:'session', side_events:true, edition:'2027' },
     { id:'p3', name:'[2027] 연사 대외비', color:'#dc2626', sort_order:3, kind:'secret', sync_confirmed:true, edition:'2027' },
-    { id:'p4', name:'[2027] 차량 스케줄', color:'#d97706', sort_order:4, kind:'basic', sync_confirmed:true, vehicle_tab:true, edition:'2027' },
+    { id:'p4', name:'[2027] 차량 스케줄', color:'#d97706', sort_order:4, kind:'basic', sync_confirmed:false, vehicle_tab:true, edition:'2027' },
   ];
   const members = [];
   const add = (pid, u, role = 'editor') => { if (!members.some(m => m.project_id === pid && m.user_id === u)) members.push({ project_id: pid, user_id: u, role }); };
@@ -1985,7 +2006,7 @@ function demoApi() {
   const SPD = (o, i) => ({ id:'s' + i, project_id:'p1', name:'', grp:1, position:i, done:false, assignees:[], nationality_id:null, flight_status:'none', hotel_status:'none', priority:null,
     name_ko:'', name_en:'', name_ko_last:'', name_ko_first:'', name_en_last:'', name_en_first:'', name_order:'gf', memo:'', passport_name:'', passport_no:'', birth_date:'', title_en:'', affil_en:'', bio_en:'', title_ko:'', affil_ko:'', bio_ko:'', photo_path:null,
     speaker_email:'', contact_name:'', contact_email:'', onsite_phone:'', flight_info:'', flight_note:'', flight_files:[], check_in:null, check_out:null, hotel_note:'', arr_date:null, arr_time:'', arr_flight:'', arr_airport:'', dep_date:null, dep_time:'', dep_flight:'', dep_airport:'',
-    day1:false, day2:false, day3:false, opening:false, vip_dinner:false, gala:false, diet_flag:false, diet_note:'', fields:[], keywords:[], agency:'', referral:'', attachments:[], entourage:[], created_by:'u1',
+    day1:false, day2:false, day3:false, opening:false, vip_dinner:false, gala:false, diet_flag:false, diet_note:'', fields:[], keywords:[], agency:'', referral:'', attachments:[], entourage:[], is_public:true, created_by:'u1',
     created_at:new Date(Date.now() - (20 - i) * 864e5).toISOString(), updated_at:new Date(Date.now() - (10 - i) * 36e5).toISOString(), ...o });
   const speakers = [
     { name:'연사 섭외 가이드 (먼저 읽어 주세요)', grp:0, assignees:['u1'] },
@@ -2015,7 +2036,7 @@ function demoApi() {
   const meetTypes = [['Luncheon · 오찬','#d97706'],['Session · 세션','#2563eb'],['Private · 프라이빗','#7c3aed'],['VIP Dinner · 만찬','#dc2626'],['Gala Dinner · 갈라만찬','#be123c'],['Interview · 인터뷰','#0891b2'],['Try everything','#059669'],['Special Event · 스페셜 이벤트','#db2777']]
     .map(([name, color], i) => ({ id:'mt' + (i + 1), project_id:'p2', name, color, sort_order:i + 1 }));
   const SED = (o, i) => ({ id:'e' + i, project_id:'p2', name:'', assignees:[], venue_id:null, pillar_id:null, day:null, start_time:null, end_time:null,
-    title_en:'', title_ko:'', synop_en:'', synop_ko:'', files:[], category:null, is_public:true, meetings:[], position:i, created_by:'u1',
+    title_en:'', title_ko:'', synop_en:'', synop_ko:'', files:[], category:null, is_public:true, pm_start:'', pm_end:'', pm_venue_id:null, meetings:[], position:i, created_by:'u1',
     created_at:new Date(Date.now() - (20 - i) * 864e5).toISOString(), updated_at:new Date(Date.now() - (10 - i) * 36e5).toISOString(), ...o });
   const sessions = [
     { name:'개막 기조연설', category:'session', venue_id:'v1', pillar_id:'pl1', day:7, start_time:'09:00:00', end_time:'10:00:00', assignees:['u2'], title_en:'Opening Keynote', title_ko:'개막 기조연설' },
@@ -2666,6 +2687,7 @@ async function openProject(pid) {
   } else if (isSessionProject(curProject())) {
     try { [S.sessions, S.venues, S.pillars] = await Promise.all([api.sessions(pid), api.opts('session_venues', pid), api.opts('session_pillars', pid)]); }
     catch (e) { S.sessions = []; S.venues = []; S.pillars = []; err(e); }
+    S.noPm = S.sessions.length > 0 && !('pm_start' in S.sessions[0]);
     try { S.meetTypes = sortOpts(await api.opts('session_meet_types', pid)); } catch (e) { S.meetTypes = []; console.warn('session_meet_types', e); }
     if (S.pid !== pid) return;
     S.sePeopleAll = []; S.spkNames = {};
@@ -3070,7 +3092,7 @@ const HOTEL = [
 const PRI = [{ k:'S', label:'S급', tone:'red' }, { k:'A', label:'A급', tone:'yellow' }, { k:'B', label:'B급', tone:'blue' }, { k:'C', label:'C급', tone:'green' }];
 const FIELDS = ['경제', '인문', 'AI', '산업', '경영', '지정학'];
 const EVENTS = [{ f:'opening', label:'개막식' }, { f:'vip_dinner', label:'VIP 만찬' }, { f:'gala', label:'갈라디너' }];
-const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['stay','체류일정']];
+const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['stay','체류일정'], ['ent','수행원']];
 const SORTS = [{ k:'manual', label:'기본 순서' }, { k:'assignee', label:'담당자별' }, { k:'alpha', label:'알파벳순 (이름)' },
   { k:'created', label:'생성일 (최신순)' }, { k:'updated', label:'마지막 수정일 (최신순)' }];
 const NAT_COLORS = ['#0891b2','#be123c','#65a30d','#9333ea','#b45309','#0f766e','#c026d3','#1e40af','#a16207','#475569','#e11d48','#15803d'];
@@ -3211,7 +3233,7 @@ function renderSpBody(force) {
   const sc = b.scrollTop, sl = b.querySelector('.sp-wrap, .sboard')?.scrollLeft || 0;
   if (S.stab === 'cards') { patchSide(b, spSideHtml()); return; }
   b.innerHTML = S.stab === 'list' ? spListHtml() : S.stab === 'status' ? spBoardHtml('grp')
-    : S.stab === 'flight' ? ((S.flView || 'list') === 'list' ? spFlightListHtml() : flViewSeg() + spBoardHtml('flight_status')) : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : spDashHtml();
+    : S.stab === 'flight' ? ((S.flView || 'list') === 'list' ? spFlightListHtml() : flViewSeg() + spBoardHtml('flight_status')) : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : S.stab === 'ent' ? spEntHtml() : spDashHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard'); if (w) w.scrollLeft = sl;
   updateToolbarState();
 }
@@ -3335,6 +3357,20 @@ function spFlightListHtml() {
         <td class="fl-d">${fd(x.dep_date) || '<span class="muted">—</span>'}</td><td class="fl-t">${esc(x.dep_time || '')}</td><td>${esc(x.dep_flight || '')}</td><td>${esc(x.dep_airport || '')}</td>
         <td class="fl-t">${x.check_in ? fd(x.check_in) + ' ~ ' + fd(x.check_out) : '<span class="muted">—</span>'}</td></tr>`; }).join('') || '<tr><td colspan="12" class="muted" style="padding:20px">연사가 없어요</td></tr>'}</tbody></table></div>
     <p class="hint" style="margin-top:8px">머리글(이름·입국일·출국일)을 누르면 오름차순 ▲ / 내림차순 ▼로 바뀌어요. 날짜가 없는 연사는 맨 아래에 나와요. 줄을 누르면 연사 페이지가 열려요.</p>`;
+}
+/* ---------- 수행원 리스트: 연사 페이지 '수행 정보'에 넣은 수행원을 한곳에 ---------- */
+function spEntHtml() {
+  const ed = canEdit(), list = spSort(spVisible()).filter(x => x.grp !== 0);
+  const rows = list.flatMap(x => (Array.isArray(x.entourage) ? x.entourage : []).filter(e => e.name || e.affil || e.note).map(e => ({ x, e })));
+  const nSp = new Set(rows.map(r => r.x.id)).size;
+  return `<div class="sy-top"><span>수행원 <b>${rows.length}</b>명 · 연사 ${nSp}명 · 칸을 바로 고칠 수 있어요 (연사 페이지 '연락처 · 수행'과 같은 값)</span></div>
+    <div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table ent-table"><thead><tr><th style="width:240px">연사</th><th style="width:110px">단계</th><th style="width:200px">수행원 이름</th><th style="width:220px">소속</th><th>비고 (직책 · 연락처 · 동선 등)</th></tr></thead>
+    <tbody>${rows.map(({ x, e }) => { const g = optOf(GROUPS, x.grp);
+      return `<tr data-sid="${x.id}" data-entid="${esc(e.id)}"><td class="ent-sp"><a data-act="spOpen" data-sid="${x.id}">${spLabelHtml(x)}</a></td><td>${g ? tag(g.tone, g.label) : ''}</td>
+        <td><input class="cell-in" data-ent="name" value="${esc(e.name || '')}" placeholder="이름" maxlength="80"></td>
+        <td><input class="cell-in" data-ent="affil" value="${esc(e.affil || '')}" placeholder="소속" maxlength="120"></td>
+        <td><input class="cell-in" data-ent="note" value="${esc(e.note || '')}" placeholder="비고" maxlength="300"></td></tr>`; }).join('')
+      || '<tr><td colspan="5" class="muted" style="padding:20px">아직 수행원이 없어요. 연사 페이지 \'연락처 · 수행\'에서 <b>+ 수행원 추가</b>로 넣으면 여기에 모여요.</td></tr>'}</tbody></table></fieldset></div>`;
 }
 /* ---------- 체류일정: 연사별 숙박 기간 · 세션 · 행사 · 참석일을 날짜 칸에 ---------- */
 function spStayHtml() {
@@ -3549,6 +3585,16 @@ function sessCardHtml() {
         <span class="sd-m"><b>${x.name ? esc(x.name) : '이름 없음'}</b><small>${[v ? esc(v.name) : '', names.join(', ')].filter(Boolean).join(' · ')}</small></span></a>`; }).join(''); }).join('')
       : '<div class="muted" style="padding:4px 0">세션 마스터에서 Speaker/Moderator로 연결된 세션이 아직 없어요</div>'}</div></div>`;
 }
+document.addEventListener('change', e => {
+  const t = e.target, f = t.dataset?.pmf; if (!f) return;
+  const s = seOf(S.seId); if (!s || !canEdit()) return;
+  let v = vrTime(t.value.trim());
+  if (v && !/^\d{1,2}:\d{2}$/.test(v)) { toast('시간은 8:30 처럼 적어 주세요', true); renderSePage(true); return; }
+  if (v) v = m2hm(hm2m(v));
+  const pm = premeetOf(s, venueOf(s.venue_id)), other = f === 'pm_start' ? pm?.end : pm?.start;
+  if (v && other && (f === 'pm_start' ? hm2m(v) >= hm2m(other) : hm2m(v) <= hm2m(other))) { toast('끝 시간은 시작 시간보다 늦어야 해요', true); renderSePage(true); return; }
+  if ((s[f] || '') !== v) updateSession(s.id, { [f]: v });
+});
 document.addEventListener('change', async e => {
   const t = e.target, f = t.dataset?.evf; if (!f || !canEdit()) return;
   const ev = t.closest('[data-ev]')?.dataset.ev; if (!ev) return;
@@ -3819,6 +3865,12 @@ function koParen(s) { const n = String(s.name || '').trim(), k = koDisplay(s) ||
 // 연사 마스터 화면용 이름: 영문 (국문) — Pre/Final Agenda에는 쓰지 않음
 function spLabelHtml(s, empty = '<span class="muted">이름 없음</span>') { const m = nameMain(s), k = koParen(s); return (m ? esc(m) : empty) + (k ? ` <span class="ko-p">(${esc(k)})</span>` : ''); }
 const spLabel = s => { const m = nameMain(s), k = koParen(s); return (m || '이름 없음') + (k ? ` (${k})` : ''); };
+// 노출 on/off (연사 단위) — 공개해도 되는 연사인지
+function spPubHtml(s) {
+  const no = !('is_public' in s) && !DEMO, on = s.is_public !== false;
+  return `<div class="pub-tog ${on ? 'on' : 'off'}" title="${no ? 'setup/schema_v22_feedback.sql 실행 후 쓸 수 있어요' : '이 연사를 대외적으로 노출해도 되는지'}"><span>노출</span>
+    <button type="button" class="${on ? 'sel' : ''}" data-act="spPub" data-v="1" ${no ? 'disabled' : ''}>ON</button><button type="button" class="${!on ? 'sel' : ''}" data-act="spPub" data-v="0" ${no ? 'disabled' : ''}>OFF</button></div>`;
+}
 function nameBlockHtml(s, fx) {
   const ff = nameOrder(s) === 'ff', noCol = !('name_order' in s) && !DEMO;
   const en = ff ? fx('Family (성)', 'name_en_last', 'Hong', 'text', 60) + fx('Given (이름)', 'name_en_first', 'Gildong', 'text', 60)
@@ -3863,7 +3915,7 @@ function spPageHtml(s) {
   const tabCnt = { sched: (S.spSess || []).length, files: attOf(s).filter(a => a.path || (a.files || []).length).length, cmt: CMT.key === 'speakers:' + s.id && CMT.loaded ? CMT.list.length : 0 };
 
   const secOf = tab => tab === 'basic' ? `
-      <div class="fx-card fx-main">
+      <div class="fx-card fx-main">${spPubHtml(s)}
         <div class="ph-drop">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 올리기<br><small>클릭해서 고르기</small></span>'}
           <label class="ph-pick" title="${s.photo_path ? '사진 바꾸기' : '사진 올리기'}"><input type="file" accept="image/*" data-upload="photo" class="vh"></label>
           ${s.photo_path && ed ? '<button type="button" class="ph-del" data-act="spPhotoDel" title="사진 삭제" aria-label="사진 삭제">✕</button>' : ''}</div>
@@ -3875,6 +3927,7 @@ function spPageHtml(s) {
           <div class="fx"><span>키워드 <small>입력 후 Enter</small></span><div class="kw-box fx-kw">${(s.keywords || []).map(k => `<span class="kw">${esc(k)}<a class="kw-x" data-act="spKwDel" data-v="${esc(k)}" title="빼기">×</a></span>`).join('')}<input class="kw-in" id="kwIn" placeholder="${(s.keywords || []).length ? '' : '키워드'}" maxlength="40" autocomplete="off"></div></div>
         </div>
       </div>
+      <div class="bio-under">${secOf('bio')}</div>
       <div class="fx-two">
         <div class="fx-card fx-rows">
           <div class="fx-row"><span class="fx-l">등급</span><div class="pri-seg">${PRI.map(p => `<button type="button" class="pri-b pri-${p.k} ${s.priority === p.k ? 'on' : ''}" data-act="spPri" data-v="${p.k}" title="${p.label}${s.priority === p.k ? ' · 다시 누르면 해제' : ''}">${p.k}</button>`).join('')}</div>
@@ -3926,7 +3979,7 @@ function spPageHtml(s) {
         ${ed ? fx('여권번호', 'passport_no', '', 'text', 40) : fxp('여권번호', lock)}${ed ? fx('생년월일', 'birth_date', 'YYYY-MM-DD', 'text', 10) : fxp('생년월일', lock)}</div>
         <p class="hint" style="margin:10px 0 0">여권번호·생년월일은 편집자만 볼 수 있어요. 여권 영문명은 차량 스케줄의 영문 성·이름에 쓰여요.</p></div>`
   : '';
-  const body = SP_DTABS.filter(([k]) => k !== 'cmt').map(([k, l]) => `<section class="d-sec" id="dsec-${k}" data-sec="${k}">${k === 'basic' ? '' : `<h3 class="d-sh">${l}${k === 'pass' ? ' 🔒' : ''}</h3>`}${secOf(k)}</section>`).join('');
+  const body = SP_DTABS.filter(([k]) => k !== 'cmt' && k !== 'bio').map(([k, l]) => `<section class="d-sec" id="dsec-${k}" data-sec="${k}">${k === 'basic' ? '' : `<h3 class="d-sh">${l}${k === 'pass' ? ' 🔒' : ''}</h3>`}${secOf(k)}</section>`).join('');
 
   return `<div class="sp-backdrop" data-act="spClose"></div>
   <div class="sp-panel sp20" data-sid="${s.id}">
@@ -4056,7 +4109,7 @@ function spSideHtml() {
     const ini = (s.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
     return `<button type="button" class="sc ${S.spId === s.id ? 'on' : ''} ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}" ${canEdit() ? 'draggable="true" title="끌어서 순서·단계 옮기기"' : ''}>
       <span class="sc-av">${esc(ini)}</span>
-      <span class="sc-b"><b>${nameMain(s) ? esc(nameMain(s)) : '<span class="muted">이름 없음</span>'}${koParen(s) ? ` <span class="sc-ko">(${esc(koParen(s))})</span>` : ''}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
+      <span class="sc-b"><b>${nameMain(s) ? esc(nameMain(s)) : '<span class="muted">이름 없음</span>'}${koParen(s) ? ` <span class="sc-ko">(${esc(koParen(s))})</span>` : ''}${s.is_public === false ? ' <span class="tg tg-red sc-off">노출 OFF</span>' : ''}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
       ${s.diet_flag ? '<span class="sc-diet" title="특이식성">●</span>' : ''}
       ${pr ? `<span class="sc-pri pri-${pr.k}">${pr.k}</span>` : ''}
       ${canEdit() ? `<span class="sc-del" role="button" data-act="spDelOne" data-sid="${s.id}" title="이 연사 삭제 (휴지통에서 복구 가능)">${ICON.trash}</span>` : ''}</button>`; };
@@ -4652,10 +4705,12 @@ function sePplLine(s) {
 const isJangchung = v => /장충|jang\s*chung/i.test(v?.name || '');
 const PM_PLACE = { ko: '연사라운지', en: "Speaker's Lounge" };
 // s = 세션, ven = 그 세션의 장소 객체. 날짜·시작시간이 없으면 프리미팅도 없음
-function premeetOf(s, ven) {
+function premeetOf(s, ven, pmVen) {
   if (!s?.day || !s.start_time) return null;
   const st = hm2m(s.start_time), off = isJangchung(ven) ? 30 : 20;
-  return { day: s.day, start: m2hm(st - off), end: m2hm(st), mins: off, session: s };
+  const pv = s.pm_venue_id ? (pmVen !== undefined ? pmVen : venueOf(s.pm_venue_id)) : null;
+  return { day: s.day, start: s.pm_start ? hm(s.pm_start) : m2hm(st - off), end: s.pm_end ? hm(s.pm_end) : m2hm(st), mins: off, session: s,
+    custom: !!(s.pm_start || s.pm_end || s.pm_venue_id), placeKo: pv ? (String(pv.name).split(' · ')[1] || pv.name).trim() : PM_PLACE.ko, placeEn: pv ? String(pv.name).split(' · ')[0].trim() : PM_PLACE.en };
 }
 const pmTimeLabel = pm => `${apLabel(hm2m(pm.start))}–${apLabel(hm2m(pm.end)).replace(/^(오전|오후) /, (x, ap) => apLabel(hm2m(pm.start)).startsWith(ap) ? '' : x)}`;
 function pmRowHtml(pm) {
@@ -4664,8 +4719,8 @@ function pmRowHtml(pm) {
   return `<tr class="pm-row" data-eid="${s.id}">
     <td class="c-name"><a class="pm-name" data-act="seOpen" data-eid="${s.id}" title="세션 열기"><span class="tg tg-blue">Pre-meeting</span><span>${esc(s.name || '이름 없는 세션')}</span></a></td>
     <td><div class="pm-who" title="${names.join(', ')}">${names.length ? names.join(', ') : '<span class="tg-empty">세션에 연사를 넣으면 자동으로 들어가요</span>'}</div></td>
-    <td><span class="tg tg-gray">${PM_PLACE.ko}</span></td>
-    <td><span class="muted" style="padding:0 10px;font-size:12px">${pm.mins}분 전${pm.mins === 30 ? ' · 장충' : ''}</span></td>
+    <td><span class="tg tg-gray">${esc(pm.placeKo)}</span></td>
+    <td><span class="muted" style="padding:0 10px;font-size:12px">${pm.custom ? '직접 지정' : `${pm.mins}분 전${pm.mins === 30 ? ' · 장충' : ''}`}</span></td>
     <td><span class="tg tg-gray" style="margin-left:8px">${pm.day}일</span></td>
     <td><span style="padding:0 10px">${pmTimeLabel(pm)}</span></td>
   </tr>`;
@@ -4730,7 +4785,7 @@ function seBoardHtml(field) {
 }
 function seCardHtml(s, field) {
   const ed = canEdit();
-  const tags = [s.is_public === false ? '<span class="tg tg-red">비공개</span>' : '',
+  const tags = [
     field !== 'venue_id' ? colorTag(venueOf(s.venue_id)) : '', field !== 'pillar_id' ? colorTag(pillarOf(s.pillar_id)) : '',
     seWhen(s) ? `<span class="tg tg-gray">${seWhen(s)}</span>` : ''].filter(Boolean).join('');
   const av = (s.assignees || []).map(prof).filter(Boolean).map(p => avatar(p, 22)).join('');
@@ -5140,7 +5195,11 @@ function sePageHtml(s) {
 
   const secOf = tab => tab === 'basic' ? `
       <div class="fx-two">${pplCol('speaker', 'Speaker')}${pplCol('moderator', 'Moderator')}</div>
-      ${pm ? `<div class="pm-line"><b>프리미팅 자동</b><span>${pm.day}일 ${pmTimeLabel(pm)} · ${PM_PLACE.ko} · ${pmNames.length ? pmNames.map(esc).join(', ') : '연사를 넣으면 자동으로 참석'}</span></div>` : ''}
+      ${pm ? `<div class="pm-line"><b>프리미팅</b><span>${pm.day}일</span>
+        ${ed && !S.noPm ? `<input class="pm-t" data-pmf="pm_start" value="${esc(pm.start)}" maxlength="5" aria-label="프리미팅 시작">–<input class="pm-t" data-pmf="pm_end" value="${esc(pm.end)}" maxlength="5" aria-label="프리미팅 끝">
+          <button type="button" class="pm-v" data-act="sePmVenue">${esc(pm.placeKo)} ▾</button>` : `<span>${pmTimeLabel(pm)} · ${esc(pm.placeKo)}</span>`}
+        <span class="pm-who">· ${pmNames.length ? pmNames.map(esc).join(', ') : '연사를 넣으면 자동으로 참석'}</span>
+        <span class="sp"></span>${S.noPm ? '<small>장소·시간을 고르려면 setup/schema_v22_feedback.sql 실행</small>' : pm.custom && ed ? '<button type="button" class="pm-reset" data-act="sePmReset">자동으로 되돌리기</button>' : '<small>자동 · 장충 30분 전 / 그 외 20분 전 · 연사라운지</small>'}</div>` : ''}
       <div class="fx-card"><div class="fx-two">
         <label class="fx"><span class="fx-lab">영문 제목<a class="copy-btn" data-act="seCopy" data-f="title_en" role="button">${ICON.copy}복사</a></span><input class="fx-in" data-ef="title_en" value="${esc(s.title_en || '')}" placeholder="English title" maxlength="300"></label>
         <label class="fx"><span class="fx-lab">국문 제목<a class="copy-btn" data-act="seCopy" data-f="title_ko" role="button">${ICON.copy}복사</a></span><input class="fx-in" data-ef="title_ko" value="${esc(s.title_ko || '')}" placeholder="국문 제목" maxlength="300"></label>
@@ -5178,13 +5237,13 @@ function sePageHtml(s) {
       <button class="btn d-close" data-act="spClose" aria-label="닫기">✕</button>
     </div>
     <fieldset class="fs" ${dis} style="margin-bottom:10px">
-      <div class="info-strip ${side ? 'side' : ''}">
+      <div class="info-strip side">
         ${cell('날짜', sel('day', s.day ? `<b>${s.day}일</b>` : '<span class="tg-empty">미정</span>'))}
         ${cell(`시간 <small>${ttHint()}</small>`, `<div class="is-time">${timeBtn(s, 'start_time')}<span>–</span>${timeBtn(s, 'end_time')}</div>`)}
         ${cell('장소', sel('venue_id', colorTag(venueOf(s.venue_id)) || EMPTY))}
         ${cell(PIL(), sel('pillar_id', colorTag(pillarOf(s.pillar_id)) || EMPTY))}
         ${cell('담당', sel('assignees', asgHtml(s)))}
-        ${side ? '' : cell('공개', `<div class="pub-seg"><button type="button" class="${s.is_public !== false ? 'on' : ''}" data-act="sePub" data-v="1">공개</button><button type="button" class="${s.is_public === false ? 'on lock' : ''}" data-act="sePub" data-v="0">비공개</button></div>`)}
+
       </div>
     </fieldset>
     <div class="d-tabs">${[['basic', '기본'], ['files', FILEW()], ['cmt', '댓글']].map(([k, l]) => `<button type="button" class="d-tab ${k === 'basic' ? 'on' : ''}" data-act="dJump" data-t="${k}">${l}${k === 'files' && files.length ? ` <small>${files.length}</small>` : ''}${k === 'cmt' && cmtN ? ` <small>${cmtN}</small>` : ''}</button>`).join('')}</div>
@@ -5204,7 +5263,7 @@ function seSideHtml() {
   const card = s => { const n = nPpl(s.id), meta = [venueOf(s.venue_id)?.name || '장소 미정', pillarOf(s.pillar_id)?.name, n ? `연사 ${n}` : ''].filter(Boolean).join(' · ');
     return `<button type="button" class="sc se-c ${S.seId === s.id ? 'on' : ''}" data-act="seOpen" data-eid="${s.id}">
       <span class="se-t">${s.start_time ? `<b>${hm(s.start_time).replace(/^0/, '')}</b><small>${s.end_time ? '–' + hm(s.end_time).replace(/^0/, '') : ''}</small>` : '<span class="muted">미정</span>'}</span>
-      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</b><small class="${!n && !side ? 'warn' : ''}">${esc(meta)}${!n && !side ? ' · 연사 없음' : ''}</small></span></button>`; };
+      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}${side && n ? ` <span class="se-spk">${[...new Set(S.sePeopleAll.filter(x => x.session_id === s.id).sort((a, b) => a.position - b.position).map(x => x.speaker_id))].map(id => esc(S.spkNames[id]?.name || '🔒')).join(', ')}</span>` : ''}</b><small class="${!n && !side ? 'warn' : ''}">${esc(meta)}${!n && !side ? ' · 연사 없음' : ''}</small></span></button>`; };
   const days = [...DAYS.map((d, i) => ({ k: String(d), label: `${d}일 (Day ${i + 1})`, L: list.filter(s => s.day === d) })), { k: 'none', label: '날짜 미정', L: list.filter(s => !s.day) }].filter(g => g.L.length);
   const segB = (k, l) => `<button type="button" class="${dayF === k ? 'on' : ''}" data-act="seSDay" data-k="${k}">${l}</button>`;
   return `<div class="ss-top">
@@ -5427,7 +5486,7 @@ function agendaHtml(det, onlyId, lang = 'en', side = []) {
   const otherHtml = allMeets.length ? `<hr class="split"><section class="other"><h2>${T.other}<small>${allMeets.length}</small></h2>${allMeets.map(meetRow).join('')}</section>` : '';
   const pmCard = s => { const pm = sideNow() ? null : premeetOf(s, venueOf(s.venue_id)); if (!pm) return '';
     return `<article class="s pm">
-      <div class="when"><div class="t">${enRange(pm.start, pm.end)}</div><div class="v">${KO ? PM_PLACE.ko : PM_PLACE.en}</div></div>
+      <div class="when"><div class="t">${enRange(pm.start, pm.end)}</div><div class="v">${esc(KO ? pm.placeKo : pm.placeEn)}</div></div>
       <div class="body"><span class="pill" style="--c:#2563eb">${KO ? '프리미팅' : 'Pre-meeting'}</span>
         <h3>${KO ? '세션 프리미팅' : 'Pre-meeting for the session'}</h3><div class="ti${KO ? '' : ' en'}">${esc(sTitle(s) || T.untitled)}</div></div></article>`; };
   const sess = s => {
@@ -5435,7 +5494,7 @@ function agendaHtml(det, onlyId, lang = 'en', side = []) {
     return `<article class="s">
       <div class="when"><div class="t">${enRange(s.start_time, s.end_time) || T.tbdTime}</div><div class="v">${v ? esc(v.name) : T.tbdVenue}</div></div>
       <div class="body">
-        ${pl ? `<span class="pill" style="--c:${safeColor(pl.color)}">${esc(enOnly(pl.name))}</span>` : ''}${s.is_public === false && !sideNow() ? `<span class="pill priv">${T.closed}</span>` : ''}
+        ${pl ? `<span class="pill" style="--c:${safeColor(pl.color)}">${esc(enOnly(pl.name))}</span>` : ''}
         <h3>${esc(sTitle(s) || T.untitled)}</h3>
         ${sp.length || mo.length ? `<div class="ppl">${sp.length ? `<div><span class="lab">Speaker${sp.length > 1 ? 's' : ''}</span><ul>${sp.map(person).join('')}</ul></div>` : ''}${mo.length ? `<div><span class="lab">Moderator${mo.length > 1 ? 's' : ''}</span><ul>${mo.map(person).join('')}</ul></div>` : ''}</div>` : ''}
         ${sideNow() ? '' : KO ? (s.synop_ko ? `<div class="syn">${esc(s.synop_ko)}</div>` : '') : (s.synop_en ? `<div class="syn en">${esc(s.synop_en)}</div>` : '')}
@@ -5477,7 +5536,7 @@ async function speakerAgendaData(spkId) {
     for (const sid of [...new Set(mine.map(r => r.session_id))]) {
       const e = evs.find(x => x.id === sid); if (!e) continue;
       items.push({ e, side: isSideProject(p), roles: [...new Set(mine.filter(r => r.session_id === sid).map(r => r.role))],
-        ven: vens.find(v => v.id === e.venue_id), pil: pils.find(x => x.id === e.pillar_id),
+        ven: vens.find(v => v.id === e.venue_id), pmVen: e.pm_venue_id ? (vens.find(v => v.id === e.pm_venue_id) || null) : null, pil: pils.find(x => x.id === e.pillar_id),
         people: ppl.filter(x => x.session_id === sid).sort((a, b) => a.position - b.position).map(x => ({ role: x.role, d: cm[x.speaker_id], self: x.speaker_id === spkId })) });
     }
   }
@@ -5507,9 +5566,9 @@ function speakerAgendaHtml({ me, items }, lang = 'en') {
   const person = x => { const role = (KO ? [x.d?.title_ko || x.d?.title_en, x.d?.affil_ko || x.d?.affil_en] : [x.d?.title_en, x.d?.affil_en]).filter(Boolean).join(', ');
     return `<li class="${x.self ? 'me' : ''}"><b>${esc(agName(x.d, KO) || T.noname)}</b>${role ? `<span> · ${esc(role)}</span>` : ''}</li>`; };
   const main = items.filter(i => !i.side).sort(byTime), other = items.filter(i => i.side).sort(byTime);
-  const pmc = i => { const pm = i.side ? null : premeetOf(i.e, i.ven); if (!pm) return '';
+  const pmc = i => { const pm = i.side ? null : premeetOf(i.e, i.ven, i.pmVen); if (!pm) return '';
     return `<article class="s pm">
-      <div class="when"><div class="t">${range(pm.start, pm.end)}</div><div class="v">${KO ? PM_PLACE.ko : PM_PLACE.en}</div></div>
+      <div class="when"><div class="t">${range(pm.start, pm.end)}</div><div class="v">${esc(KO ? pm.placeKo : pm.placeEn)}</div></div>
       <div class="body"><span class="pill" style="--c:#2563eb">${KO ? '프리미팅' : 'Pre-meeting'}</span>
         <h3>${KO ? '세션 프리미팅' : 'Pre-meeting for the session'}</h3><div class="ti${KO ? '' : ' en'}">${esc(title(i.e) || T.untitled)}</div></div></article>`; };
   const card = i => { const e = i.e, sp = i.people.filter(x => x.role === 'speaker'), mo = i.people.filter(x => x.role === 'moderator');
@@ -6104,7 +6163,7 @@ async function seExport() {
     ['날짜', s => s.day ? s.day + '일' : '미정', 7], ['시작', s => t(s.start_time), 10], ['종료', s => t(s.end_time), 10],
     ['장소', s => venueOf(s.venue_id)?.name || '', 14], [PIL(), s => pillarOf(s.pillar_id)?.name || '', 10], [`${SEW()} 이름`, s => s.name, 28],
     ['영문제목', s => s.title_en, 30], ['국문제목', s => s.title_ko, 30], ['Speaker', s => ppl(s, 'speaker'), 26], ['Moderator', s => ppl(s, 'moderator'), 20],
-    ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 14], ...(sideNow() ? [] : [['공개 여부', s => s.is_public === false ? '비공개' : '공개', 9], ['영문시놉', s => s.synop_en, 50], ['국문시놉', s => s.synop_ko, 50]]),
+    ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 14], ...(sideNow() ? [] : [['영문시놉', s => s.synop_en, 50], ['국문시놉', s => s.synop_ko, 50]]),
     ...(sideNow() ? [] : [['기타일정', s => (s.meetings || []).filter(m => m.title || m.time || m.type_id || m.venue_id).map(m => [m.day ? m.day + '일' : '', m.time ? t(m.time) + (m.end ? '–' + t(m.end) : '') : '', meetTypeName(m), m.title, meetPlaceName(m)].filter(Boolean).join(' ')).join('\n'), 40]]),
     [FILEW(), s => (s.files || []).map(f => f.name).join(', '), 24],
     ['마지막 수정', s => s.updated_at ? new Date(s.updated_at).toLocaleString('ko-KR') : '', 18],
@@ -6581,7 +6640,7 @@ document.addEventListener('change', e => {
   const t = e.target, f = t.dataset?.ent; if (!f) return;
   const s = spOf(t.closest('[data-sid]')?.dataset.sid), id = t.closest('[data-entid]')?.dataset.entid; if (!s || !id) return;
   const L = (Array.isArray(s.entourage) ? s.entourage : []).map(x => x.id === id ? { ...x, [f]: t.value.trim() } : x);
-  updateSpeaker(s.id, { entourage: L }, 'page');
+  updateSpeaker(s.id, { entourage: L }, t.closest('#spage') ? 'page' : 'body');
 });
 const VR_UPPER = new Set(['last_name', 'first_name']);
 document.addEventListener('input', e => {
@@ -6900,6 +6959,11 @@ const ACT = {
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
   spLegGuess: () => spLegGuess(),
+  sePmVenue: el => { const s = seOf(S.seId); if (!s || !canEdit()) return;
+    pickList(el, { value: s.pm_venue_id ?? null, searchable: true, title: '프리미팅 장소', options: [{ v: null, text: PM_PLACE.ko, html: `<span>${PM_PLACE.ko} <small class="muted">(기본)</small></span>` }, ...OPT.venue.list().map(x => ({ v: x.id, text: x.name, html: colorTag(x) }))],
+      onPick: v => updateSession(s.id, { pm_venue_id: v }) }); },
+  sePmReset: () => { const s = seOf(S.seId); if (s && canEdit()) updateSession(s.id, { pm_start: '', pm_end: '', pm_venue_id: null }); },
+  spPub: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v === '1'; if ((s.is_public !== false) !== v) updateSpeaker(s.id, { is_public: v }); },
   spDelOne: el => spDelete(el.dataset.sid),
   spNameOrder: el => { const s = spOf(S.spId); if (!s || !canEdit() || nameOrder(s) === el.dataset.v) return; updateSpeaker(s.id, { name_order: el.dataset.v, ...autoNamePatch(s, { name_order: el.dataset.v }) }); },
   scFileOpen: el => spFileOpen(el.dataset.path),
