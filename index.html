@@ -1609,6 +1609,13 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .sc:hover .sc-del,.sc.on .sc-del{opacity:1}
 .sc-del:hover{background:#fdecec;color:#b42318}
 .sc-del svg{width:14px;height:14px}
+
+.sc.dragging{opacity:.4}
+.sc.drop-before{box-shadow:inset 0 2px 0 var(--accent)!important}
+.ss-g.over{background:var(--accent-weak)}
+.sc-ko{font-weight:500;color:var(--muted);font-size:12.5px}
+.sp20 .d-name{min-width:60px;width:auto;max-width:460px;flex:none;field-sizing:content}
+.d-alt{font-size:15px;color:var(--muted);font-weight:500;margin-left:-4px}
 </style>
 </head>
 <body>
@@ -2643,7 +2650,7 @@ async function openProject(pid) {
     try { S.speakers = await api.speakers(pid); } catch (e) { S.speakers = []; err(e); }
     S.noLegs = S.speakers.length > 0 && !('arr_date' in S.speakers[0]);
     // 표기 이름이 비어 있고 영문 이름이 있으면 채워 둠 (Pre Agenda·PDF·차량 등에 이름이 빠지지 않게)
-    if (canEdit(pid)) S.speakers.filter(x => !String(x.name || '').trim() && enDisplay(x)).forEach(x => api.updateSpeaker(x.id, { name: enDisplay(x) }).then(() => { x.name = enDisplay(x); if (S.pid === pid) { renderSpBody(); if (S.spId === x.id) renderSpPage(); } }).catch(() => {}));
+    if (canEdit(pid)) S.speakers.filter(x => (!String(x.name || '').trim() || hasKo(x.name)) && enDisplay(x)).forEach(x => api.updateSpeaker(x.id, { name: enDisplay(x) }).then(() => { x.name = enDisplay(x); if (S.pid === pid) { renderSpBody(); if (S.spId === x.id) renderSpPage(); } }).catch(() => {}));
     await loadSpPriv(pid);
     S.evInfo = []; S.spSessDash = null;
     api.eventInfo(pid).then(r => { if (S.pid === pid) { S.evInfo = r; if (S.stab === 'dash') renderSpBody(); } }).catch(() => { S.evInfoMissing = true; });
@@ -3800,6 +3807,12 @@ function koDisplay(s) {   // 국문 이름도 같은 순서로: 이름 → 성�
   const g = String(s.name_ko_first || '').trim(), f = String(s.name_ko_last || '').trim();
   return (nameOrder(s) === 'ff' ? [f, g] : [g, f]).filter(Boolean).join(' ');
 }
+// 목록·머리에 붙일 '(국문 이름)' — 표기 이름이 이미 국문과 같으면 생략
+const hasKo = t => /[ㄱ-힣]/.test(String(t || ''));
+// 목록·머리 이름: 영문 이름 (국문 이름) — 표기 이름이 국문이면 앞에는 영문 이름을, 괄호 안에 국문을
+function nameMain(s) { const n = String(s.name || '').trim(), e = enDisplay(s); return hasKo(n) && e ? e : (n || e); }
+function koParen(s) { const n = String(s.name || '').trim(), k = koDisplay(s) || (hasKo(n) ? n : ''), m = nameMain(s);
+  return k && k.replace(/\s+/g, '') !== m.replace(/\s+/g, '') ? k : ''; }
 function nameBlockHtml(s, fx) {
   const ff = nameOrder(s) === 'ff', noCol = !('name_order' in s) && !DEMO;
   const en = ff ? fx('Family (성)', 'name_en_last', 'Hong', 'text', 60) + fx('Given (이름)', 'name_en_first', 'Gildong', 'text', 60)
@@ -3913,8 +3926,8 @@ function spPageHtml(s) {
   <div class="sp-panel sp20" data-sid="${s.id}">
     <div class="d-head">
       ${isDocked() && S.stab === 'cards' ? spNavHtml(s) : ''}
-      <input class="d-name" data-sf="name" value="${esc(s.name)}" placeholder="이름 (Pre Agenda·PDF에 이대로 나와요)" maxlength="120" ${dis}>
-      <span class="d-alt">${esc((() => { const e = enDisplay(s), k = koDisplay(s); return [e && e !== String(s.name || '').trim() ? e : '', k ? `(${k})` : ''].filter(Boolean).join(' '); })())}</span>
+      <input class="d-name" data-sf="name" size="${Math.max(6, [...String(s.name || '')].reduce((a, c) => a + (/[ㄱ-힣]/.test(c) ? 2 : 1), 0) + 1)}" value="${esc(s.name)}" placeholder="이름 (Pre Agenda·PDF에 이대로 나와요)" maxlength="120" ${dis}>
+      <span class="d-alt">${esc((() => { const e = nameMain(s), k = koParen(s); return [e && e !== String(s.name || '').trim() ? e : '', k ? `(${k})` : ''].filter(Boolean).join(' '); })())}</span>
       <span class="d-saved" id="spSaved">${ed ? '● 저장됨' : '보기 전용'}</span>
       <span class="sp"></span>
       <button class="btn agenda-btn" data-act="spPdfOne" title="이 연사 정보를 PDF로 · 담을 내용을 골라요">${ICON.pdf}PDF</button>
@@ -4035,9 +4048,9 @@ function spSideHtml() {
   const list = all.filter(s => (!v.grpF || String(s.grp) === v.grpF) && (!v.priF || (v.priF === 'none' ? !s.priority : s.priority === v.priF)) && (!v.mine || (s.assignees || []).includes(S.me.id)));
   const card = s => { const pr = optOf(PRI, s.priority), role = [s.affil_ko || s.affil_en, s.title_ko || s.title_en].filter(Boolean).join(' · ');
     const ini = (s.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    return `<button type="button" class="sc ${S.spId === s.id ? 'on' : ''} ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}">
+    return `<button type="button" class="sc ${S.spId === s.id ? 'on' : ''} ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}" ${canEdit() ? 'draggable="true" title="끌어서 순서·단계 옮기기"' : ''}>
       <span class="sc-av">${esc(ini)}</span>
-      <span class="sc-b"><b>${s.name ? esc(s.name) : enDisplay(s) ? esc(enDisplay(s)) : '<span class="muted">이름 없음</span>'}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
+      <span class="sc-b"><b>${nameMain(s) ? esc(nameMain(s)) : '<span class="muted">이름 없음</span>'}${koParen(s) ? ` <span class="sc-ko">(${esc(koParen(s))})</span>` : ''}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
       ${s.diet_flag ? '<span class="sc-diet" title="특이식성">●</span>' : ''}
       ${pr ? `<span class="sc-pri pri-${pr.k}">${pr.k}</span>` : ''}
       ${canEdit() ? `<span class="sc-del" role="button" data-act="spDelOne" data-sid="${s.id}" title="이 연사 삭제 (휴지통에서 복구 가능)">${ICON.trash}</span>` : ''}</button>`; };
@@ -4052,7 +4065,7 @@ function spSideHtml() {
         <button type="button" class="ss-mine ${v.mine ? 'on' : ''}" data-act="spMine">${v.mine ? '✓ ' : ''}담당: 나</button>
       </div></div>
     <div class="ss-list" id="ssList">${groups.map(({ g, L }) => { const folded = v.fold.includes(g.k);
-      return `<div class="ss-g"><button type="button" class="ss-gh t-${g.tone}" data-act="spFold" data-grp="${g.k}"><span>${folded ? '▸' : '▾'} ${g.label}</span><small>${L.length}</small></button>
+      return `<div class="ss-g" ${ed ? `data-gdrop="${g.k}"` : ''}><button type="button" class="ss-gh t-${g.tone}" data-act="spFold" data-grp="${g.k}"><span>${folded ? '▸' : '▾'} ${g.label}</span><small>${L.length}</small></button>
         ${folded ? '' : (L.map(card).join('') || '<div class="ss-empty">없음</div>')}</div>`; }).join('') || '<div class="ss-empty" style="padding:20px">조건에 맞는 연사가 없어요</div>'}</div>
     <div class="ss-foot"><span>${list.length}명${list.length < S.speakers.length ? ` / 전체 ${S.speakers.length}` : ''}</span>
       <span><a data-act="spFilter" id="spFilterBtn2">필터</a> · <a data-act="spExport">엑셀</a> · <a data-act="spTab" data-tab="list">표로 보기</a></span></div>`;
@@ -4410,6 +4423,7 @@ document.addEventListener('input', e => {
   else if (t.id === 'seSearchIn') { ssv().q = t.value; S.pinned.clear(); renderSeBody(true); }
   else if (t.classList?.contains('lp-search')) { const q = norm(t.value); $$('#spage .lp-table tbody tr[data-q]').forEach(r => r.style.display = !q || r.dataset.q.includes(q) ? '' : 'none'); }
   else if (t.classList?.contains('ta')) autosize(t);
+  else if (t.classList?.contains('d-name')) t.size = Math.max(6, [...t.value].reduce((a, c) => a + (/[ㄱ-힣]/.test(c) ? 2 : 1), 0) + 1);
 });
 document.addEventListener('keydown', e => {
   const t = e.target;
@@ -4424,13 +4438,13 @@ document.addEventListener('focusout', e => {
 let dragSid = null;
 document.addEventListener('mousedown', e => { const h = e.target.closest?.('.drag-h'); if (h && canEdit()) h.closest('tr').draggable = true; });
 document.addEventListener('dragstart', e => {
-  const el = e.target.closest?.('.scard:not(.ecard), tr.sp-row'); if (!el) return;
+  const el = e.target.closest?.('.scard:not(.ecard), tr.sp-row, .sc[data-sid]'); if (!el) return;
   dragSid = el.dataset.sid; e.dataTransfer.setData('text/plain', 'sp:' + dragSid); e.dataTransfer.effectAllowed = 'move';
   el.classList.add('dragging'); closePop();
 });
 function clearDragMarks() { $$('.over').forEach(x => x.classList.remove('over')); $$('.drop-before').forEach(x => x.classList.remove('drop-before')); }
 document.addEventListener('dragend', e => {
-  const el = e.target.closest?.('.scard, tr.sp-row');
+  const el = e.target.closest?.('.scard, tr.sp-row, .sc[data-sid]');
   if (el) { el.classList.remove('dragging'); if (el.tagName === 'TR') el.draggable = false; }
   dragSid = null; clearDragMarks();
 });
@@ -4440,7 +4454,7 @@ document.addEventListener('dragover', e => {
   e.preventDefault();
   $$('.over').forEach(x => x !== z && x.classList.remove('over')); z.classList.add('over');
   $$('.drop-before').forEach(x => x.classList.remove('drop-before'));
-  const row = e.target.closest('tr.sp-row'); if (row && row.dataset.sid !== dragSid) row.classList.add('drop-before');
+  const row = e.target.closest('tr.sp-row, .sc[data-sid]'); if (row && row.dataset.sid !== dragSid) row.classList.add('drop-before');
 });
 document.addEventListener('drop', e => {
   if (!dragSid) return;
@@ -4450,7 +4464,7 @@ document.addEventListener('drop', e => {
   if (z.dataset.gdrop != null) {
     const grp = Number(z.dataset.gdrop), patch = {};
     if (s.grp !== grp) patch.grp = grp;
-    const row = e.target.closest('tr.sp-row');
+    const row = e.target.closest('tr.sp-row, .sc[data-sid]');
     if (row && row.dataset.sid === sid) return;
     if (sv().sort === 'manual') {
       const rows = spSort(S.speakers.filter(x => x.grp === grp && x.id !== sid));
