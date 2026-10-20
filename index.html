@@ -1616,6 +1616,9 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .sc-ko{font-weight:500;color:var(--muted);font-size:12.5px}
 .sp20 .d-name{min-width:60px;width:auto;max-width:460px;flex:none;field-sizing:content}
 .d-alt{font-size:15px;color:var(--muted);font-weight:500;margin-left:-4px}
+
+.ko-p{font-weight:500;color:var(--muted);font-size:.92em}
+.name-cell .nm-ko{flex:none;white-space:nowrap;padding-right:8px;font-size:12px}
 </style>
 </head>
 <body>
@@ -3245,7 +3248,7 @@ function spRowHtml(s) {
   return `<tr class="sp-row ${s.done ? 'is-done' : ''}" data-sid="${s.id}">
     <td class="c-chk"><div class="chk-cell"><span class="drag-h" title="끌어서 그룹 이동">⋮⋮</span>
       <button class="check ${s.done ? 'on' : ''}" data-act="spDone" data-sid="${s.id}" title="${s.done ? '완료 해제' : '완료로 표시'}">${s.done ? '✓' : ''}</button></div></td>
-    <td class="c-name"><div class="name-cell"><input class="cell-in nm-in" data-sf="name" value="${esc(s.name)}" placeholder="이름 입력" maxlength="120">
+    <td class="c-name"><div class="name-cell"><input class="cell-in nm-in" data-sf="name" value="${esc(s.name)}" placeholder="이름 입력" maxlength="120">${koParen(s) ? `<span class="ko-p nm-ko">(${esc(koParen(s))})</span>` : ''}
       <span class="row-acts"><a class="open-btn" data-act="spOpen" data-sid="${s.id}">열기</a><a class="del-btn" data-act="spDel" data-sid="${s.id}" title="연사 삭제">${ICON.trash}</a></span></div></td>
     <td>${cin('affil_ko', s.affil_en ? esc(s.affil_en) : '', 200)}</td>
     <td>${cin('title_ko', s.title_en ? esc(s.title_en) : '', 200)}</td>
@@ -3279,7 +3282,7 @@ function spCardHtml(s, field) {
   const av = (s.assignees || []).map(prof).filter(Boolean).map(p => avatar(p, 22)).join('');
   return `<article class="scard ${s.done ? 'is-done' : ''}" ${ed ? 'draggable="true"' : ''} data-sid="${s.id}" data-act="spOpen">
     <div class="scard-top"><button class="check ${s.done ? 'on' : ''}" data-act="spDone" data-sid="${s.id}" ${ed ? '' : 'disabled'} title="완료 표시">${s.done ? '✓' : ''}</button>
-      <div class="scard-name">${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</div></div>
+      <div class="scard-name">${spLabelHtml(s)}</div></div>
     ${tags ? `<div class="scard-tags">${tags}</div>` : ''}
     ${av ? `<div class="scard-foot">${av}</div>` : ''}
   </article>`;
@@ -3296,7 +3299,7 @@ function spAvailHtml() {
   const rows = list.map(s => {
     const g = optOf(GROUPS, s.grp), n = [1, 2, 3].filter(d => s['day' + d]).length;
     return `<tr data-sid="${s.id}" class="${s.done ? 'is-done' : ''}">
-      <td><div class="av-name"><a data-act="spOpen" data-sid="${s.id}">${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</a>${natTag(natOf(s.nationality_id))}</div></td>
+      <td><div class="av-name"><a data-act="spOpen" data-sid="${s.id}">${spLabelHtml(s)}</a>${natTag(natOf(s.nationality_id))}</div></td>
       <td>${g ? `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}` : ''}</td>
       ${[1, 2, 3].map(d => `<td class="av-cell"><button type="button" class="av-box ${s['day' + d] ? 'on' : ''}" data-act="spAvFlip" data-sid="${s.id}" data-f="day${d}" title="${d}일차 ${s['day' + d] ? '가능 → 해제' : '불가 → 가능으로'}">${s['day' + d] ? '✓' : ''}</button></td>`).join('')}
       <td class="av-sum">${n ? `<b>${n}</b>일` : '<span class="tg-empty">—</span>'}</td></tr>`;
@@ -3326,7 +3329,7 @@ function spFlightListHtml() {
   return `${flViewSeg()}${list.length < total ? `<div class="filter-note">전체 ${total}명 중 ${list.length}명 표시 중 · <a data-act="spFilterReset">필터·검색 해제</a></div>` : ''}
     <div class="sp-wrap"><table class="sp-table fl-table"><thead><tr>${th('name', '이름')}<th>단계</th><th>항공</th>${th('arr', '입국일')}<th>도착</th><th>편명</th><th>공항</th>${th('dep', '출국일')}<th>출발</th><th>편명</th><th>공항</th><th>숙박</th></tr></thead>
     <tbody>${list.map(x => { const g = optOf(GROUPS, x.grp);
-      return `<tr class="fl-row" data-act="spOpen" data-sid="${x.id}"><td class="fl-nm"><b>${x.name ? esc(x.name) : '이름 없음'}</b><small>${esc(x.affil_ko || x.affil_en || '')}</small></td>
+      return `<tr class="fl-row" data-act="spOpen" data-sid="${x.id}"><td class="fl-nm"><b>${spLabelHtml(x)}</b><small>${esc(x.affil_ko || x.affil_en || '')}</small></td>
         <td>${g ? tag(g.tone, g.label) : ''}</td><td>${fl(x)}</td>
         <td class="fl-d">${fd(x.arr_date) || '<span class="muted">—</span>'}</td><td class="fl-t">${esc(x.arr_time || '')}</td><td>${esc(x.arr_flight || '')}</td><td>${esc(x.arr_airport || '')}</td>
         <td class="fl-d">${fd(x.dep_date) || '<span class="muted">—</span>'}</td><td class="fl-t">${esc(x.dep_time || '')}</td><td>${esc(x.dep_flight || '')}</td><td>${esc(x.dep_airport || '')}</td>
@@ -3371,7 +3374,7 @@ function spStayHtml() {
       ${noStay ? `<span class="sy-warn">확정 연사 중 숙박 날짜 없음 ${noStay}명</span>` : ''}</div>
     <div class="sy-wrap"><div class="sy" style="grid-template-columns:220px repeat(${cols.length},minmax(84px,1fr))">
       <div class="sy-h sy-n">연사</div>${cols.map(t => `<div class="sy-h ${isForum(t) ? 'forum' : ''}">${t.getMonth() + 1}/${t.getDate()} <small>${wk[t.getDay()]}</small></div>`).join('')}
-      ${rows.map(o => `<a class="sy-n sy-name" data-act="spOpen" data-sid="${o.x.id}"><b>${o.x.name ? esc(o.x.name) : '이름 없음'}</b><small>${esc([o.x.affil_ko || o.x.affil_en, optOf(GROUPS, o.x.grp)?.label].filter(Boolean).join(' · '))}</small></a>${cols.map(t => cell(o, t)).join('')}`).join('')}
+      ${rows.map(o => `<a class="sy-n sy-name" data-act="spOpen" data-sid="${o.x.id}"><b>${spLabelHtml(o.x)}</b><small>${esc([o.x.affil_ko || o.x.affil_en, optOf(GROUPS, o.x.grp)?.label].filter(Boolean).join(' · '))}</small></a>${cols.map(t => cell(o, t)).join('')}`).join('')}
     </div></div>`;
 }
 /* ---------- 대시보드 ---------- */
@@ -3398,7 +3401,7 @@ function peekHtml(key) {
   const list = dashList(key), MAX = 20;
   return `<div class="peek"><div class="peek-h"><b>${esc(dashLabel(key))}</b><span class="muted">${list.length}명</span><span class="sp"></span>
       <button class="btn sm" data-act="dashBig" data-key="${key}">${ICON.expand}크게 보기</button></div>
-    <div class="peek-list">${list.slice(0, MAX).map(s => `<a class="peek-item" data-act="spOpen" data-sid="${s.id}">${natTag(natOf(s.nationality_id))}<span>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</span></a>`).join('')
+    <div class="peek-list">${list.slice(0, MAX).map(s => `<a class="peek-item" data-act="spOpen" data-sid="${s.id}">${natTag(natOf(s.nationality_id))}<span>${spLabelHtml(s)}</span></a>`).join('')
       || '<span class="muted">해당하는 연사가 없어요</span>'}
       ${list.length > MAX ? `<a class="peek-more" data-act="dashBig" data-key="${key}">+${list.length - MAX}명 더 보기</a>` : ''}</div></div>`;
 }
@@ -3459,14 +3462,14 @@ function spDashHtml() {
 function todoCardHtml() {
   const L = dashList('todo'), MAX = 40;
   return `<div class="dcard dc-flush"><div class="dc-h"><h4>챙길 일</h4><span class="muted">확정 연사 기준 자동 점검</span></div>
-    <div class="dc-b todo-list">${L.length ? L.slice(0, MAX).map(s => `<a class="todo-row" data-act="spOpen" data-sid="${s.id}">${todoOf(s).map(([k]) => `<span class="todo-k">${k}</span>`).join('')}<b>${s.name ? esc(s.name) : '이름 없음'}</b><span class="muted">— ${todoOf(s).map(x => x[1]).join(', ')}</span></a>`).join('')
+    <div class="dc-b todo-list">${L.length ? L.slice(0, MAX).map(s => `<a class="todo-row" data-act="spOpen" data-sid="${s.id}">${todoOf(s).map(([k]) => `<span class="todo-k">${k}</span>`).join('')}<b>${spLabelHtml(s)}</b><span class="muted">— ${todoOf(s).map(x => x[1]).join(', ')}</span></a>`).join('')
       + (L.length > MAX ? `<a class="peek-more" data-act="dashBig" data-key="todo">+${L.length - MAX}명 더 보기</a>` : '')
       : '<div class="muted">챙길 일이 없어요 👍</div>'}</div></div>`;
 }
 function recentCardHtml() {
   const L = [...S.speakers].filter(s => s.grp !== 0).sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || ''))).slice(0, 8);
   return `<div class="dcard dc-flush"><div class="dc-h"><h4>최근 수정</h4><span class="muted">연사</span></div>
-    <div class="dc-b">${L.map(s => `<a class="recent-row" data-act="spOpen" data-sid="${s.id}"><b>${s.name ? esc(s.name) : '이름 없음'}</b><span class="muted">${fmtDT(s.updated_at)}</span></a>`).join('') || '<div class="muted">없음</div>'}</div></div>`;
+    <div class="dc-b">${L.map(s => `<a class="recent-row" data-act="spOpen" data-sid="${s.id}"><b>${spLabelHtml(s)}</b><span class="muted">${fmtDT(s.updated_at)}</span></a>`).join('') || '<div class="muted">없음</div>'}</div></div>`;
 }
 
 /* ---------- 대시보드 상단: 진행도 · 공식 행사 · 세션 일정 ---------- */
@@ -3503,7 +3506,7 @@ function progressCardHtml() {
       <div class="prog-bar">${cols.map(c => c.list.length ? `<i style="width:${c.list.length / total * 100}%;background:${toneColor[c.g.tone]}" title="${esc(c.g.label)} ${c.list.length}명"></i>` : '').join('')}</div>
       <div class="prog-cols">${cols.map(c => `<div class="prog-col">
         <div class="prog-ch">${tag(c.g.tone, c.g.label)}<b>${c.list.length}</b></div>
-        ${c.list.length ? c.list.slice(0, 12).map(s => `<a class="prog-item ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}" title="${esc(s.name || '이름 없음')}">${priBadge(s)}<span>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</span></a>`).join('') + (c.list.length > 12 ? `<a class="peek-more" data-act="dashBig" data-key="grp:${c.g.k}">+${c.list.length - 12}명 더</a>` : '') : '<div class="prog-empty">없음</div>'}
+        ${c.list.length ? c.list.slice(0, 12).map(s => `<a class="prog-item ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}" title="${esc(spLabel(s))}">${priBadge(s)}<span>${spLabelHtml(s)}</span></a>`).join('') + (c.list.length > 12 ? `<a class="peek-more" data-act="dashBig" data-key="grp:${c.g.k}">+${c.list.length - 12}명 더</a>` : '') : '<div class="prog-empty">없음</div>'}
       </div>`).join('')}</div>
     </div></div>`;
 }
@@ -3516,7 +3519,7 @@ function eventCardHtml() {
         <div class="ev-people">${L.length ? L.map(s => { const af = (s.affil_en || s.affil_ko || '').trim();
           const pr = optOf(PRI, s.priority);
           return `<a class="ev-person" data-act="spOpen" data-sid="${s.id}">${pr ? `<span class="ev-pri tg-${pr.tone}" title="중요도 ${pr.label}">${pr.k}</span>` : '<span class="ev-pri none"></span>'}
-            <span class="ev-txt"><span class="ev-nm">${s.name ? esc(s.name) : '이름 없음'}</span>${af ? `<span class="ev-af">${esc(af)}</span>` : ''}</span>
+            <span class="ev-txt"><span class="ev-nm">${spLabelHtml(s)}</span>${af ? `<span class="ev-af">${esc(af)}</span>` : ''}</span>
             ${s.diet_flag ? `<span class="ev-diet" title="특이식성: ${esc(s.diet_note || '내용 미입력')}">✔ ${esc((s.diet_note || '특이식성').slice(0, 14))}${(s.diet_note || '').length > 14 ? '…' : ''}</span>` : ''}</a>`; }).join('')
           : '<span class="muted">아직 참석으로 표시된 연사가 없어요</span>'}</div></div>`; }).join('')}
     </div></div>`;
@@ -3534,7 +3537,7 @@ function sessCardHtml() {
   const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : null;
   if (!d) return '<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">불러오는 중…</span></div></div>';
   const list = [...d.sessions].sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
-  const nm = id => esc(spOf(id)?.name || '이름 없음');
+  const nm = id => { const x = spOf(id); return x ? esc(spLabel(x)) : '이름 없음'; };
   const days = [...new Set(list.map(x => x.day || 0))];
   return `<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">${list.length}개 · 이 연사들이 들어간 세션</span></div>
     <div class="dc-b">${list.length ? days.map(dy => { const L = list.filter(x => (x.day || 0) === dy);
@@ -3573,7 +3576,7 @@ function renderListPanel() {
     <input class="lp-search" placeholder="이 목록에서 이름 검색" autocomplete="off">
     <table class="lp-table"><thead><tr><th>이름</th><th>그룹</th><th>국적</th><th>항공</th><th>숙박</th><th>담당자</th></tr></thead>
     <tbody>${list.map(s => `<tr data-act="spOpen" data-sid="${s.id}" data-q="${esc(norm(s.name) + ' ' + norm(s.passport_name))}">
-      <td class="lp-name">${s.done ? '<span class="lp-done">✓</span>' : ''}${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</td>
+      <td class="lp-name">${s.done ? '<span class="lp-done">✓</span>' : ''}${spLabelHtml(s)}</td>
       <td>${cell(GROUPS, s.grp)}</td><td>${natTag(natOf(s.nationality_id)) || EMPTY}</td>
       <td>${cell(FLIGHT, s.flight_status || 'none')}</td><td>${cell(HOTEL, s.hotel_status || 'none')}</td>
       <td>${(s.assignees || []).map(prof).filter(Boolean).map(p => avatar(p, 22)).join('') || EMPTY}</td></tr>`).join('')
@@ -3813,6 +3816,9 @@ const hasKo = t => /[ㄱ-힣]/.test(String(t || ''));
 function nameMain(s) { const n = String(s.name || '').trim(), e = enDisplay(s); return hasKo(n) && e ? e : (n || e); }
 function koParen(s) { const n = String(s.name || '').trim(), k = koDisplay(s) || (hasKo(n) ? n : ''), m = nameMain(s);
   return k && k.replace(/\s+/g, '') !== m.replace(/\s+/g, '') ? k : ''; }
+// 연사 마스터 화면용 이름: 영문 (국문) — Pre/Final Agenda에는 쓰지 않음
+function spLabelHtml(s, empty = '<span class="muted">이름 없음</span>') { const m = nameMain(s), k = koParen(s); return (m ? esc(m) : empty) + (k ? ` <span class="ko-p">(${esc(k)})</span>` : ''); }
+const spLabel = s => { const m = nameMain(s), k = koParen(s); return (m || '이름 없음') + (k ? ` (${k})` : ''); };
 function nameBlockHtml(s, fx) {
   const ff = nameOrder(s) === 'ff', noCol = !('name_order' in s) && !DEMO;
   const en = ff ? fx('Family (성)', 'name_en_last', 'Hong', 'text', 60) + fx('Given (이름)', 'name_en_first', 'Gildong', 'text', 60)
@@ -5598,7 +5604,7 @@ function spPdfHtml(list, photos, single, optsList) {
       ${on('photo') ? `<div class="ph">${photos[s.id] ? `<img src="${esc(photos[s.id])}" alt="">` : `<div class="noimg">${esc((s.name || '?').trim()[0] || '?')}</div>`}</div>` : ''}
       <div class="bd">
         ${!on('status') ? '' : `<div class="pills">${g ? pill(g.tone, g.label) : ''}${pr ? pill(pr.tone, pr.label) : ''}${n ? `<span class="pill t-gray">${esc(n.name)}</span>` : ''}${s.done ? pill('green', '완료') : ''}${s.priority_note ? `<span class="pill t-gray">${esc(s.priority_note)}</span>` : ''}</div>`}
-        <h3>${esc(s.name || '(이름 없음)')}${(() => { const e = enDisplay(s), alt = e && e !== (s.name || '').trim() ? [e] : []; return alt.length ? `<small class="alt">${esc(alt.join(' · '))}</small>` : ''; })()}</h3>
+        <h3>${esc(nameMain(s) || '(이름 없음)')}${koParen(s) ? `<small class="alt">(${esc(koParen(s))})</small>` : ''}</h3>
         ${on('role') && role(s.affil_ko, s.title_ko) ? `<div class="ro ko1">${role(s.affil_ko, s.title_ko)}</div>` : ''}
         ${on('role') && role(s.affil_en, s.title_en) ? `<div class="ro en">${role(s.affil_en, s.title_en)}</div>` : ''}
         ${on('memo') && s.memo ? `<div class="memo"><b>메모 · 보고</b>${esc(s.memo)}</div>` : ''}
