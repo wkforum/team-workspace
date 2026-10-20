@@ -1640,6 +1640,13 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .pm-who{color:var(--accent)}
 .ent-table{min-width:900px}.ent-table td{padding:0}.ent-sp a{display:block;padding:0 10px;cursor:pointer;font-weight:600}
 .se-spk{font-weight:500;color:var(--accent);font-size:12.5px}
+
+.ph-col{display:flex;flex-direction:column;gap:6px;flex:none}
+.ph-acts{display:flex;gap:4px}
+.ph-acts .btn{flex:1;justify-content:center;padding:3px 6px;font-size:12px;display:inline-flex;align-items:center;gap:3px;cursor:pointer}
+.ph-acts .btn:last-child{flex:none}
+.ph-acts .ph-x:hover{color:#b42318;border-color:#f2a7a2}
+.ph-drop.ph-over{border-color:var(--accent);background:var(--accent-weak)}
 </style>
 </head>
 <body>
@@ -3195,6 +3202,7 @@ function toolbarHtml() {
     ${canEdit() ? '<button class="btn-primary" data-act="spAdd">+ 연사 추가</button>' : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
     <div class="sp-tools">
       <button class="tool" data-act="spExport" title="지금 보이는 연사 목록(필터·검색·정렬 적용)을 엑셀 파일로 내려받기">${ICON.download}엑셀 내려받기</button>
+      <button class="tool" data-act="spPhotoZip" title="지금 보이는 연사들의 사진을 ZIP 하나로 · 파일 이름은 엑셀 '사진 파일' 칸과 같아요">${ICON.download}사진 모아 받기</button>
       <button class="tool ${S.todoOnly ? 'on' : ''}" data-act="spTodoOnly" title="확정 연사 중 항공·숙박·세션·참석일·식성 중 빠진 게 있는 사람만">${S.todoOnly ? '✓ ' : ''}챙길 것만</button>
       <button class="tool" id="spFilterBtn" data-act="spFilter"></button>
       <button class="tool" id="spSortBtn" data-act="spSort"></button>
@@ -3916,9 +3924,9 @@ function spPageHtml(s) {
 
   const secOf = tab => tab === 'basic' ? `
       <div class="fx-card fx-main">${spPubHtml(s)}
-        <div class="ph-drop">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 올리기<br><small>클릭해서 고르기</small></span>'}
-          <label class="ph-pick" title="${s.photo_path ? '사진 바꾸기' : '사진 올리기'}"><input type="file" accept="image/*" data-upload="photo" class="vh"></label>
-          ${s.photo_path && ed ? '<button type="button" class="ph-del" data-act="spPhotoDel" title="사진 삭제" aria-label="사진 삭제">✕</button>' : ''}</div>
+        <div class="ph-col"><div class="ph-drop">${s.photo_path ? `<img data-fpath="${esc(s.photo_path)}" alt="연사 사진">` : '<span>사진 올리기<br><small>클릭하거나 끌어다 놓기</small></span>'}
+          <label class="ph-pick" title="${s.photo_path ? '사진 바꾸기' : '사진 올리기'}"><input type="file" accept="image/*" data-upload="photo" class="vh"></label></div>
+          ${s.photo_path && ed ? `<div class="ph-acts"><label class="btn sm">바꾸기<input type="file" accept="image/*" data-upload="photo" class="vh"></label><button type="button" class="btn sm ph-x" data-act="spPhotoDel">삭제</button><button type="button" class="btn sm" data-act="spPhotoDown" title="원본 내려받기">${ICON.download}</button></div>` : ''}</div>
         <div class="fx-grid">
           ${nameBlockHtml(s, fx)}
           ${fx('국문 소속', 'affil_ko', 'OO그룹')}${fx('국문 직함', 'title_ko', '대표이사')}${fxp('국적', sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY))}
@@ -4127,7 +4135,7 @@ function spSideHtml() {
       return `<div class="ss-g" ${ed ? `data-gdrop="${g.k}"` : ''}><button type="button" class="ss-gh t-${g.tone}" data-act="spFold" data-grp="${g.k}"><span>${folded ? '▸' : '▾'} ${g.label}</span><small>${L.length}</small></button>
         ${folded ? '' : (L.map(card).join('') || '<div class="ss-empty">없음</div>')}</div>`; }).join('') || '<div class="ss-empty" style="padding:20px">조건에 맞는 연사가 없어요</div>'}</div>
     <div class="ss-foot"><span>${list.length}명${list.length < S.speakers.length ? ` / 전체 ${S.speakers.length}` : ''}</span>
-      <span><a data-act="spFilter" id="spFilterBtn2">필터</a> · <a data-act="spExport">엑셀</a> · <a data-act="spTab" data-tab="list">표로 보기</a></span></div>`;
+      <span><a data-act="spFilter" id="spFilterBtn2">필터</a> · <a data-act="spExport">엑셀</a> · <a data-act="spPhotoZip">사진 ZIP</a> · <a data-act="spTab" data-tab="list">표로 보기</a></span></div>`;
 }
 document.addEventListener('change', e => {
   const k = e.target.dataset?.ssf; if (!k) return;
@@ -4230,6 +4238,39 @@ async function uploadPhoto(sid, file) {
     const old = s.photo_path;
     await updateSpeaker(sid, { photo_path: path });
     toast('사진을 올렸어요');
+  } catch (e) { err(e); }
+}
+// 사진 칸에 파일을 끌어다 놓아도 올라가게
+document.addEventListener('dragover', e => { const z = e.target.closest?.('#spage .ph-drop'); if (!z || !canEdit() || !e.dataTransfer?.types?.includes('Files')) return; e.preventDefault(); z.classList.add('ph-over'); });
+document.addEventListener('dragleave', e => { const z = e.target.closest?.('#spage .ph-drop'); if (z) z.classList.remove('ph-over'); });
+document.addEventListener('drop', e => { const z = e.target.closest?.('#spage .ph-drop'); if (!z || !canEdit()) return; const f = [...(e.dataTransfer?.files || [])].find(x => /^image\//.test(x.type)); if (!f) return; e.preventDefault(); z.classList.remove('ph-over'); uploadPhoto(S.spId, f); });
+async function spPhotoDown() {
+  const s = spOf(S.spId); if (!s?.photo_path) return;
+  try { const url = await fileUrl(s.photo_path); const b = await (await fetch(url)).blob();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${safeFile(nameMain(s) || '연사')}.${extOf(s.photo_path) || 'jpg'}`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  } catch (e) { err(e); }
+}
+const safeFile = t => String(t || '').replace(/[\\/:*?"<>|]/g, '').trim() || '연사';
+// 사진 모아 받기 (ZIP) — 엑셀에는 사진을 넣을 수 없어서, 파일 이름을 엑셀 '사진 파일' 칸과 맞춰 따로 묶어 줌
+let zipLoading = null;
+function loadZip() { if (window.JSZip) return Promise.resolve(window.JSZip);
+  return zipLoading ||= new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+    sc.onload = () => res(window.JSZip); sc.onerror = () => { zipLoading = null; rej(new Error('압축 도구를 불러오지 못했어요')); }; document.head.appendChild(sc); }); }
+const photoFileName = s => `${safeFile(nameMain(s))}.${extOf(s.photo_path) || 'jpg'}`;
+async function spPhotoZip() {
+  const p = curProject(); if (!p) return;
+  const list = spSort(spVisible()).filter(x => x.grp !== 0 && x.photo_path);
+  if (!list.length) return toast('사진이 올라간 연사가 없어요 (필터를 확인해 주세요)', true);
+  toast(`사진 ${list.length}장을 모으는 중…`);
+  try {
+    const Z = await loadZip(), zip = new Z(), used = new Set(); let n = 0;
+    for (const x of list) {
+      try { const b = await (await fetch(await fileUrl(x.photo_path))).blob(); let nm = photoFileName(x), k = 2;
+        while (used.has(nm)) nm = photoFileName(x).replace(/(\.[^.]+)$/, `_${k++}$1`); used.add(nm); zip.file(nm, b); n++; } catch (_) {}
+    }
+    const out = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = `${p.name}_연사사진_${todayStr()}.zip`.replace(/[\\/:*?"<>|]/g, ''); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast(`사진 ${n}장을 ZIP으로 내려받았어요`);
   } catch (e) { err(e); }
 }
 async function spPhotoDel() {
@@ -6101,7 +6142,7 @@ function loadXLSX() {
   });
 }
 const SP_COLS = [
-  ['그룹', s => optOf(GROUPS, s.grp)?.label || '', 12], ['이름', s => s.name, 24], ['국문 성', s => nameParts(s).name_ko_last, 8], ['국문 이름', s => nameParts(s).name_ko_first, 10], ['영문 성', s => nameParts(s).name_en_last, 14], ['영문 이름', s => nameParts(s).name_en_first, 16], ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 16],
+  ['그룹', s => optOf(GROUPS, s.grp)?.label || '', 12], ['이름', s => s.name, 24], ['사진 파일', s => s.photo_path ? photoFileName(s) : '', 22], ['국문 성', s => nameParts(s).name_ko_last, 8], ['국문 이름', s => nameParts(s).name_ko_first, 10], ['영문 성', s => nameParts(s).name_en_last, 14], ['영문 이름', s => nameParts(s).name_en_first, 16], ['담당자', s => (s.assignees || []).map(pname).filter(Boolean).join(', '), 16],
   ['국적', s => natOf(s.nationality_id)?.name || '', 10], ['중요도', s => optOf(PRI, s.priority)?.label || '', 8],
   ['항공', s => (optOf(FLIGHT, s.flight_status) || FLIGHT[0]).k === 'none' ? '' : optOf(FLIGHT, s.flight_status).label, 11],
   ['숙박', s => (optOf(HOTEL, s.hotel_status) || HOTEL[0]).k === 'none' ? '' : optOf(HOTEL, s.hotel_status).label, 11],
@@ -6142,7 +6183,7 @@ async function spExport() {
     X.utils.book_append_sheet(wb, ws, '연사 목록');
     X.utils.book_append_sheet(wb, info, '정보');
     X.writeFile(wb, base + '.xlsx');
-    toast(`연사 ${list.length}명을 엑셀로 내려받았어요`);
+    toast(`연사 ${list.length}명을 엑셀로 내려받았어요${list.some(x => x.photo_path) ? " · 사진은 '사진 모아 받기'로 따로 받아요" : ''}`);
   } catch (e) {
     console.warn(e);
     const csv = '﻿' + [head, ...rows].map(r => r.map(v => /[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v).join(',')).join('\r\n');
@@ -7000,6 +7041,8 @@ const ACT = {
   spFlip: el => { const s = spOf(S.spId); if (s) updateSpeaker(s.id, { [el.dataset.f]: !s[el.dataset.f] }); },
   spSet: el => { const s = spOf(S.spId); const v = el.dataset.v === '1'; if (s && s[el.dataset.f] !== v) updateSpeaker(s.id, { [el.dataset.f]: v }); },
   spPhotoDel: () => spPhotoDel(),
+  spPhotoDown: () => spPhotoDown(),
+  spPhotoZip: () => spPhotoZip(),
   spFileOpen: el => spFileOpen(el.dataset.path),
   spFileDel: el => spFileDel(el.dataset.path),
   spDelete: () => spDelete(),
