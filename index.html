@@ -1373,6 +1373,136 @@ fieldset:disabled .ph-pick{pointer-events:none}
 .pdf-opt{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:6px;cursor:pointer;font-size:13.5px}
 .pdf-opt:hover{background:var(--hover)}
 .pdf-opt input{accent-color:var(--accent);width:16px;height:16px}
+
+/* =====================================================================
+   v21 '한눈에' 스타일 — 차분하고 납작하게 (체험판 느낌 참고)
+   ===================================================================== */
+:root{
+  --bg:#f3f4f7; --panel:#ffffff; --side:#ffffff; --line:#dde0e7; --line2:#cfd3dc;
+  --text:#1a2130; --muted:#5d6575; --hover:#eceef2;
+  --accent:#2340b0; --accent-weak:#e8ecfb; --accent-line:#b9c5f0;
+  --mark:#c42f28; --mark-soft:#fbeceb; --ok:#1d7a4c; --col:#eceef2;
+}
+.tg-purple{background:#e8ecfb;color:#2340b0}
+.btn,.btn-primary{border-radius:6px}
+.chip{border-radius:6px}
+/* 위쪽 메뉴: 밝게, 프로젝트는 묶음 버튼 */
+#app{grid-template-rows:56px minmax(0,1fr)}
+#sidebar{height:56px;background:#fff;color:var(--text);border-bottom:1px solid var(--line);padding:0 16px;gap:10px}
+#sidebar .ws{font-weight:700;font-size:15px;letter-spacing:-.2px}
+#sidebar .ws .logo{background:var(--text);border-radius:5px}
+#sidebar .ws .bell,#sidebar .me .icon-btn,#navMy{color:var(--muted)}
+#sidebar .ws .bell:hover,#sidebar .me .icon-btn:hover,#navMy:hover,#navMy.active{background:var(--hover);color:var(--text)}
+.me-btn{color:var(--text)}.me-btn:hover{background:var(--hover)}
+.nav-tabs{height:auto;background:#eceef2;border-radius:8px;padding:3px;gap:2px}
+#sidebar .nav-item{height:32px;border-radius:6px;padding:0 14px;color:var(--muted);font-weight:500}
+#sidebar .nav-item:hover{color:var(--text);background:rgba(255,255,255,.6)}
+#sidebar .nav-item.active{background:#fff;color:var(--text);font-weight:700;box-shadow:0 1px 2px rgba(20,30,60,.12)}
+#sidebar .nav-item .dot{display:none}
+#sidebar .nav-item.nd-before{box-shadow:inset 3px 0 0 var(--accent)}
+#sidebar .nav-item.nd-after{box-shadow:inset -3px 0 0 var(--accent)}
+.ed-sel select{height:32px;border:1px solid var(--line2);background:#fff;color:var(--text);border-radius:6px;font-variant-numeric:tabular-nums}
+#sidebar .empty-sm{color:var(--muted)}
+/* 프로젝트 머리: 보기 버튼도 같은 묶음 모양 */
+.ph{background:var(--bg);border-bottom:1px solid var(--line);align-items:center;height:50px;min-height:50px}
+.ph .tabs{align-items:center;gap:2px;background:#e6e8ee;border-radius:7px;padding:3px;height:auto}
+.ph .tab{height:28px;border:0;border-radius:5px;padding:0 12px;color:var(--muted);font-size:13px}
+.ph .tab.active{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(20,30,60,.12)}
+.av-stack .av{border-color:var(--bg)}
+/* 왼쪽 목록 */
+.split-side{border-right:1px solid var(--line)}
+.split-dock,#spage.docked .sp-panel,#spage:not(.docked) .sp20{background:var(--bg)}
+.ss-search,.ss-sel,.ss-mine{border-color:var(--line2);border-radius:6px}
+.ss-mine.on{background:var(--accent-weak);border-color:var(--accent-line);color:var(--accent)}
+.ss-gh{background:#fff;color:var(--muted)!important;font-size:11.5px;letter-spacing:.2px;border-bottom:1px solid var(--line);height:26px}
+.ss-gh::before{content:'';width:7px;height:7px;border-radius:50%;margin-right:6px;background:currentColor;display:none}
+.sc{border-bottom:1px solid #eef0f3;min-height:56px}
+.sc:hover{background:#f7f8fa}
+.sc.on{background:#fff;box-shadow:inset 0 0 0 1.5px var(--accent);border-radius:6px}
+.sc-av{background:#eceef2;color:var(--muted);font-weight:600}
+.ss-foot a{color:var(--accent)}
+/* 상세: 탭 없이 쭉 · 왼쪽에 항목 이름 */
+.d-tabs{display:none!important}
+.sp20 .d-head{background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:12px}
+.d-name{font-size:22px}
+.stage{gap:0;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:#fff}
+.st-b{border:0;border-right:1px solid var(--line);border-radius:0;height:46px;flex-direction:column;gap:0;line-height:1.2}
+.st-b:last-child{border-right:0}
+.st-b small{font-size:11px}
+.st-b.on.st-purple{background:var(--accent)}
+.yr{font-variant-numeric:tabular-nums}
+.yr.on{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.d-body{gap:0}
+.d-body .d-sec{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px 20px;padding:18px 0;border-top:1px dashed var(--line2)}
+.d-body #dsec-basic{display:flex;flex-direction:column;gap:12px;border-top:0;padding-top:0}
+.d-body .d-sec>.d-sh{grid-column:1;grid-row:1/span 6;margin:0;font-size:13.5px;font-weight:700;align-self:start;padding-top:2px;color:var(--text)}
+.d-body .d-sec>*:not(.d-sh){grid-column:2}
+.d-body .d-sec:not(#dsec-basic) .fx-card{background:transparent;border:0;border-radius:0;padding:0}
+.d-body .d-sec:not(#dsec-basic) .fx-h{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px}
+.fx-card{border-color:var(--line);border-radius:8px}
+.fx-in,.fx-pick{border-color:var(--line2);border-radius:6px}
+.fx-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+.memo-card{background:var(--mark-soft);border-color:#f1c9c4}
+.memo-h{color:var(--mark)}
+.memo-card .memo-ta{border-color:#efc3be;background:#fff}
+#dsec-cmt{border-top:1px dashed var(--line2);padding-top:14px}
+.sp20 .cmts{border-radius:8px}
+.info-strip{border-radius:8px}
+.pm-line{background:var(--accent-weak);color:var(--accent);border-radius:8px}
+/* 대시보드 */
+.dash2{max-width:none;gap:14px}
+.kpis2{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi2{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:2px;font:inherit;color:inherit}
+.kpi2.click{cursor:pointer}.kpi2.click:hover,.kpi2.open{border-color:var(--accent-line)}
+.k-l{font-size:12.5px;color:var(--muted);font-weight:600}
+.k-v{font-size:30px;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
+.k-v small{font-size:14px;font-weight:500;color:var(--muted)}
+.kpi2.ok .k-v{color:var(--ok)}.kpi2.mark .k-v{color:var(--mark)}
+.k-s{font-size:12px;color:var(--muted)}
+.dash2-cols{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);gap:14px;align-items:start}
+.dash2-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.dash2 .dcard{border-radius:8px;border-color:var(--line)}
+.dash2 .dc-h{padding:12px 16px}
+.dash2 .dc-h h4{font-size:14px}
+.dash2 .dc-b{padding:12px 16px}
+.dash2 .prog-item{border-radius:6px;padding:4px 8px}
+.sd-day{font-weight:700;font-size:13px;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.sd-day span{color:var(--muted);font-weight:500;margin-left:4px}
+.sd-row{display:flex;gap:14px;align-items:flex-start;padding:7px 4px;border-radius:6px;cursor:pointer}
+.sd-row:hover{background:var(--hover)}
+.sd-t{width:96px;flex:none;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums;padding-top:1px}
+.sd-m{display:flex;flex-direction:column;min-width:0}
+.sd-m b{font-weight:600}
+.sd-m small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todo-list{display:flex;flex-direction:column;gap:2px;max-height:360px;overflow:auto}
+.todo-row{display:flex;align-items:center;gap:6px;padding:5px 4px;border-radius:6px;cursor:pointer;font-size:13px;min-width:0}
+.todo-row:hover{background:var(--hover)}
+.todo-row .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.todo-k{font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--mark-soft);color:var(--mark);flex:none}
+.recent-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);cursor:pointer;font-size:13px}
+.recent-row:last-child{border-bottom:0}
+.recent-row:hover b{color:var(--accent)}
+@media (max-width:1180px){.kpis2{grid-template-columns:repeat(2,minmax(0,1fr))}.dash2-cols{grid-template-columns:1fr}}
+@media (max-width:760px){.d-body .d-sec{grid-template-columns:1fr}.d-body .d-sec>.d-sh,.d-body .d-sec>*:not(.d-sh){grid-column:1;grid-row:auto}}
+
+/* v21 표: 촘촘하게 (한 화면에 더 많이) */
+.sp-table td{height:31px;font-size:13px}
+.sp-table th{padding:6px 10px;background:#f6f7f9}
+.sp-table .tg{font-size:12px;line-height:1.45;padding:0 7px}
+.grp-head td{background:#f6f7f9!important}
+.grp-h{padding:5px 10px 4px;font-size:12.5px}
+.grp-head .gnum{display:none}
+.add-row td{height:24px}
+.add-row .add-link{padding:1px 12px;font-size:12px;color:#9aa1af}
+.check{border-radius:4px}
+.sp-table .check{width:16px;height:16px}
+.sp-wrap{border-radius:8px;border-color:var(--line)}
+.sc{min-height:48px;padding:6px 12px}
+.sc-av{width:30px;height:30px}
+.sp-toolbar{background:var(--bg);border-bottom:0}
+table .cell-in{height:30px}
+table .cell-btn{min-height:30px;padding:2px 10px}
+table .av{width:20px!important;height:20px!important;font-size:10px}
 </style>
 </head>
 <body>
@@ -2015,8 +2145,8 @@ const api = DEMO ? demoApi() : supabaseApi();
    상태
    ===================================================================== */
 const S = { me:null, profiles:[], projects:[], members:[], view:'mytasks', pid:null, tab:'board', tasks:[], docs:[], docId:null, search:'',
-  nats:[], speakers:[], svs:{}, stab:'cards', spId:null, spLinks:[], spTargets:{}, spLinksLoaded:false, pinned:new Set(),
-  stab:'cards', spDTab:'basic', seDTab:'basic', dashKey:null, lpKey:null, lpBack:null, spSess:null,
+  nats:[], speakers:[], svs:{}, stab:'dash', spId:null, spLinks:[], spTargets:{}, spLinksLoaded:false, pinned:new Set(),
+  stab:'dash', spDTab:'basic', seDTab:'basic', dashKey:null, lpKey:null, lpBack:null, spSess:null,
   sessions:[], venues:[], pillars:[], meetTypes:[], secret:[], setab:'cards', seId:null, sePeopleAll:[], spkNames:{},
   vruns:[], vopts:[], undo:[], notifs:[], notifMissing:false, my:null, myHideDone:(() => { try { return localStorage.getItem('myHideDone') === '1'; } catch (_) { return false; } })() };
 const isAdmin = () => S.me?.role === 'admin';
@@ -2824,7 +2954,7 @@ const HOTEL = [
 const PRI = [{ k:'S', label:'S급', tone:'red' }, { k:'A', label:'A급', tone:'yellow' }, { k:'B', label:'B급', tone:'blue' }, { k:'C', label:'C급', tone:'green' }];
 const FIELDS = ['경제', '인문', 'AI', '산업', '경영', '지정학'];
 const EVENTS = [{ f:'opening', label:'개막식' }, { f:'vip_dinner', label:'VIP 만찬' }, { f:'gala', label:'갈라디너' }];
-const SP_TABS = [['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['dash','대시보드']];
+const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일']];
 const SORTS = [{ k:'manual', label:'기본 순서' }, { k:'assignee', label:'담당자별' }, { k:'alpha', label:'알파벳순 (이름)' },
   { k:'created', label:'생성일 (최신순)' }, { k:'updated', label:'마지막 수정일 (최신순)' }];
 const NAT_COLORS = ['#0891b2','#be123c','#65a30d','#9333ea','#b45309','#0f766e','#c026d3','#1e40af','#a16207','#475569','#e11d48','#15803d'];
@@ -2882,6 +3012,7 @@ function spVisible() {
     if (v.nat.length && !v.nat.includes(s.nationality_id)) return false;
     if (v.ev.some(f => !s[f])) return false;
     if (v.diet && !s.diet_flag) return false;
+    if (S.todoOnly && !todoOf(s).length) return false;
     if (v.asg.length && !(s.assignees || []).some(a => v.asg.includes(a))) return false;
     return true;
   });
@@ -2926,6 +3057,7 @@ function toolbarHtml() {
     ${canEdit() ? '<button class="btn-primary" data-act="spAdd">+ 연사 추가</button>' : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
     <div class="sp-tools">
       <button class="tool" data-act="spExport" title="지금 보이는 연사 목록(필터·검색·정렬 적용)을 엑셀 파일로 내려받기">${ICON.download}엑셀 내려받기</button>
+      <button class="tool ${S.todoOnly ? 'on' : ''}" data-act="spTodoOnly" title="확정 연사 중 항공·숙박·세션·참석일·식성 중 빠진 게 있는 사람만">${S.todoOnly ? '✓ ' : ''}챙길 것만</button>
       <button class="tool" id="spFilterBtn" data-act="spFilter"></button>
       <button class="tool" id="spSortBtn" data-act="spSort"></button>
       <div class="search-box ${v.q ? 'open' : ''}" id="spSearchBox">
@@ -3075,7 +3207,8 @@ function dashList(key) {
     : t === 'grp' ? s => s.grp === Number(v)
     : t === 'asg' ? (v === 'none' ? s => !(s.assignees || []).length : s => (s.assignees || []).includes(v))
     : t === 'fl' ? s => (s.flight_status || 'none') === v : t === 'ho' ? s => (s.hotel_status || 'none') === v
-    : t === 'ev' ? s => !!s[v] : t === 'diet' ? s => s.diet_flag : t === 'day' ? s => !!s['day' + v] : () => false;
+    : t === 'ev' ? s => !!s[v] : t === 'diet' ? s => s.diet_flag : t === 'day' ? s => !!s['day' + v]
+    : t === 'todo' ? s => todoOf(s).length > 0 : () => false;
   return all.filter(f).sort((a, b) => (a.name || '￿').localeCompare(b.name || '￿', 'en', { sensitivity:'base' }));
 }
 function dashLabel(key) {
@@ -3084,7 +3217,7 @@ function dashLabel(key) {
     : t === 'grp' ? `${v} ${optOf(GROUPS, Number(v))?.label || ''}`
     : t === 'asg' ? (v === 'none' ? '담당자 없음' : `담당 ${pname(v)}`)
     : t === 'fl' ? `항공 · ${optOf(FLIGHT, v)?.label}` : t === 'ho' ? `숙박 · ${optOf(HOTEL, v)?.label}`
-    : t === 'ev' ? `${EVENTS.find(e => e.f === v)?.label} 참석` : t === 'diet' ? '특이식성 있음' : t === 'day' ? `${v}일차 참석 가능` : '';
+    : t === 'ev' ? `${EVENTS.find(e => e.f === v)?.label} 참석` : t === 'diet' ? '특이식성 있음' : t === 'day' ? `${v}일차 참석 가능` : t === 'todo' ? '챙길 일이 있는 확정 연사' : '';
 }
 function peekHtml(key) {
   if (S.dashKey !== key) return '';
@@ -3096,38 +3229,70 @@ function peekHtml(key) {
       ${list.length > MAX ? `<a class="peek-more" data-act="dashBig" data-key="${key}">+${list.length - MAX}명 더 보기</a>` : ''}</div></div>`;
 }
 const peekIn = prefixes => (S.dashKey && prefixes.some(p => S.dashKey === p || S.dashKey.startsWith(p + ':'))) ? peekHtml(S.dashKey) : '';
+/* 확정 연사 중 아직 챙길 일 — 대시보드 '챙길 일' (저장하지 않고 화면 그릴 때 계산) */
+function todoOf(s) {
+  if (s.grp !== 3) return [];
+  const out = [], d = S.spSessDash;
+  if ((s.flight_status || 'none') === 'none' || s.flight_status === 'request') out.push(['항공', s.flight_status === 'request' ? '항공권 요청' : '항공 미정']);
+  if ((s.hotel_status || 'none') === 'none' || s.hotel_status === 'request') out.push(['숙박', s.hotel_status === 'request' ? '숙박 요청' : '숙박 미정']);
+  if (d && d.pid === S.pid && !d.rows.some(r => r.speaker_id === s.id)) out.push(['세션', '세션 미배정']);
+  if (!s.day1 && !s.day2 && !s.day3) out.push(['참석일', '참석일 미체크']);
+  if (s.diet_flag && !(s.diet_note || '').trim()) out.push(['식성', '식성 내용 미입력']);
+  return out;
+}
 function spDashHtml() {
-  const all = S.speakers, total = all.length, done = all.filter(s => s.done).length, open = total - done;
-  const pct = total ? Math.round(done / total * 100) : 0;
+  if (!S.spSessDash || S.spSessDash.pid !== S.pid) { if (S.spSessDashLoading !== S.pid) { S.spSessDashLoading = S.pid; loadDashSessions(); } }
+  const all = S.speakers.filter(s => s.grp !== 0), total = all.length;
+  const conf = all.filter(s => s.grp === 3).length, pct = total ? Math.round(conf / total * 100) : 0;
+  const by = k => all.filter(s => s.grp === k).length;
+  const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : null;
+  const todoN = dashList('todo').length;
   const on = k => S.dashKey === k ? 'open' : '';
-  const bar = (n, d, max) => `<div class="bar"><i style="width:${max ? d / max * 100 : 0}%;background:var(--ok)"></i><i style="width:${max ? (n - d) / max * 100 : 0}%;background:#c7d2fe"></i></div>`;
-  const rowsHtml = rows => { const max = Math.max(1, ...rows.map(r => r.n));
-    return rows.map(r => `<div class="drow click ${on(r.key)}" data-act="dashKey" data-key="${r.key}"><div class="drow-top"><div class="dlab">${r.label}</div>
-      <div class="dnum"><b>${r.n}</b><span class="muted"> · 완료 ${r.d} · 미완료 ${r.n - r.d}</span><span class="chev">${S.dashKey === r.key ? '▴' : '▾'}</span></div></div>${bar(r.n, r.d, max)}</div>${peekHtml(r.key)}`).join(''); };
+  const kpi = (key, label, val, sub, cls = '') => `<${key ? `button type="button" data-act="dashKey" data-key="${key}"` : 'div'} class="kpi2 ${cls} ${key ? 'click ' + on(key) : ''}"><div class="k-l">${label}</div><div class="k-v">${val}</div><div class="k-s">${sub}</div></${key ? 'button' : 'div'}>`;
+  const bar = (n, dn, max) => `<div class="bar"><i style="width:${max ? dn / max * 100 : 0}%;background:var(--ok)"></i><i style="width:${max ? (n - dn) / max * 100 : 0}%;background:var(--accent-line)"></i></div>`;
   const mk = (key, label) => { const l = dashList(key); return { key, label, n: l.length, d: l.filter(s => s.done).length }; };
-  const grpRows = GROUPS.map(g => mk('grp:' + g.k, `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}`));
   const asgRows = projectMembers(S.pid).map(p => mk('asg:' + p.id, `<span class="who-chip">${avatar(p, 20)}${esc(p.full_name || p.email)}</span>`)).sort((a, b) => b.n - a.n);
-  if (all.some(s => !(s.assignees || []).length)) asgRows.push(mk('asg:none', '<span class="muted">담당자 없음</span>'));
+  if (S.speakers.some(s => !(s.assignees || []).length)) asgRows.push(mk('asg:none', '<span class="muted">담당자 없음</span>'));
+  const maxA = Math.max(1, ...asgRows.map(r => r.n));
   const stat = (key, inner) => `<button type="button" class="stat click ${on(key)}" data-act="dashKey" data-key="${key}">${inner}<b>${dashList(key).length}</b></button>`;
-  const kpi = (key, label, n, color) => `<button type="button" class="kpi click ${on(key)}" data-act="dashKey" data-key="${key}"><div class="l">${label}</div><div class="v" ${color ? `style="color:${color}"` : ''}>${n}</div><div class="kpi-hint">누가 있는지 보기 ▾</div></button>`;
-  return `<div class="dash">
-    <div class="dash-top">
-      <div class="dash-left">${attendCardHtml()}${progressCardHtml()}</div>
-      ${eventCardHtml()}
+  const doneN = S.speakers.filter(x => x.done).length, doneP = S.speakers.length ? Math.round(doneN / S.speakers.length * 100) : 0;
+  const grpRows = GROUPS.map(g => mk('grp:' + g.k, `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}`)), maxG = Math.max(1, ...grpRows.map(r => r.n));
+  return `<div class="dash dash2">
+    <div class="kpis2">
+      ${kpi('all', '피칭 연사', total, `아이디어 ${by(1)} · 논의중 ${by(2)} · 보류 ${by(4)}`)}
+      ${kpi('grp:3', '섭외 확정', `${conf}<small> / ${pct}%</small>`, '확정 연사 수 / 피칭 대비', 'ok')}
+      ${kpi('', '세션', d ? d.sessions.length : '…', d ? `일정 미정 ${d.sessions.filter(x => !x.day || !x.start_time).length}개` : '불러오는 중')}
+      ${kpi('todo', '챙길 일', todoN, '확정 연사 중 · 아래 목록에서 바로 이동', todoN ? 'mark' : '')}
     </div>
-    <div class="kpis">${kpi('all', '작업 합계', total)}${kpi('done', '완료된 작업 합계', done, 'var(--ok)')}${kpi('open', '미완료 작업 합계', open, 'var(--accent)')}</div>
-    ${peekIn(['all', 'done', 'open'])}
-    <div class="dcard"><div class="prog-h"><span>완료율</span><b>${pct}%</b></div><div class="bar big"><i style="width:${pct}%;background:var(--ok)"></i></div>
-      <div class="legend"><span><i style="background:var(--ok)"></i>완료</span><span><i style="background:#c7d2fe"></i>미완료</span><span class="muted" style="margin-left:auto">항목을 누르면 해당 연사가 보여요</span></div></div>
-    <div class="dash-cols">
-      <div class="dcard"><h4>그룹별 합계</h4>${rowsHtml(grpRows)}</div>
-      <div class="dcard"><h4>담당자별 작업 합계</h4>${asgRows.length ? rowsHtml(asgRows) : '<div class="muted">아직 연사가 없어요</div>'}</div>
-    </div>
-    <div class="dash-cols">
-      <div class="dcard"><h4>항공 현황</h4><div class="stats">${FLIGHT.map(o => stat('fl:' + o.k, tag(o.tone, o.label))).join('')}</div>${peekIn(['fl'])}</div>
-      <div class="dcard"><h4>숙박 현황</h4><div class="stats">${HOTEL.map(o => stat('ho:' + o.k, tag(o.tone, o.label))).join('')}</div>${peekIn(['ho'])}</div>
+    ${['all', 'grp:3', 'todo'].includes(S.dashKey) ? peekHtml(S.dashKey) : ''}
+    <div class="dash2-cols">
+      <div class="dash2-col">${progressCardHtml()}${sessCardHtml()}
+        <div class="dcard dc-flush"><div class="dc-h"><h4>완료 현황</h4><span class="muted">연사 완료 체크 기준 · 숫자를 누르면 명단</span></div><div class="dc-b">
+          <div class="prog-h"><span>완료율</span><b>${doneP}%</b></div><div class="bar big"><i style="width:${doneP}%;background:var(--ok)"></i></div>
+          <div class="stats" style="margin-top:10px">${stat('all', '<span>전체</span>')}${stat('done', '<span>완료</span>')}${stat('open', '<span>미완료</span>')}</div>${peekIn(['done', 'open'])}
+          <div class="at-gh" style="margin-top:14px">그룹별 합계</div>${grpRows.map(r => `<div class="drow click ${on(r.key)}" data-act="dashKey" data-key="${r.key}"><div class="drow-top"><div class="dlab">${r.label}</div><div class="dnum"><b>${r.n}</b><span class="muted"> · 완료 ${r.d} · 미완료 ${r.n - r.d}</span></div></div>${bar(r.n, r.d, maxG)}</div>${peekHtml(r.key)}`).join('')}</div></div>
+        <div class="dcard dc-flush"><div class="dc-h"><h4>담당자별</h4><span class="muted">항목을 누르면 명단</span></div><div class="dc-b">${asgRows.length ? asgRows.map(r => `<div class="drow click ${on(r.key)}" data-act="dashKey" data-key="${r.key}"><div class="drow-top"><div class="dlab">${r.label}</div><div class="dnum"><b>${r.n}</b><span class="muted"> · 완료 ${r.d}</span></div></div>${bar(r.n, r.d, maxA)}</div>${peekHtml(r.key)}`).join('') : '<div class="muted">아직 연사가 없어요</div>'}</div></div>
+      </div>
+      <div class="dash2-col">${eventCardHtml()}${attendCardHtml()}${todoCardHtml()}
+        <div class="dcard dc-flush"><div class="dc-h"><h4>항공 · 숙박</h4><span class="muted">상태를 누르면 명단</span></div><div class="dc-b">
+          <div class="at-gh">항공</div><div class="stats">${FLIGHT.map(o => stat('fl:' + o.k, tag(o.tone, o.label))).join('')}</div>${peekIn(['fl'])}
+          <div class="at-gh" style="margin-top:12px">숙박</div><div class="stats">${HOTEL.map(o => stat('ho:' + o.k, tag(o.tone, o.label))).join('')}</div>${peekIn(['ho'])}</div></div>
+        ${recentCardHtml()}
+      </div>
     </div>
   </div>`;
+}
+function todoCardHtml() {
+  const L = dashList('todo'), MAX = 40;
+  return `<div class="dcard dc-flush"><div class="dc-h"><h4>챙길 일</h4><span class="muted">확정 연사 기준 자동 점검</span></div>
+    <div class="dc-b todo-list">${L.length ? L.slice(0, MAX).map(s => `<a class="todo-row" data-act="spOpen" data-sid="${s.id}">${todoOf(s).map(([k]) => `<span class="todo-k">${k}</span>`).join('')}<b>${s.name ? esc(s.name) : '이름 없음'}</b><span class="muted">— ${todoOf(s).map(x => x[1]).join(', ')}</span></a>`).join('')
+      + (L.length > MAX ? `<a class="peek-more" data-act="dashBig" data-key="todo">+${L.length - MAX}명 더 보기</a>` : '')
+      : '<div class="muted">챙길 일이 없어요 👍</div>'}</div></div>`;
+}
+function recentCardHtml() {
+  const L = [...S.speakers].filter(s => s.grp !== 0).sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || ''))).slice(0, 8);
+  return `<div class="dcard dc-flush"><div class="dc-h"><h4>최근 수정</h4><span class="muted">연사</span></div>
+    <div class="dc-b">${L.map(s => `<a class="recent-row" data-act="spOpen" data-sid="${s.id}"><b>${s.name ? esc(s.name) : '이름 없음'}</b><span class="muted">${fmtDT(s.updated_at)}</span></a>`).join('') || '<div class="muted">없음</div>'}</div></div>`;
 }
 
 /* ---------- 대시보드 상단: 진행도 · 공식 행사 · 세션 일정 ---------- */
@@ -3157,14 +3322,14 @@ function priBadge(s) {
 function progressCardHtml() {
   const all = S.speakers, total = all.length || 1;
   const order = { S:0, A:1, B:2, C:3 };
-  const cols = GROUPS.map(g => ({ g, list: all.filter(s => s.grp === g.k).sort((a, b) => (order[a.priority] ?? 9) - (order[b.priority] ?? 9) || (a.name || '').localeCompare(b.name || '', 'en')) }));
-  const toneColor = { gray:'#a8a29e', purple:'#8b5cf6', yellow:'#eab308', green:'#16a34a', red:'#b4405a' };
+  const cols = GROUPS.filter(g => g.k !== 0).map(g => ({ g, list: all.filter(s => s.grp === g.k).sort((a, b) => (order[a.priority] ?? 9) - (order[b.priority] ?? 9) || (a.name || '').localeCompare(b.name || '', 'en')) }));
+  const toneColor = { gray:'#a8a29e', purple:'#5b74d6', yellow:'#e0a100', green:'#16a34a', red:'#b4405a' };
   return `<div class="dcard dc-flush"><div class="dc-h"><h4>연사 진행도</h4><span class="muted">전체 ${all.length}명</span></div>
     <div class="dc-b">
       <div class="prog-bar">${cols.map(c => c.list.length ? `<i style="width:${c.list.length / total * 100}%;background:${toneColor[c.g.tone]}" title="${esc(c.g.label)} ${c.list.length}명"></i>` : '').join('')}</div>
       <div class="prog-cols">${cols.map(c => `<div class="prog-col">
         <div class="prog-ch">${tag(c.g.tone, c.g.label)}<b>${c.list.length}</b></div>
-        ${c.list.length ? c.list.map(s => `<a class="prog-item ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}" title="${esc(s.name || '이름 없음')}">${priBadge(s)}<span>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</span></a>`).join('') : '<div class="prog-empty">없음</div>'}
+        ${c.list.length ? c.list.slice(0, 12).map(s => `<a class="prog-item ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}" title="${esc(s.name || '이름 없음')}">${priBadge(s)}<span>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</span></a>`).join('') + (c.list.length > 12 ? `<a class="peek-more" data-act="dashBig" data-key="grp:${c.g.k}">+${c.list.length - 12}명 더</a>` : '') : '<div class="prog-empty">없음</div>'}
       </div>`).join('')}</div>
     </div></div>`;
 }
@@ -3184,25 +3349,28 @@ function eventCardHtml() {
 }
 async function loadDashSessions() {
   const pid = S.pid, ids = S.speakers.map(s => s.id);
-  if (!ids.length) { S.spSessDash = { rows: [], sessions: [], venues: [] }; return; }
-  try { const r = await api.sessionsForSpeakers(ids); if (S.pid === pid) S.spSessDash = r; }
-  catch (_) { if (S.pid === pid) S.spSessDash = { rows: [], sessions: [], venues: [] }; }
-  if (S.pid === pid && S.stab === 'dash') renderSpBody();
+  let r = { rows: [], sessions: [], venues: [] };
+  if (ids.length) { try { r = await api.sessionsForSpeakers(ids); } catch (_) {} }
+  if (S.spSessDashLoading === pid) S.spSessDashLoading = null;
+  if (S.pid !== pid) return;
+  S.spSessDash = { ...r, pid };
+  if (S.view === 'project' && (S.stab === 'dash' || S.todoOnly)) renderSpBody();
 }
 function sessCardHtml() {
-  const d = S.spSessDash;
+  const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : null;
   if (!d) return '<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">불러오는 중…</span></div></div>';
   const list = [...d.sessions].sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
   const nm = id => esc(spOf(id)?.name || '이름 없음');
-  return `<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">${list.length}개 · 세션 마스터에서 이 연사들이 들어간 세션</span></div>
-    <div class="dc-b">${list.length ? list.map(x => {
+  const days = [...new Set(list.map(x => x.day || 0))];
+  return `<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">${list.length}개 · 이 연사들이 들어간 세션</span></div>
+    <div class="dc-b">${list.length ? days.map(dy => { const L = list.filter(x => (x.day || 0) === dy);
+      return `<div class="sd-day">${dy ? `${dy}일` : '날짜 미정'} <span>${L.length}개</span></div>` + L.map(x => {
       const v = d.venues.find(y => y.id === x.venue_id), ppl = d.rows.filter(r => r.session_id === x.id);
-      const sp = ppl.filter(r => r.role === 'speaker').map(r => nm(r.speaker_id)), mo = ppl.filter(r => r.role === 'moderator').map(r => nm(r.speaker_id));
-      return `<a class="ss-row" data-act="spSessOpen" data-id="${x.id}" data-pid="${x.project_id}">
-        <div class="ss-when">${x.day ? `<b>${x.day}일</b>` : '<span class="muted">날짜 미정</span>'}<span>${seTimeLabel(x) || ''}</span></div>
-        <div class="ss-main"><div class="ss-name">${x.name ? esc(x.name) : '이름 없음'}${v ? colorTag(v) : ''}</div>
-          <div class="ss-ppl">${sp.length ? `<span><b>S</b> ${sp.join(', ')}</span>` : ''}${mo.length ? `<span><b>M</b> ${mo.join(', ')}</span>` : ''}</div></div></a>`;
-    }).join('') : '<div class="muted" style="padding:4px 0">세션 마스터에서 Speaker/Moderator로 연결된 세션이 아직 없어요</div>'}</div></div>`;
+      const names = ppl.map(r => nm(r.speaker_id));
+      return `<a class="sd-row" data-act="spSessOpen" data-id="${x.id}" data-pid="${x.project_id}">
+        <span class="sd-t">${seTimeLabel(x) || '시간 미정'}</span>
+        <span class="sd-m"><b>${x.name ? esc(x.name) : '이름 없음'}</b><small>${[v ? esc(v.name) : '', names.join(', ')].filter(Boolean).join(' · ')}</small></span></a>`; }).join(''); }).join('')
+      : '<div class="muted" style="padding:4px 0">세션 마스터에서 Speaker/Moderator로 연결된 세션이 아직 없어요</div>'}</div></div>`;
 }
 document.addEventListener('change', async e => {
   const t = e.target, f = t.dataset?.evf; if (!f || !canEdit()) return;
@@ -3495,7 +3663,7 @@ function spPageHtml(s) {
           ${s.diet_flag ? `<div class="fx-row"><span class="fx-l"></span><input class="fx-in diet-in" data-sf="diet_note" value="${esc(s.diet_note || '')}" placeholder="예: 채식(비건), 견과류 알레르기, 할랄" maxlength="300"></div>` : ''}
         </div>
         <div class="fx-card memo-card">
-          <div class="memo-h">메모 · 보고용 <span>· 편집자만 · PDF에 포함</span></div>
+          <div class="memo-h">★ 메모 · 보고용 <span>· 편집자만 · PDF에 포함</span></div>
           ${ed ? `<textarea class="ta memo-ta" data-sf="memo" rows="5" placeholder="주요 경력 · 이슈 및 특징 · 가능한 강연 주제 · 예상/논의된 연사료와 조건">${esc(s.memo || '')}</textarea>` : lock}
         </div>
       </div>`
@@ -6428,7 +6596,8 @@ const ACT = {
   cmtDel: el => cmtDel(el.dataset.id),
   share: () => shareModal(),
   shRemove: async el => { await removeFromProject(S.pid, el.dataset.uid); if (curProject() && isMember(S.pid)) shareModal(); },
-  spTab: el => { closePop(); S.stab = el.dataset.tab; renderMain(); },
+  spTodoOnly: () => { S.todoOnly = !S.todoOnly; if (S.todoOnly && (!S.spSessDash || S.spSessDash.pid !== S.pid)) loadDashSessions(); renderMain(); },
+  spTab: el => { closePop(); S.stab = el.dataset.tab; if (S.stab === 'dash') S.spSessDash = null; renderMain(); },
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
   dJump: el => dJump(el.dataset.t),
