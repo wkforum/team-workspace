@@ -3789,6 +3789,10 @@ function enDisplay(s) {
   const g = String(s.name_en_first || '').trim(), f = String(s.name_en_last || '').trim();
   return (nameOrder(s) === 'ff' ? [f, g] : [g, f]).filter(Boolean).join(' ');
 }
+function koDisplay(s) {   // 국문 이름도 같은 순서로: 이름 → 성이면 '존 스미스', 성 → 이름이면 '홍 길동' (앱 화면에만 · PDF·아젠다에는 안 나옴)
+  const g = String(s.name_ko_first || '').trim(), f = String(s.name_ko_last || '').trim();
+  return (nameOrder(s) === 'ff' ? [f, g] : [g, f]).filter(Boolean).join(' ');
+}
 function nameBlockHtml(s, fx) {
   const ff = nameOrder(s) === 'ff', noCol = !('name_order' in s) && !DEMO;
   const en = ff ? fx('Family (성)', 'name_en_last', 'Hong', 'text', 60) + fx('Given (이름)', 'name_en_first', 'Gildong', 'text', 60)
@@ -3903,7 +3907,7 @@ function spPageHtml(s) {
     <div class="d-head">
       ${isDocked() && S.stab === 'cards' ? spNavHtml(s) : ''}
       <input class="d-name" data-sf="name" value="${esc(s.name)}" placeholder="이름 (Pre Agenda·PDF에 이대로 나와요)" maxlength="120" ${dis}>
-      <span class="d-alt">${esc([[nm.name_en_last, nm.name_en_first].filter(Boolean).join(', '), [nm.name_ko_last, nm.name_ko_first].filter(Boolean).join(' ')].filter(Boolean).join(' · '))}</span>
+      <span class="d-alt">${esc((() => { const e = enDisplay(s), k = koDisplay(s); return [e && e !== String(s.name || '').trim() ? e : '', k ? `(${k})` : ''].filter(Boolean).join(' '); })())}</span>
       <span class="d-saved" id="spSaved">${ed ? '● 저장됨' : '보기 전용'}</span>
       <span class="sp"></span>
       <button class="btn agenda-btn" data-act="spPdfOne" title="이 연사 정보를 PDF로 · 담을 내용을 골라요">${ICON.pdf}PDF</button>
