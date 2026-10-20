@@ -2075,11 +2075,7 @@ function demoApi() {
     CL.unshift({ id: clSeq++, project_id: old.project_id, table_name: table, row_id: old.id, action, old_row: JSON.parse(JSON.stringify(old)), changed_by: 'u1', changed_at: new Date().toISOString() });
   };
   // 확정 연사 연동 (실제로는 schema_v8 트리거가 처리)
-  const enName = sp => { const pn = String(sp.passport_name || '').trim().toUpperCase().split(/[\s,]+/).filter(Boolean);
-    if (pn.length >= 2) return [pn[0], pn.slice(1).join(' ')];
-    const nm = String(sp.name || '').trim().split(/\s+/).filter(Boolean);
-    if (nm.length >= 2 && /^[A-Za-z]/.test(nm[0])) return [nm.at(-1).toUpperCase(), nm.slice(0, -1).join(' ').toUpperCase()];
-    return [nm[0] || pn[0] || '', '']; };
+  const enName = sp => [String(sp.name_en_last || '').trim().toUpperCase(), String(sp.name_en_first || '').trim().toUpperCase()];   // 차량 탭: 영문 Family·Given 칸만
   const syncAdd = sp => projects.filter(p => p.sync_confirmed && p.edition === projects.find(x => x.id === sp.project_id)?.edition).forEach(p => {
     if (p.vehicle_tab) {
       if (vruns.some(r => r.project_id === p.id && r.speaker_id === sp.id)) return;
@@ -2104,7 +2100,7 @@ function demoApi() {
   const syncSp = (sp, before) => {
     if (sp.grp === 3 && before.grp !== 3) syncAdd(sp);
     else if (before.grp === 3 && sp.grp !== 3) syncRemove(sp.id);
-    else if (sp.grp === 3 && (sp.name !== before.name || sp.passport_name !== before.passport_name)) { const [ln, fn] = enName(sp);
+    else if (sp.grp === 3 && (sp.name_en_last !== before.name_en_last || sp.name_en_first !== before.name_en_first)) { const [ln, fn] = enName(sp);
       secret.forEach(x => { if (x.speaker_id === sp.id) x.name = sp.name; }); tasks.forEach(x => { if (x.speaker_id === sp.id) x.title = sp.name; });
       vruns.forEach(x => { if (x.speaker_id === sp.id) { x.last_name = ln; x.first_name = fn; } }); }
   };
@@ -2130,7 +2126,7 @@ function demoApi() {
     personOf: id => ret((x => x ? { id:x.id, person_id:x.person_id } : null)(speakers.find(x => x.id === id))),
     relinkPerson: (from, to) => { speakers.forEach(x => { if (x.person_id === from) x.person_id = to; }); return ret(null); },
     createSpeaker: s => { const n = SPD({ ...s, id:newId(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, 0); n.id = s.id || n.id; n.person_id ||= n.id; speakers.push(n); if (n.grp === 3) syncAdd(n); return ret(n); },
-    updateSpeaker: (id, patch) => { const s = speakers.find(x => x.id === id); logCh('speakers', s, 'update'); const before = { grp:s.grp, name:s.name, passport_name:s.passport_name }; Object.assign(s, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); syncSp(s, before); return ret({ id, updated_at:s.updated_at }); },
+    updateSpeaker: (id, patch) => { const s = speakers.find(x => x.id === id); logCh('speakers', s, 'update'); const before = { grp:s.grp, name:s.name, name_en_last:s.name_en_last, name_en_first:s.name_en_first }; Object.assign(s, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); syncSp(s, before); return ret({ id, updated_at:s.updated_at }); },
     deleteSpeaker: id => { const i = speakers.findIndex(x => x.id === id); if (i > -1) { logCh('speakers', speakers[i], 'delete'); speakers.splice(i, 1); syncRemove(id); }
       for (let j = sPeople.length - 1; j >= 0; j--) if (sPeople[j].speaker_id === id) sPeople.splice(j, 1); return ret(null); },
     links: sid => ret(links.filter(l => l.speaker_id === sid)),
@@ -6734,13 +6730,8 @@ function flightGuess(text) {
   const airport = /GMP|김포/.test(t) ? 'GMP' : 'ICN';
   return { flights, dates, times, airport };
 }
-function nameGuess(s) {
-  const pn = String(s.passport_name || '').trim().toUpperCase().split(/[\s,]+/).filter(Boolean);
-  if (pn.length >= 2) return { last: pn[0], first: pn.slice(1).join(' ') };
-  if (String(s.name_en_last || '').trim()) return { last: s.name_en_last.trim().toUpperCase(), first: String(s.name_en_first || '').trim().toUpperCase() };
-  const nm = String(s.name || '').trim().split(/\s+/).filter(Boolean);
-  if (nm.length >= 2 && /^[A-Za-z]/.test(nm[0])) return { last: nm.at(-1).toUpperCase(), first: nm.slice(0, -1).join(' ').toUpperCase() };
-  return { last: (pn[0] || nm[0] || '').toUpperCase(), first: '' };
+function nameGuess(s) {   // 차량 탭 영문 성·이름 = 연사 페이지의 영문 Family(성)·Given(이름) 칸 그대로 (표기 이름·국문은 쓰지 않음)
+  return { last: String(s.name_en_last || '').trim().toUpperCase(), first: String(s.name_en_first || '').trim().toUpperCase() };
 }
 function spVrHtml(s) {
   const vps = vehicleProjects(); if (!vps.length) return '';
@@ -6795,7 +6786,7 @@ function spVrModal() {
     <p class="sub">'${esc(s.name || '이름 없음')}' 연사의 항공 정보로 채웠어요. 확인하고 고친 뒤 만들면 <b>${esc(vps[0].name)}</b>의 실시간 차량 탭에 한 줄이 생겨요. 차종·기사는 차량 스케줄에서 넣어 주세요.</p>
     ${s.flight_info ? `<div class="vm-src"><b>항공 정보</b><div>${esc(s.flight_info)}</div></div>` : '<div class="alert" style="margin:0 0 10px">항공 정보가 비어 있어요. 아래 칸을 직접 채워 주세요.</div>'}
     <div class="vm-who">이 연사로 만들어요: <b>${esc(s.name || '이름 없음')}</b>
-      <span>→ 영문 성·이름은 ${String(s.passport_name || '').trim() ? '예전에 적어 둔 여권 영문명' : String(s.name_en_last || '').trim() ? '연사 페이지의 영문 성·이름' : '연사 이름'}에서 가져왔어요</span></div>
+      <span>→ 영문 성·이름은 연사 페이지의 영문 Family(성)·Given(이름) 칸에서 가져와요${String(s.name_en_last || '').trim() ? '' : ' · <b style="color:#b42318">지금 비어 있어요. 연사 페이지에서 먼저 채워 주세요</b>'}</span></div>
     <div class="role-seg big" id="vmDir"><button type="button" class="on" data-dir="arr">입국 · 공항 → 호텔</button><button type="button" data-dir="dep">출국 · 호텔 → 공항</button></div>
     <div class="vm-grid" id="vmForm">${form('arr')}</div>
     <div class="modal-foot"><button class="btn" data-act="closeModal">취소</button><button class="btn-primary" id="vmGo">차량 배정 만들기</button></div>`);
