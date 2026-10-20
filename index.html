@@ -1503,6 +1503,63 @@ fieldset:disabled .ph-pick{pointer-events:none}
 table .cell-in{height:30px}
 table .cell-btn{min-height:30px;padding:2px 10px}
 table .av{width:20px!important;height:20px!important;font-size:10px}
+
+/* v22 B안: 목록 접고 넓게 + 상세 두 칸 */
+.split.wide .split-side{display:none}
+.d-nav{height:30px;padding:0 10px;font-size:12.5px;flex:none}
+.d-pn{display:flex;align-items:center;gap:4px;flex:none;margin-right:6px}
+.d-pn small{font-size:12px;color:var(--muted);min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.d-pn .d-nav{width:30px;padding:0;font-size:16px}
+.sp20 .d-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.sp20 .d-body #dsec-basic,.sp20 .d-body #dsec-bio{grid-column:1/-1}
+.sp20 .d-body .d-sec{display:flex;flex-direction:column;gap:8px;padding:14px 0;grid-template-columns:none}
+.sp20 .d-body .d-sec>.d-sh{grid-row:auto;font-size:13px;color:var(--text);padding:0}
+.sp20 .d-body .d-sec>*:not(.d-sh){grid-column:auto}
+.sp20 .d-body .d-sec .fx-two{gap:10px 14px}
+.sp20 .fx-in{height:30px}
+.sp20 .fx-pick{min-height:30px}
+.sp20 .fx-grid{gap:6px 12px}
+.sp20 .fx{gap:2px}
+.sp20 .ph-drop{width:140px;height:176px}
+.sp20 .stage{margin-bottom:8px}.sp20 .st-b{height:40px}
+.sp20 .ta{min-height:0;max-height:320px;overflow:auto}
+.sp20 .sl{margin-top:6px}
+#spage.docked .sp-panel{padding:0 22px 30px}
+@media (max-width:1180px){.sp20 .d-body{grid-template-columns:1fr}}
+
+.sp20 .d-body #dsec-basic{order:0}.sp20 .d-body #dsec-sched{order:1}.sp20 .d-body #dsec-logi{order:2}.sp20 .d-body #dsec-bio{order:3}
+.sp20 .d-body #dsec-contact{order:4}.sp20 .d-body #dsec-pass{order:5}.sp20 .d-body #dsec-files{order:6;grid-column:1/-1}
+.sp20 .att-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sp20 .att-slot{padding:6px 8px;gap:4px;border-radius:8px}
+.sp20 .att-empty{font-size:12px}
+.sp20 .att-slot .file-btn{padding:3px 8px;font-size:12px;align-self:flex-start}
+.sp20 .att-add{min-height:60px}
+.d-pn .d-nav{display:grid;place-items:center;line-height:1}
+
+/* 체류일정 */
+.sy-top{display:flex;align-items:center;gap:12px;margin-bottom:8px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.sy-k{font-weight:600;padding:0 6px;border-radius:4px}.sy-k.s{background:var(--accent-weak);color:var(--accent)}.sy-k.e{background:#e2f3ea;color:#1d7a4c}.sy-k.a{background:#fbf0d9;color:#9a6200}
+.sy-warn{color:var(--mark);font-weight:600}
+.sy-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;max-height:calc(100vh - 220px)}
+.sy{display:grid;min-width:max-content}
+.sy-h{position:sticky;top:0;z-index:2;background:#f6f7f9;border-bottom:1px solid var(--line);border-left:1px solid #eef0f3;padding:6px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.sy-h small{color:var(--muted);font-weight:500}
+.sy-h.forum{background:#e8ecfb;color:var(--accent)}
+.sy-n{position:sticky;left:0;z-index:1;background:#fff;border-right:1px solid var(--line)}
+.sy-h.sy-n{z-index:3;background:#f6f7f9}
+.sy-name{display:flex;flex-direction:column;justify-content:center;padding:4px 10px;border-bottom:1px solid #eef0f3;cursor:pointer;min-height:34px;min-width:0}
+.sy-name b{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sy-name small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sy-name:hover b{color:var(--accent)}
+.sy-c{border-bottom:1px solid #eef0f3;border-left:1px solid #f3f4f6;padding:3px 4px;display:flex;flex-direction:column;gap:2px;justify-content:center;min-width:0;position:relative}
+.sy-c.forum{background:#fafbff}
+.sy-c.stay{background:linear-gradient(to bottom,transparent 0 calc(100% - 7px),#9fb0ea calc(100% - 7px) calc(100% - 3px),transparent calc(100% - 3px))}
+.sy-c.stay.forum{background-color:#fafbff}
+.sy-io{font-size:10.5px;color:#4a5a99;font-weight:600}
+.sy-s,.sy-e,.sy-a{font-size:11px;line-height:1.35;padding:0 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sy-s{background:var(--accent-weak);color:var(--accent)}
+.sy-e{background:#e2f3ea;color:#1d7a4c}
+.sy-a{background:#fbf0d9;color:#9a6200;align-self:flex-start}
 </style>
 </head>
 <body>
@@ -2954,7 +3011,7 @@ const HOTEL = [
 const PRI = [{ k:'S', label:'S급', tone:'red' }, { k:'A', label:'A급', tone:'yellow' }, { k:'B', label:'B급', tone:'blue' }, { k:'C', label:'C급', tone:'green' }];
 const FIELDS = ['경제', '인문', 'AI', '산업', '경영', '지정학'];
 const EVENTS = [{ f:'opening', label:'개막식' }, { f:'vip_dinner', label:'VIP 만찬' }, { f:'gala', label:'갈라디너' }];
-const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일']];
+const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['stay','체류일정']];
 const SORTS = [{ k:'manual', label:'기본 순서' }, { k:'assignee', label:'담당자별' }, { k:'alpha', label:'알파벳순 (이름)' },
   { k:'created', label:'생성일 (최신순)' }, { k:'updated', label:'마지막 수정일 (최신순)' }];
 const NAT_COLORS = ['#0891b2','#be123c','#65a30d','#9333ea','#b45309','#0f766e','#c026d3','#1e40af','#a16207','#475569','#e11d48','#15803d'];
@@ -3034,7 +3091,7 @@ function renderSpeakerMain(p) {
   const tabs = SP_TABS.map(([k, l]) => `<button class="tab ${S.stab === k ? 'active' : ''}" data-act="spTab" data-tab="${k}">${l}</button>`).join('');
   if (S.stab === 'cards') {
     $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
-      <div class="split"><aside class="split-side" id="spBody"></aside><section class="split-dock" id="spDock"><div class="dock-empty">왼쪽에서 연사를 고르세요</div></section></div>`;
+      <div class="split ${SP_WIDE ? 'wide' : ''}"><aside class="split-side" id="spBody"></aside><section class="split-dock" id="spDock"><div class="dock-empty">왼쪽에서 연사를 고르세요</div></section></div>`;
     dockPage($('#spDock'));
     renderSpBody(true);
     if (!S.spId || !spOf(S.spId)) { const first = (S.spLast && spOf(S.spLast)) || spSort(spVisible()).find(x => x.grp !== 0); if (first) openSpPage(first.id); }
@@ -3095,7 +3152,7 @@ function renderSpBody(force) {
   const sc = b.scrollTop, sl = b.querySelector('.sp-wrap, .sboard')?.scrollLeft || 0;
   if (S.stab === 'cards') { patchSide(b, spSideHtml()); return; }
   b.innerHTML = S.stab === 'list' ? spListHtml() : S.stab === 'status' ? spBoardHtml('grp')
-    : S.stab === 'flight' ? spBoardHtml('flight_status') : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : spDashHtml();
+    : S.stab === 'flight' ? spBoardHtml('flight_status') : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : spDashHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard'); if (w) w.scrollLeft = sl;
   updateToolbarState();
 }
@@ -3200,6 +3257,47 @@ function spAvailHtml() {
   ${ed ? '<p class="hint" style="margin-top:8px">칸을 누르면 참석 가능(노란색)과 불가가 바뀌어요. 연사 페이지의 참석 가능일과 같은 값이에요.</p>' : ''}`;
 }
 
+/* ---------- 체류일정: 연사별 숙박 기간 · 세션 · 행사 · 참석일을 날짜 칸에 ---------- */
+function spStayHtml() {
+  if (!S.spSessDash || S.spSessDash.pid !== S.pid) { if (S.spSessDashLoading !== S.pid) { S.spSessDashLoading = S.pid; loadDashSessions(); } }
+  const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : { rows: [], sessions: [], venues: [] };
+  const list = spVisible().filter(x => x.grp !== 0);
+  const pd = v => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+  const ins = list.map(x => pd(x.check_in)).filter(Boolean);
+  const ym = {}; ins.forEach(t => { const k = t.getFullYear() + '-' + t.getMonth(); ym[k] = (ym[k] || 0) + 1; });
+  const top = Object.entries(ym).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const yr = top ? +top.split('-')[0] : (Number(curProject()?.edition) || new Date().getFullYear()), mo = top ? +top.split('-')[1] : 8;
+  const dayD = n => new Date(yr, mo, n);
+  const pts = [...ins, ...list.map(x => pd(x.check_out)).filter(Boolean), ...d.sessions.filter(x => x.day).map(x => dayD(x.day)), ...DAYS.map(dayD), ...(S.evInfo || []).filter(e => e.day).map(e => dayD(e.day))];
+  const f0 = dayD(Math.min(...DAYS)).getTime(), f1 = dayD(Math.max(...DAYS)).getTime();
+  let a = new Date(Math.max(Math.min(...pts), f0 - 10 * 864e5)), b = new Date(Math.min(Math.max(...pts), f1 + 10 * 864e5));
+  const cols = []; for (let t = new Date(a); t <= b; t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1)) cols.push(t);
+  const same = (x, y) => x && y && x.getFullYear() === y.getFullYear() && x.getMonth() === y.getMonth() && x.getDate() === y.getDate();
+  const isForum = t => t.getFullYear() === yr && t.getMonth() === mo && DAYS.includes(t.getDate());
+  const wk = '일월화수목금토';
+  const sessOf = sid => d.rows.filter(r => r.speaker_id === sid).map(r => ({ r, x: d.sessions.find(y => y.id === r.session_id) })).filter(o => o.x);
+  const rows = list.map(x => ({ x, ci: pd(x.check_in), co: pd(x.check_out) }))
+    .sort((p, q) => (p.ci ? p.ci.getTime() : 9e15) - (q.ci ? q.ci.getTime() : 9e15) || (p.x.name || '').localeCompare(q.x.name || '', 'en'));
+  const cell = (o, t) => {
+    const { x, ci, co } = o;
+    const stay = ci && co && t >= ci && t < co, inD = same(t, ci), outD = same(t, co);
+    const ss = sessOf(x.id).filter(y => y.x.day && same(dayD(y.x.day), t)).sort((p, q) => (p.x.start_time || '').localeCompare(q.x.start_time || ''));
+    const evs = EVENTS.filter(e => x[e.f] && (S.evInfo || []).some(v => v.ev === e.f && v.day && same(dayD(v.day), t)));
+    const di = DAYS.findIndex(n => same(dayD(n), t)), att = di >= 0 && x['day' + (di + 1)];
+    return `<div class="sy-c ${stay ? 'stay' : ''} ${inD ? 'in' : ''} ${outD ? 'out' : ''} ${isForum(t) ? 'forum' : ''}">
+      ${inD ? '<span class="sy-io">체크인</span>' : ''}${outD ? '<span class="sy-io">체크아웃</span>' : ''}
+      ${ss.map(y => `<span class="sy-s" title="${esc((y.x.start_time || '') + ' ' + (y.x.name || ''))}">${esc((y.x.start_time || '').slice(0, 5))} ${esc(y.x.name || '세션')}</span>`).join('')}
+      ${evs.map(e => `<span class="sy-e">${e.label}</span>`).join('')}
+      ${att && !ss.length && !evs.length ? '<span class="sy-a" title="참석 가능">참석</span>' : ''}</div>`;
+  };
+  const noStay = rows.filter(o => o.x.grp === 3 && !(o.ci && o.co)).length;
+  return `<div class="sy-top"><span>연사 ${rows.length}명 · 막대 = 숙박(체크인~체크아웃) · <b class="sy-k s">세션·부대행사</b> <b class="sy-k e">공식 행사</b> <b class="sy-k a">참석 가능일</b></span>
+      ${noStay ? `<span class="sy-warn">확정 연사 중 숙박 날짜 없음 ${noStay}명</span>` : ''}</div>
+    <div class="sy-wrap"><div class="sy" style="grid-template-columns:220px repeat(${cols.length},minmax(84px,1fr))">
+      <div class="sy-h sy-n">연사</div>${cols.map(t => `<div class="sy-h ${isForum(t) ? 'forum' : ''}">${t.getMonth() + 1}/${t.getDate()} <small>${wk[t.getDay()]}</small></div>`).join('')}
+      ${rows.map(o => `<a class="sy-n sy-name" data-act="spOpen" data-sid="${o.x.id}"><b>${o.x.name ? esc(o.x.name) : '이름 없음'}</b><small>${esc([o.x.affil_ko || o.x.affil_en, optOf(GROUPS, o.x.grp)?.label].filter(Boolean).join(' · '))}</small></a>${cols.map(t => cell(o, t)).join('')}`).join('')}
+    </div></div>`;
+}
 /* ---------- 대시보드 ---------- */
 function dashList(key) {
   const all = S.speakers, [t, v] = String(key).split(':');
@@ -3354,7 +3452,7 @@ async function loadDashSessions() {
   if (S.spSessDashLoading === pid) S.spSessDashLoading = null;
   if (S.pid !== pid) return;
   S.spSessDash = { ...r, pid };
-  if (S.view === 'project' && (S.stab === 'dash' || S.todoOnly)) renderSpBody();
+  if (S.view === 'project' && (S.stab === 'dash' || S.stab === 'stay' || S.todoOnly)) renderSpBody();
 }
 function sessCardHtml() {
   const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : null;
@@ -3594,6 +3692,12 @@ function closeSpPage() {
   S.spId = null; S.seId = null; S.lpKey = null; S.lpBack = null; pendPage = false; if (!CMT.cur?.startsWith('tasks:')) CMT.cur = null;
   const r = $('#spage'); if (r) { r.classList.remove('open'); r.innerHTML = ''; }
 }
+function spNavOrder() { return $$('#spBody .sc[data-sid]').map(b => b.dataset.sid); }
+function spNavHtml(s) {
+  const L = spNavOrder(), i = L.indexOf(s.id);
+  return `<button type="button" class="btn d-nav" data-act="spWide" title="${SP_WIDE ? '왼쪽 연사 목록 펼치기' : '목록을 접고 화면 전체로 보기'}">${SP_WIDE ? '☰ 연사 목록' : '⇤ 목록 접기'}</button>
+    <span class="d-pn"><button type="button" class="btn d-nav" data-act="spStep" data-d="-1" ${i <= 0 ? 'disabled' : ''} title="이전 연사">‹</button><small>${i >= 0 ? `${i + 1} / ${L.length}` : ''}</small><button type="button" class="btn d-nav" data-act="spStep" data-d="1" ${i < 0 || i >= L.length - 1 ? 'disabled' : ''} title="다음 연사">›</button></span>`;
+}
 function renderSpPage(force) {
   const root = $('#spage'), s = spOf(S.spId);
   if (!s) { if (S.spId) closeSpPage(); return; }
@@ -3624,6 +3728,7 @@ function psec(key, title, body, sum = '', hint = '') {
 /* =====================================================================
    v20 새 레이아웃 · 연사 상세 (오른쪽 고정 칸) — 단계 버튼 · 피칭 연도 · 탭 · 3단 입력칸
    ===================================================================== */
+let SP_WIDE = true; try { SP_WIDE = localStorage.getItem('spWide') !== '0'; } catch (_) {}
 const SP_DTABS = [['basic', '기본 정보'], ['sched', '일정'], ['logi', '항공 · 숙박'], ['bio', 'Bio'], ['contact', '연락처 · 수행'], ['files', '파일'], ['pass', '여권'], ['cmt', '댓글']];
 function spPageHtml(s) {
   const ed = canEdit(), dis = ed ? '' : 'disabled';
@@ -3673,22 +3778,22 @@ function spPageHtml(s) {
   : tab === 'logi' ? `
       <div class="fx-two">
         <div class="fx-card"><div class="fx-h">항공 ${sel('flight_status', tag(f.tone, f.label))}</div>
-          <label class="sl">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등', 4)}
-          <label class="sl">비고</label>${ta('flight_note', '', 2)}
+          <label class="sl">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등', 2)}
+          <label class="sl">비고</label>${ta('flight_note', '', 1)}
           <div id="spVrBox">${spVrHtml(s)}</div></div>
         <div class="fx-card"><div class="fx-h">숙박 ${sel('hotel_status', tag(h.tone, h.label))}</div>
           <div class="fx-grid two">${fx('체크인', 'check_in', '', 'date')}${fx('체크아웃', 'check_out', '', 'date')}</div>
-          <label class="sl">비고 및 특이사항</label>${ta('hotel_note', '', 3)}</div>
+          <label class="sl">비고 및 특이사항</label>${ta('hotel_note', '', 1)}</div>
       </div>`
   : tab === 'bio' ? `
       <div class="fx-two">
-        <div class="fx-card"><div class="fx-h">Bio <a class="copy-btn" data-act="spCopy" data-f="bio_en" role="button">${ICON.copy}복사</a></div>${ta('bio_en', 'English bio', 12)}</div>
-        <div class="fx-card"><div class="fx-h">국문 Bio <a class="copy-btn" data-act="spCopy" data-f="bio_ko" role="button">${ICON.copy}복사</a></div>${ta('bio_ko', '국문 약력', 12)}</div>
+        <div class="fx-card"><div class="fx-h">Bio <a class="copy-btn" data-act="spCopy" data-f="bio_en" role="button">${ICON.copy}복사</a></div>${ta('bio_en', 'English bio', 4)}</div>
+        <div class="fx-card"><div class="fx-h">국문 Bio <a class="copy-btn" data-act="spCopy" data-f="bio_ko" role="button">${ICON.copy}복사</a></div>${ta('bio_ko', '국문 약력', 4)}</div>
       </div>`
   : tab === 'contact' ? `
       <div class="fx-card"><div class="fx-grid">${fx('연사 이메일', 'speaker_email', 'speaker@example.com', 'email')}${fx('현장 연락처', 'onsite_phone', '+82 10-0000-0000', 'tel', 40)}<div></div>
         ${fx('컨택 담당자', 'contact_name')}${fx('담당자 이메일', 'contact_email', 'contact@example.com', 'email')}</div>
-        <div class="fx-two" style="margin-top:10px"><div><label class="sl">에이전시</label>${ta('agency', '소속 에이전시, 담당 에이전트, 연락 방식 등', 3)}</div><div><label class="sl">소개 경로</label>${ta('referral', '누구의 소개로, 언제 처음 접촉했는지 등', 3)}</div></div></div>
+        <div class="fx-two" style="margin-top:10px"><div><label class="sl">에이전시</label>${ta('agency', '소속 에이전시, 담당 에이전트, 연락 방식 등', 1)}</div><div><label class="sl">소개 경로</label>${ta('referral', '누구의 소개로, 언제 처음 접촉했는지 등', 1)}</div></div></div>
       <div class="fx-card"><div class="fx-h">수행 정보 <small>함께 오는 수행원 · 여러 명</small></div>
         <div class="ent-list">${ent.map(x => `<div class="ent-row" data-entid="${esc(x.id)}">
           <input class="pin" data-ent="name" value="${esc(x.name || '')}" placeholder="이름" maxlength="80">
@@ -3706,6 +3811,7 @@ function spPageHtml(s) {
   return `<div class="sp-backdrop" data-act="spClose"></div>
   <div class="sp-panel sp20" data-sid="${s.id}">
     <div class="d-head">
+      ${isDocked() && S.stab === 'cards' ? spNavHtml(s) : ''}
       <input class="d-name" data-sf="name" value="${esc(s.name)}" placeholder="이름 (Pre Agenda·PDF에 이대로 나와요)" maxlength="120" ${dis}>
       <span class="d-alt">${esc([[nm.name_en_last, nm.name_en_first].filter(Boolean).join(', '), [nm.name_ko_last, nm.name_ko_first].filter(Boolean).join(' ')].filter(Boolean).join(' · '))}</span>
       <span class="d-saved" id="spSaved">${ed ? '● 저장됨' : '보기 전용'}</span>
@@ -6597,9 +6703,11 @@ const ACT = {
   share: () => shareModal(),
   shRemove: async el => { await removeFromProject(S.pid, el.dataset.uid); if (curProject() && isMember(S.pid)) shareModal(); },
   spTodoOnly: () => { S.todoOnly = !S.todoOnly; if (S.todoOnly && (!S.spSessDash || S.spSessDash.pid !== S.pid)) loadDashSessions(); renderMain(); },
-  spTab: el => { closePop(); S.stab = el.dataset.tab; if (S.stab === 'dash') S.spSessDash = null; renderMain(); },
+  spTab: el => { closePop(); S.stab = el.dataset.tab; if (S.stab === 'dash' || S.stab === 'stay') S.spSessDash = null; renderMain(); },
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
+  spWide: () => { SP_WIDE = !SP_WIDE; try { localStorage.setItem('spWide', SP_WIDE ? '1' : '0'); } catch (_) {} $('.split')?.classList.toggle('wide', SP_WIDE); renderSpPage(true); },
+  spStep: el => { const L = spNavOrder(), i = L.indexOf(S.spId), n = L[i + Number(el.dataset.d)]; if (n) { openSpPage(n); $('#spage .sp-panel')?.scrollTo(0, 0); } },
   dJump: el => dJump(el.dataset.t),
   spGrp: el => { const s = spOf(S.spId), v = Number(el.dataset.v); if (s && canEdit() && s.grp !== v) updateSpeaker(s.id, { grp: v }); },
   spPri: el => { const s = spOf(S.spId), v = el.dataset.v; if (s && canEdit()) updateSpeaker(s.id, { priority: s.priority === v ? null : v }); },
