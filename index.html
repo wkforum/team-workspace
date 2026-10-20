@@ -1604,6 +1604,11 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .nm-rows{display:grid;grid-template-columns:36px repeat(2,minmax(0,1fr));gap:6px 12px;align-items:end;max-width:640px}
 .nm-l{font-size:12px;font-weight:700;padding-bottom:7px}
 .nm-hint{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+.sc-del{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:#9aa1af;flex:none;opacity:0;margin-left:-2px}
+.sc:hover .sc-del,.sc.on .sc-del{opacity:1}
+.sc-del:hover{background:#fdecec;color:#b42318}
+.sc-del svg{width:14px;height:14px}
 </style>
 </head>
 <body>
@@ -2637,6 +2642,8 @@ async function openProject(pid) {
   if (isSpeakerProject(curProject())) {
     try { S.speakers = await api.speakers(pid); } catch (e) { S.speakers = []; err(e); }
     S.noLegs = S.speakers.length > 0 && !('arr_date' in S.speakers[0]);
+    // 표기 이름이 비어 있고 영문 이름이 있으면 채워 둠 (Pre Agenda·PDF·차량 등에 이름이 빠지지 않게)
+    if (canEdit(pid)) S.speakers.filter(x => !String(x.name || '').trim() && enDisplay(x)).forEach(x => api.updateSpeaker(x.id, { name: enDisplay(x) }).then(() => { x.name = enDisplay(x); if (S.pid === pid) { renderSpBody(); if (S.spId === x.id) renderSpPage(); } }).catch(() => {}));
     await loadSpPriv(pid);
     S.evInfo = []; S.spSessDash = null;
     api.eventInfo(pid).then(r => { if (S.pid === pid) { S.evInfo = r; if (S.stab === 'dash') renderSpBody(); } }).catch(() => { S.evInfoMissing = true; });
@@ -4030,9 +4037,10 @@ function spSideHtml() {
     const ini = (s.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
     return `<button type="button" class="sc ${S.spId === s.id ? 'on' : ''} ${s.done ? 'is-done' : ''}" data-act="spOpen" data-sid="${s.id}">
       <span class="sc-av">${esc(ini)}</span>
-      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
+      <span class="sc-b"><b>${s.name ? esc(s.name) : enDisplay(s) ? esc(enDisplay(s)) : '<span class="muted">이름 없음</span>'}</b><small class="${role ? '' : 'muted'}">${role ? esc(role) : '소속 미입력'}</small></span>
       ${s.diet_flag ? '<span class="sc-diet" title="특이식성">●</span>' : ''}
-      ${pr ? `<span class="sc-pri pri-${pr.k}">${pr.k}</span>` : '<span class="sc-pri none">–</span>'}</button>`; };
+      ${pr ? `<span class="sc-pri pri-${pr.k}">${pr.k}</span>` : ''}
+      ${canEdit() ? `<span class="sc-del" role="button" data-act="spDelOne" data-sid="${s.id}" title="이 연사 삭제 (휴지통에서 복구 가능)">${ICON.trash}</span>` : ''}</button>`; };
   const groups = GROUPS.map(g => ({ g, L: list.filter(s => (s.grp ?? 1) === g.k) })).filter(x => x.L.length || (!v.grpF && x.g.k !== 0));
   const opt = (k, val, label) => `<option value="${val}" ${String(v[k] || '') === String(val) ? 'selected' : ''}>${label}</option>`;
   return `<div class="ss-top">
@@ -4390,6 +4398,7 @@ document.addEventListener('change', e => {
     if (!d) { toast('생년월일은 YYYY-MM-DD 형식으로 적어 주세요 (예: 1968-04-12)', true); t.value = s[f] || ''; return; }
     v = d; t.value = d;
   }
+  if (f === 'name' && !v && enDisplay(s)) { v = enDisplay(s); t.value = v; }   // 표기 이름을 비우면 영문 이름으로 다시 채움
   if (s[f] === v) return;
   const patch = { [f]: v, ...(f === 'name_en_first' || f === 'name_en_last' ? autoNamePatch(s, { [f]: v }) : {}) };
   if (patch.name) { const ni = $('#spage .d-name'); if (ni && document.activeElement !== ni) ni.value = patch.name; }
@@ -6871,6 +6880,7 @@ const ACT = {
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
   spLegGuess: () => spLegGuess(),
+  spDelOne: el => spDelete(el.dataset.sid),
   spNameOrder: el => { const s = spOf(S.spId); if (!s || !canEdit() || nameOrder(s) === el.dataset.v) return; updateSpeaker(s.id, { name_order: el.dataset.v, ...autoNamePatch(s, { name_order: el.dataset.v }) }); },
   scFileOpen: el => spFileOpen(el.dataset.path),
   scFileDel: el => scFileDel(el),
