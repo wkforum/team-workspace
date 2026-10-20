@@ -1060,6 +1060,8 @@ fieldset:disabled .att-add,fieldset:disabled .att-rm{display:none}
 .vc-assigned{background:#d1fae5;color:#2563eb}
 .vc-noshow{background:#6b21a8;color:#fff}
 .vc-cancel{background:#ef1d1d;color:#fff}
+.vc-new{background:#f97316;color:#fff}
+.vc-change{background:#fde047;color:#713f12}
 .vst{display:inline-block;font-size:12px;font-weight:600;padding:1px 9px;border-radius:5px;background:color-mix(in srgb,var(--c) 14%,#fff);color:color-mix(in srgb,var(--c) 85%,#000);white-space:nowrap}
 .vn{display:flex;align-items:center}
 .vn .vr-in{flex:1;min-width:0}
@@ -1560,6 +1562,48 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .sy-s{background:var(--accent-weak);color:var(--accent)}
 .sy-e{background:#e2f3ea;color:#1d7a4c}
 .sy-a{background:#fbf0d9;color:#9a6200;align-self:flex-start}
+
+.fl-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.fl-img{width:96px;height:72px;border:1px solid var(--line);border-radius:6px;overflow:hidden;display:block;cursor:zoom-in;background:#f6f7f9}
+.fl-img img{width:100%;height:100%;object-fit:cover;display:block}
+
+.fl-legs{display:grid;grid-template-columns:34px 1.3fr .8fr 1fr .8fr;gap:4px 8px;align-items:end;margin-bottom:6px}
+.fl-l{font-size:12px;font-weight:700;color:var(--text);padding-bottom:7px}
+.fl-guess{margin-left:auto;font-size:11.5px;padding:2px 8px;height:24px}
+.fl-seg{display:inline-flex;gap:2px;background:#e6e8ee;border-radius:7px;padding:3px;margin-bottom:10px}
+.fl-seg button{height:26px;padding:0 12px;border-radius:5px;font-size:12.5px;color:var(--muted)}
+.fl-seg button.on{background:#fff;color:var(--text);font-weight:700;box-shadow:0 1px 2px rgba(20,30,60,.12)}
+.fl-table{min-width:1100px}
+.fl-table td{padding:0 10px;font-size:13px;white-space:nowrap}
+.fl-table th.fl-sort{cursor:pointer;user-select:none}.fl-table th.fl-sort span{color:#9aa1af;font-size:11px}.fl-table th.fl-sort.on{color:var(--accent)}.fl-table th.fl-sort.on span{color:var(--accent)}
+.fl-row{cursor:pointer}.fl-row:hover td{background:#f7f8fa}
+.fl-nm{display:flex;flex-direction:column;justify-content:center;line-height:1.25}.fl-nm small{font-size:11px;color:var(--muted)}
+.fl-d,.fl-t{font-variant-numeric:tabular-nums}.fl-d small,.fl-t small{color:var(--muted);font-size:11px}
+
+.sp20 .d-body #dsec-sched{order:1}.sp20 .d-body #dsec-contact{order:2}.sp20 .d-body #dsec-logi{order:3;grid-column:1/-1}
+.sp20 .d-body #dsec-bio{order:4}.sp20 .d-body #dsec-files{order:5}
+
+.att-warn{font-size:11.5px;line-height:1.4;color:#b42318;background:#fdecec;border-radius:6px;padding:5px 7px}
+.sc-fh{width:200px}
+.sc-files{padding:3px 8px!important;white-space:normal}
+.sc-file{display:inline-flex;align-items:center;gap:2px;max-width:100%;margin:1px 6px 1px 0;font-size:12.5px}
+.sc-file a{color:var(--accent);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.sc-up{font-size:12px;color:var(--muted);cursor:pointer;padding:1px 6px;border:1px dashed var(--line2);border-radius:5px;display:inline-block}
+.sc-up:hover{color:var(--accent);border-color:var(--accent)}
+
+.nm-block{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;padding-bottom:8px;margin-bottom:2px;border-bottom:1px dashed var(--line)}
+.nm-ord{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nm-ol{font-size:12px;font-weight:700;margin-right:4px}.nm-ol small{font-weight:500;color:var(--muted)}
+.nm-o{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:1px solid var(--line2);border-radius:6px;background:#fff;font-size:12.5px;font-weight:600}
+.nm-o small{font-weight:400;color:var(--muted);font-size:11.5px}
+.nm-o i{width:12px;height:12px;border-radius:50%;border:1.5px solid #9aa1af;display:inline-block}
+.nm-o.on{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.nm-o.on i{border:4px solid var(--accent)}
+.nm-o:disabled{opacity:.55;cursor:default}
+.nm-warn{font-size:11.5px;color:var(--mark)}
+.nm-rows{display:grid;grid-template-columns:36px repeat(2,minmax(0,1fr));gap:6px 12px;align-items:end;max-width:640px}
+.nm-l{font-size:12px;font-weight:700;padding-bottom:7px}
+.nm-hint{font-size:11.5px;color:var(--muted);line-height:1.5}
 </style>
 </head>
 <body>
@@ -1715,7 +1759,7 @@ function supabaseApi() {
       return data;
     },
     // ---- 대외비 ----
-    secretItems: pid => q(sb.from('secret_items').select('*').eq('project_id', pid).order('position')),
+    secretItems: pid => q(sb.from('secret_items').select('*').eq('project_id', pid).order('position')).then(r => { S.scNoFiles = !!(r && r.length && !('files' in r[0])); return r; }),
     createSecret: r => q(sb.from('secret_items').insert(r).select().single()),
     updateSecret: (id, patch) => q(sb.from('secret_items').update(patch).eq('id', id).select('id,updated_at').single()),
     deleteSecret: id => q(sb.from('secret_items').delete().eq('id', id)),
@@ -1924,14 +1968,14 @@ function demoApi() {
   const nats = [['미국','#2563eb'],['한국','#dc2626'],['일본','#db2777'],['중국','#ea580c'],['프랑스','#4f46e5'],['독일','#57534e'],['싱가포르','#0d9488'],['호주','#ca8a04'],['영국','#7c3aed'],['이탈리아','#16a34a']]
     .map(([name, color], i) => ({ id:'n' + (i + 1), name, color, sort_order:i + 1 }));
   const SPD = (o, i) => ({ id:'s' + i, project_id:'p1', name:'', grp:1, position:i, done:false, assignees:[], nationality_id:null, flight_status:'none', hotel_status:'none', priority:null,
-    name_ko:'', name_en:'', name_ko_last:'', name_ko_first:'', name_en_last:'', name_en_first:'', memo:'', passport_name:'', passport_no:'', birth_date:'', title_en:'', affil_en:'', bio_en:'', title_ko:'', affil_ko:'', bio_ko:'', photo_path:null,
-    speaker_email:'', contact_name:'', contact_email:'', onsite_phone:'', flight_info:'', flight_note:'', flight_files:[], check_in:null, check_out:null, hotel_note:'',
+    name_ko:'', name_en:'', name_ko_last:'', name_ko_first:'', name_en_last:'', name_en_first:'', name_order:'gf', memo:'', passport_name:'', passport_no:'', birth_date:'', title_en:'', affil_en:'', bio_en:'', title_ko:'', affil_ko:'', bio_ko:'', photo_path:null,
+    speaker_email:'', contact_name:'', contact_email:'', onsite_phone:'', flight_info:'', flight_note:'', flight_files:[], check_in:null, check_out:null, hotel_note:'', arr_date:null, arr_time:'', arr_flight:'', arr_airport:'', dep_date:null, dep_time:'', dep_flight:'', dep_airport:'',
     day1:false, day2:false, day3:false, opening:false, vip_dinner:false, gala:false, diet_flag:false, diet_note:'', fields:[], keywords:[], agency:'', referral:'', attachments:[], entourage:[], created_by:'u1',
     created_at:new Date(Date.now() - (20 - i) * 864e5).toISOString(), updated_at:new Date(Date.now() - (10 - i) * 36e5).toISOString(), ...o });
   const speakers = [
     { name:'연사 섭외 가이드 (먼저 읽어 주세요)', grp:0, assignees:['u1'] },
     { name:'John Carter', name_ko_last:'카터', name_ko_first:'존', name_en_last:'Carter', name_en_first:'John', memo:'前 연준 이코노미스트, 2025 다보스 패널. 강연 주제: 금리·거시경제 전망.\n연사료 USD 25,000 + 비즈니스 항공 논의 중 (에이전시 통해 확정 예정).', fields:['경제','지정학'], keywords:['금리','거시경제'], agency:'Northbridge Speakers 소속. 담당 에이전트와 메일로 조율, 회신 2~3일 소요.', referral:'국제부 기자 소개로 2025년 첫 접촉.', grp:3, assignees:['u3'], nationality_id:'n1', flight_status:'issued', hotel_status:'booked', priority:'S', passport_name:'CARTER JOHN', passport_no:'M12345678', birth_date:'1968-04-12', title_en:'CEO', affil_en:'Northwind Labs', title_ko:'대표이사', affil_ko:'노스윈드 랩스', day1:true, day2:true, opening:true, gala:true, check_in:dplus(30), check_out:dplus(33), flight_info:'입국 11/14 KE012 LAX→ICN 05:20 도착\n출국 11/17 KE017 ICN 14:30 출발' },
-    { name:'홍길동', name_ko_last:'홍', name_ko_first:'길동', name_en_last:'HONG', name_en_first:'Gildong', title_ko:'회장', affil_ko:'길동그룹', title_en:'Chairman', affil_en:'Gildong Group', grp:3, assignees:['u2','u3'], nationality_id:'n2', flight_status:'na', hotel_status:'sent', priority:'A', passport_name:'HONG GILDONG', birth_date:'1975-09-30', day1:true, opening:true, vip_dinner:true, diet_flag:true, diet_note:'채식 (유제품 가능)', done:true },
+    { name:'홍길동', name_order:'ff', name_ko_last:'홍', name_ko_first:'길동', name_en_last:'HONG', name_en_first:'Gildong', title_ko:'회장', affil_ko:'길동그룹', title_en:'Chairman', affil_en:'Gildong Group', grp:3, assignees:['u2','u3'], nationality_id:'n2', flight_status:'na', hotel_status:'sent', priority:'A', passport_name:'HONG GILDONG', birth_date:'1975-09-30', day1:true, opening:true, vip_dinner:true, diet_flag:true, diet_note:'채식 (유제품 가능)', done:true },
     { name:'Yuki Tanaka', grp:2, assignees:['u5'], nationality_id:'n3', flight_status:'request', hotel_status:'request', priority:'B', passport_name:'TANAKA YUKI', day2:true, day3:true, gala:true },
     { name:'Marie Dubois', grp:2, assignees:['u3'], nationality_id:'n5', flight_status:'sent', hotel_status:'booked', priority:'A', vip_dinner:true, diet_flag:true, diet_note:'견과류 알레르기' },
     { name:'Li Wei', grp:1, assignees:[], nationality_id:'n4', priority:'C' },
@@ -1975,7 +2019,7 @@ function demoApi() {
     { name:'방송 인터뷰', pillar_id:'sk5', day:8, start_time:'14:00:00', end_time:'14:40:00' },
   ].map((o, i) => SED({ project_id:'p5', ...o }, 101 + i)));
   const secret = [
-    { id:'c1', project_id:'p3', speaker_id:'s2', name:'John Carter', assignees:['u3'], fee:25000, flight:'비즈니스 왕복 (LAX-ICN)', hotel:'신라호텔 디럭스 3박', position:1 },
+    { id:'c1', project_id:'p3', speaker_id:'s2', name:'John Carter', assignees:['u3'], files:[], fee:25000, flight:'비즈니스 왕복 (LAX-ICN)', hotel:'신라호텔 디럭스 3박', position:1 },
     { id:'c2', project_id:'p3', speaker_id:'s3', name:'홍길동', assignees:['u1','u3'], fee:0, flight:'해당 없음', hotel:'', position:2 },
     { id:'c3', project_id:'p3', name:'Yuki Tanaka', assignees:[], fee:8500.5, flight:'이코노미 (HND-GMP)', hotel:'신라호텔 2박', position:3 },
   ];
@@ -2456,6 +2500,7 @@ function renderMain() {
   const tab = (k, label) => `<button class="tab ${S.tab === k ? 'active' : ''}" data-act="tab" data-tab="${k}">${label}</button>`;
   const veh = isVehicleProject(p);
   if (S.tab === 'vehicle' && !veh) S.tab = 'board';
+  if (veh) S.tab = 'vehicle';   // 차량 스케줄은 실시간 차량 시트만 (보드·리스트·문서 없음)
   let body = '';
   if (S.tab === 'vehicle') body = '';
   else if (S.tab === 'board') body = boardHtml();
@@ -2463,7 +2508,7 @@ function renderMain() {
   else body = docsHtml();
   m.innerHTML = `<div class="ph">
       ${projectHeadHtml(p)}
-      <div class="tabs">${veh ? tab('vehicle', '실시간 차량') : ''}${tab('board','보드')}${tab('list','리스트')}${tab('docs','문서')}</div>
+      <div class="tabs">${veh ? tab('vehicle', '실시간 차량') : `${tab('board','보드')}${tab('list','리스트')}${tab('docs','문서')}`}</div>
     </div>
     ${S.tab === 'vehicle' ? `${S.vrMissing ? `<div class="alert" style="margin:12px 28px 0">실시간 차량 탭을 쓰려면 Supabase SQL Editor에서 setup/schema_v9_vehicle.sql을 먼저 실행해 주세요.</div>` : ''}<div class="content vr-content" id="vrBody"></div>` : `<div class="content">${body}</div>`}`;
   if (S.tab === 'vehicle') renderVrBody(true);
@@ -2595,6 +2640,7 @@ async function openProject(pid) {
   $('#people').classList.remove('open');
   if (isSpeakerProject(curProject())) {
     try { S.speakers = await api.speakers(pid); } catch (e) { S.speakers = []; err(e); }
+    S.noLegs = S.speakers.length > 0 && !('arr_date' in S.speakers[0]);
     await loadSpPriv(pid);
     S.evInfo = []; S.spSessDash = null;
     api.eventInfo(pid).then(r => { if (S.pid === pid) { S.evInfo = r; if (S.stab === 'dash') renderSpBody(); } }).catch(() => { S.evInfoMissing = true; });
@@ -3152,7 +3198,7 @@ function renderSpBody(force) {
   const sc = b.scrollTop, sl = b.querySelector('.sp-wrap, .sboard')?.scrollLeft || 0;
   if (S.stab === 'cards') { patchSide(b, spSideHtml()); return; }
   b.innerHTML = S.stab === 'list' ? spListHtml() : S.stab === 'status' ? spBoardHtml('grp')
-    : S.stab === 'flight' ? spBoardHtml('flight_status') : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : spDashHtml();
+    : S.stab === 'flight' ? ((S.flView || 'list') === 'list' ? spFlightListHtml() : flViewSeg() + spBoardHtml('flight_status')) : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : spDashHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard'); if (w) w.scrollLeft = sl;
   updateToolbarState();
 }
@@ -3169,14 +3215,14 @@ function asgHtml(s) {
 /* ---------- 목록 탭 ---------- */
 function spListHtml() {
   const vis = spSort(spVisible()), v = sv(), ed = canEdit(), total = S.speakers.length;
-  const head = `<thead><tr><th class="c-chk"></th><th class="c-name">이름</th><th class="c-aff">소속</th><th class="c-tit">직함</th><th class="c-asg">담당자</th><th class="c-nat">국적</th><th class="c-st">항공</th><th class="c-st">숙박</th><th class="c-pri">중요도</th></tr></thead>`;
+  const head = `<thead><tr><th class="c-chk"></th><th class="c-name">이름</th><th class="c-aff">소속</th><th class="c-tit">직함</th><th class="c-asg">담당자</th><th class="c-st">항공</th><th class="c-st">숙박</th><th class="c-pri">중요도</th></tr></thead>`;
   const groups = GROUPS.map(g => {
     const rows = vis.filter(s => s.grp === g.k), folded = v.fold.includes(g.k);
     return `<tbody class="grp" data-gdrop="${g.k}">
-      <tr class="grp-head"><td colspan="9"><div class="grp-h"><a class="fold" data-act="spFold" data-grp="${g.k}">${folded ? '▸' : '▾'}</a>
+      <tr class="grp-head"><td colspan="8"><div class="grp-h"><a class="fold" data-act="spFold" data-grp="${g.k}">${folded ? '▸' : '▾'}</a>
         <span class="gnum">${g.k}</span>${tag(g.tone, g.label)}<span class="cnt">${rows.length}</span></div></td></tr>
       ${folded ? '' : rows.map(spRowHtml).join('')}
-      ${folded || !ed ? '' : `<tr class="add-row"><td colspan="9"><a class="add-link" data-act="spAdd" data-field="grp" data-val="${g.k}">+ 새 연사</a></td></tr>`}
+      ${folded || !ed ? '' : `<tr class="add-row"><td colspan="8"><a class="add-link" data-act="spAdd" data-field="grp" data-val="${g.k}">+ 새 연사</a></td></tr>`}
     </tbody>`;
   }).join('');
   const note = vis.length < total ? `<div class="filter-note">전체 ${total}명 중 ${vis.length}명 표시 중 · <a data-act="spFilterReset">필터·검색 해제</a></div>` : '';
@@ -3194,7 +3240,6 @@ function spRowHtml(s) {
     <td>${cin('affil_ko', s.affil_en ? esc(s.affil_en) : '', 200)}</td>
     <td>${cin('title_ko', s.title_en ? esc(s.title_en) : '', 200)}</td>
     <td>${pick('assignees', asgHtml(s))}</td>
-    <td>${pick('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY)}</td>
     <td>${pick('flight_status', tag(f.tone, f.label))}</td>
     <td>${pick('hotel_status', tag(h.tone, h.label))}</td>
     <td>${pick('priority', pr ? tag(pr.tone, pr.label) : EMPTY)}</td>
@@ -3257,6 +3302,27 @@ function spAvailHtml() {
   ${ed ? '<p class="hint" style="margin-top:8px">칸을 누르면 참석 가능(노란색)과 불가가 바뀌어요. 연사 페이지의 참석 가능일과 같은 값이에요.</p>' : ''}`;
 }
 
+/* ---------- 항공: 입국·출국 일정순 리스트 ---------- */
+const flViewSeg = () => `<div class="fl-seg"><button type="button" class="${(S.flView || 'list') === 'list' ? 'on' : ''}" data-act="flView" data-v="list">일정 리스트</button><button type="button" class="${S.flView === 'board' ? 'on' : ''}" data-act="flView" data-v="board">상태 보드</button></div>`;
+function spFlightListHtml() {
+  if (S.noLegs) return flViewSeg() + '<div class="alert">입국·출국 일정 리스트를 쓰려면 Supabase SQL Editor에서 setup/schema_v20_flight_legs.sql을 실행해 주세요.</div>';
+  const so = S.flSort || { k: 'arr', dir: 1 };
+  const key = x => so.k === 'dep' ? (x.dep_date ? x.dep_date + ' ' + String(x.dep_time || '').padStart(5, '0') : null) : so.k === 'name' ? (x.name || '').toLowerCase() : (x.arr_date ? x.arr_date + ' ' + String(x.arr_time || '').padStart(5, '0') : null);
+  const list = spVisible().filter(x => x.grp !== 0).sort((a, b) => { const ka = key(a), kb = key(b); if (ka == null && kb == null) return (a.name || '').localeCompare(b.name || ''); if (ka == null) return 1; if (kb == null) return -1; return ka < kb ? -so.dir : ka > kb ? so.dir : 0; });
+  const fd = d => { if (!d) return ''; const t = new Date(d + 'T00:00'); return `${t.getMonth() + 1}/${t.getDate()} <small>${'일월화수목금토'[t.getDay()]}</small>`; };
+  const th = (k, l) => `<th class="fl-sort ${so.k === k ? 'on' : ''}" data-act="flSort" data-k="${k}">${l} <span>${so.k === k ? (so.dir > 0 ? '▲' : '▼') : '↕'}</span></th>`;
+  const fl = o => { const x = optOf(FLIGHT, o.flight_status || 'none'); return x && x.k !== 'none' ? tag(x.tone, x.label) : EMPTY; };
+  const total = S.speakers.filter(x => x.grp !== 0).length;
+  return `${flViewSeg()}${list.length < total ? `<div class="filter-note">전체 ${total}명 중 ${list.length}명 표시 중 · <a data-act="spFilterReset">필터·검색 해제</a></div>` : ''}
+    <div class="sp-wrap"><table class="sp-table fl-table"><thead><tr>${th('name', '이름')}<th>단계</th><th>항공</th>${th('arr', '입국일')}<th>도착</th><th>편명</th><th>공항</th>${th('dep', '출국일')}<th>출발</th><th>편명</th><th>공항</th><th>숙박</th></tr></thead>
+    <tbody>${list.map(x => { const g = optOf(GROUPS, x.grp);
+      return `<tr class="fl-row" data-act="spOpen" data-sid="${x.id}"><td class="fl-nm"><b>${x.name ? esc(x.name) : '이름 없음'}</b><small>${esc(x.affil_ko || x.affil_en || '')}</small></td>
+        <td>${g ? tag(g.tone, g.label) : ''}</td><td>${fl(x)}</td>
+        <td class="fl-d">${fd(x.arr_date) || '<span class="muted">—</span>'}</td><td class="fl-t">${esc(x.arr_time || '')}</td><td>${esc(x.arr_flight || '')}</td><td>${esc(x.arr_airport || '')}</td>
+        <td class="fl-d">${fd(x.dep_date) || '<span class="muted">—</span>'}</td><td class="fl-t">${esc(x.dep_time || '')}</td><td>${esc(x.dep_flight || '')}</td><td>${esc(x.dep_airport || '')}</td>
+        <td class="fl-t">${x.check_in ? fd(x.check_in) + ' ~ ' + fd(x.check_out) : '<span class="muted">—</span>'}</td></tr>`; }).join('') || '<tr><td colspan="12" class="muted" style="padding:20px">연사가 없어요</td></tr>'}</tbody></table></div>
+    <p class="hint" style="margin-top:8px">머리글(이름·입국일·출국일)을 누르면 오름차순 ▲ / 내림차순 ▼로 바뀌어요. 날짜가 없는 연사는 맨 아래에 나와요. 줄을 누르면 연사 페이지가 열려요.</p>`;
+}
 /* ---------- 체류일정: 연사별 숙박 기간 · 세션 · 행사 · 참석일을 날짜 칸에 ---------- */
 function spStayHtml() {
   if (!S.spSessDash || S.spSessDash.pid !== S.pid) { if (S.spSessDashLoading !== S.pid) { S.spSessDashLoading = S.pid; loadDashSessions(); } }
@@ -3721,6 +3787,31 @@ document.addEventListener('toggle', e => {
 }, true);
 // 국문·영문 성/이름 — 각각 따로 저장만 (표기 이름은 맨 위 '이름' 그대로 씀)
 const NAME_PARTS = ['name_ko_last', 'name_ko_first', 'name_en_last', 'name_en_first'];
+/* 이름 순서: gf = 이름 → 성 (John Smith, 기본) · ff = 성 → 이름 (Hong Gildong). 국문·영문 두 줄에 함께 적용 */
+const nameOrder = s => s?.name_order === 'ff' ? 'ff' : 'gf';
+function enDisplay(s) {
+  const g = String(s.name_en_first || '').trim(), f = String(s.name_en_last || '').trim();
+  return (nameOrder(s) === 'ff' ? [f, g] : [g, f]).filter(Boolean).join(' ');
+}
+function nameBlockHtml(s, fx) {
+  const ff = nameOrder(s) === 'ff', noCol = !('name_order' in s) && !DEMO;
+  const en = ff ? fx('Family (성)', 'name_en_last', 'Hong', 'text', 60) + fx('Given (이름)', 'name_en_first', 'Gildong', 'text', 60)
+                : fx('Given (이름)', 'name_en_first', 'John', 'text', 60) + fx('Family (성)', 'name_en_last', 'Smith', 'text', 60);
+  const ko = ff ? fx('성', 'name_ko_last', '홍', 'text', 60) + fx('이름', 'name_ko_first', '길동', 'text', 60)
+                : fx('이름', 'name_ko_first', '예: 존', 'text', 60) + fx('성', 'name_ko_last', '예: 스미스', 'text', 60);
+  const ob = (v, l, ex) => `<button type="button" class="nm-o ${nameOrder(s) === v ? 'on' : ''}" data-act="spNameOrder" data-v="${v}" ${noCol ? 'disabled' : ''}><i></i>${l}<small>${ex}</small></button>`;
+  return `<div class="nm-block">
+    <div class="nm-ord"><span class="nm-ol">이름 순서 <small>Name order</small></span>${ob('gf', '이름 → 성', '존 스미스 / John Smith')}${ob('ff', '성 → 이름', '홍 길동 / Hong Gildong')}
+      ${noCol ? '<span class="nm-warn">순서 저장은 setup/schema_v20_flight_legs.sql 실행 후 가능</span>' : ''}</div>
+    <div class="nm-rows"><span class="nm-l">영문</span>${en}<span class="nm-l">국문</span>${ko}</div>
+    <div class="nm-hint">국문 칸: 외국인은 한글 표기(음역)를 입력해 주세요 (예: John → 존) · 영문 이름을 넣으면 맨 위 표기 이름(Pre Agenda·PDF용)이 순서대로 자동으로 채워지고, 직접 고칠 수 있어요. 국문 이름은 Pre Agenda·PDF에 나오지 않아요.</div>
+  </div>`;
+}
+// 영문 이름·순서가 바뀌면 표기 이름도 따라 바꿈 — 단, 사람이 직접 고쳐 둔 이름(자동값과 다른 이름)은 그대로 둠
+function autoNamePatch(s, next) {
+  const a = enDisplay(s), b = enDisplay({ ...s, ...next }), cur = String(s.name || '').trim();
+  return b && b !== cur && (!cur || cur === a) ? { name: b } : {};
+}
 const nameParts = s => Object.fromEntries(NAME_PARTS.map(k => [k, s[k] || '']));
 function psec(key, title, body, sum = '', hint = '') {
   return `<details class="psec" data-sec="${key}" ${secIsOpen(key) ? 'open' : ''}><summary><span class="ps-car">▸</span><span class="ps-t">${title}</span>${sum ? `<span class="ps-sum">${sum}</span>` : ''}${hint ? `<span class="sec-hint">${hint}</span>` : ''}</summary><div class="ps-b">${body}</div></details>`;
@@ -3729,7 +3820,7 @@ function psec(key, title, body, sum = '', hint = '') {
    v20 새 레이아웃 · 연사 상세 (오른쪽 고정 칸) — 단계 버튼 · 피칭 연도 · 탭 · 3단 입력칸
    ===================================================================== */
 let SP_WIDE = true; try { SP_WIDE = localStorage.getItem('spWide') !== '0'; } catch (_) {}
-const SP_DTABS = [['basic', '기본 정보'], ['sched', '일정'], ['logi', '항공 · 숙박'], ['bio', 'Bio'], ['contact', '연락처 · 수행'], ['files', '파일'], ['pass', '여권'], ['cmt', '댓글']];
+const SP_DTABS = [['basic', '기본 정보'], ['sched', '일정'], ['logi', '항공 · 숙박'], ['bio', 'Bio'], ['contact', '연락처 · 수행'], ['files', '파일'], ['cmt', '댓글']];
 function spPageHtml(s) {
   const ed = canEdit(), dis = ed ? '' : 'disabled';
   const f = optOf(FLIGHT, s.flight_status) || FLIGHT[0], h = optOf(HOTEL, s.hotel_status) || HOTEL[0];
@@ -3751,10 +3842,10 @@ function spPageHtml(s) {
           <label class="ph-pick" title="${s.photo_path ? '사진 바꾸기' : '사진 올리기'}"><input type="file" accept="image/*" data-upload="photo" class="vh"></label>
           ${s.photo_path && ed ? '<button type="button" class="ph-del" data-act="spPhotoDel" title="사진 삭제" aria-label="사진 삭제">✕</button>' : ''}</div>
         <div class="fx-grid">
-          ${fx('국문 성', 'name_ko_last', '홍', 'text', 60)}${fx('국문 이름', 'name_ko_first', '길동', 'text', 60)}${fxp('국적', sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY))}
-          ${fx('영문 성 (Last)', 'name_en_last', 'HONG', 'text', 60)}${fx('영문 이름 (First)', 'name_en_first', 'Gildong', 'text', 60)}${fxp('담당자', sel('assignees', asgHtml(s)))}
-          ${fx('국문 소속', 'affil_ko', 'OO그룹')}${fx('국문 직함', 'title_ko', '대표이사')}${fxp('분야', `<button class="cell-btn fx-pick" data-act="spFieldPick">${(s.fields || []).length ? (s.fields || []).map(x => `<span class="tg tg-gray">${esc(x)}</span>`).join('') : EMPTY}</button>`)}
-          ${fx('영문 소속 (Affil)', 'affil_en', 'OO Group')}${fx('영문 직함 (Title)', 'title_en', 'CEO')}
+          ${nameBlockHtml(s, fx)}
+          ${fx('국문 소속', 'affil_ko', 'OO그룹')}${fx('국문 직함', 'title_ko', '대표이사')}${fxp('국적', sel('nationality_id', natTag(natOf(s.nationality_id)) || EMPTY))}
+          ${fx('영문 소속 (Affil)', 'affil_en', 'OO Group')}${fx('영문 직함 (Title)', 'title_en', 'CEO')}${fxp('담당자', sel('assignees', asgHtml(s)))}
+          ${fxp('분야', `<button class="cell-btn fx-pick" data-act="spFieldPick">${(s.fields || []).length ? (s.fields || []).map(x => `<span class="tg tg-gray">${esc(x)}</span>`).join('') : EMPTY}</button>`)}
           <div class="fx"><span>키워드 <small>입력 후 Enter</small></span><div class="kw-box fx-kw">${(s.keywords || []).map(k => `<span class="kw">${esc(k)}<a class="kw-x" data-act="spKwDel" data-v="${esc(k)}" title="빼기">×</a></span>`).join('')}<input class="kw-in" id="kwIn" placeholder="${(s.keywords || []).length ? '' : '키워드'}" maxlength="40" autocomplete="off"></div></div>
         </div>
       </div>
@@ -3777,8 +3868,11 @@ function spPageHtml(s) {
       <div class="fx-card"><div class="fx-h">연결된 항목 <small>다른 프로젝트의 연사·작업과 이어 두기</small></div><div class="links" id="spLinks">${linksHtml()}</div></div>`
   : tab === 'logi' ? `
       <div class="fx-two">
-        <div class="fx-card"><div class="fx-h">항공 ${sel('flight_status', tag(f.tone, f.label))}</div>
-          <label class="sl">항공 정보</label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등', 2)}
+        <div class="fx-card"><div class="fx-h">항공 ${sel('flight_status', tag(f.tone, f.label))}${S.noLegs ? '' : `<button type="button" class="btn sm fl-guess" data-act="spLegGuess" title="아래 '항공 정보' 글에서 날짜·시간·편명을 읽어 빈칸을 채워요">항공 정보에서 채우기</button>`}</div>
+          ${S.noLegs ? `<div class="alert" style="margin:0 0 8px">입국·출국 일정 칸을 쓰려면 Supabase SQL Editor에서 setup/schema_v20_flight_legs.sql을 실행해 주세요.</div>` : `<div class="fl-legs">
+            <span class="fl-l">입국</span>${fx('날짜', 'arr_date', '', 'date')}${fx('시간 (도착)', 'arr_time', '05:20', 'text', 5)}${fx('편명', 'arr_flight', 'KE012', 'text', 12)}${fx('도착 공항', 'arr_airport', 'ICN', 'text', 8)}
+            <span class="fl-l">출국</span>${fx('날짜', 'dep_date', '', 'date')}${fx('시간 (출발)', 'dep_time', '14:30', 'text', 5)}${fx('편명', 'dep_flight', 'KE017', 'text', 12)}${fx('출발 공항', 'dep_airport', 'ICN', 'text', 8)}</div>`}
+          <label class="sl">항공 정보 <span class="hint">· 항공권 캡처 이미지를 여기에 붙여넣기(⌘V)하면 '항공권' 파일 칸에 올라가요</span></label>${ta('flight_info', '항공편, 출도착 일정, 좌석 등 · 이미지도 붙여넣을 수 있어요', 2)}${flightImgsHtml(s)}
           <label class="sl">비고</label>${ta('flight_note', '', 1)}
           <div id="spVrBox">${spVrHtml(s)}</div></div>
         <div class="fx-card"><div class="fx-h">숙박 ${sel('hotel_status', tag(h.tone, h.label))}</div>
@@ -3874,7 +3968,7 @@ async function loadSpYears(s) {
   catch (e) { console.warn('person rows', e); if (S.spYears?.person === person) S.spYears.rows = [{ id: s.id, project_id: s.project_id }]; }
   const box = $('#spYears'); const cur = spOf(S.spId); if (box && cur?.person_id === person) box.innerHTML = spYearsHtml(cur);
 }
-const SP_COPY_KEYS = ['name', 'name_ko', 'name_en', 'name_ko_last', 'name_ko_first', 'name_en_last', 'name_en_first', 'title_en', 'affil_en', 'bio_en', 'title_ko', 'affil_ko', 'bio_ko',
+const SP_COPY_KEYS = ['name', 'name_ko', 'name_en', 'name_ko_last', 'name_ko_first', 'name_en_last', 'name_en_first', 'name_order', 'title_en', 'affil_en', 'bio_en', 'title_ko', 'affil_ko', 'bio_ko',
   'nationality_id', 'speaker_email', 'contact_name', 'contact_email', 'onsite_phone', 'agency', 'referral', 'fields', 'keywords', 'priority', 'priority_note', 'passport_name'];
 async function spYearCopy(pid) {
   const s = spOf(S.spId), p = S.projects.find(x => x.id === pid); if (!s || !p) return;
@@ -4280,6 +4374,7 @@ document.addEventListener('change', e => {
     if (t.dataset.upload === 'photo') uploadPhoto(S.spId, files[0]);
     else if (t.dataset.upload === 'session') uploadSessionFiles(S.seId, files);
     else if (t.dataset.upload === 'att') uploadAtt(S.spId, Number(t.dataset.slot), files);
+    else if (t.dataset.upload === 'scfile') uploadScFiles(t.dataset.cid, files);
     else uploadFlightFiles(S.spId, files);
     return;
   }
@@ -4288,13 +4383,17 @@ document.addEventListener('change', e => {
   let v = t.type === 'checkbox' ? t.checked : t.value;
   if (t.type === 'date') v = v || null;
   else if (t.tagName === 'INPUT' && typeof v === 'string') v = v.trim();
+  if ((f === 'arr_time' || f === 'dep_time') && v) { v = vrTime(v); if (!/^\d{1,2}:\d{2}$/.test(v)) { toast('시간은 05:20 처럼 적어 주세요', true); t.value = s[f] || ''; return; } t.value = v; }
+  if (/^(arr|dep)_(flight|airport)$/.test(f) && v) { v = v.toUpperCase().replace(/\s+/g, ''); t.value = v; }
   if (f === 'birth_date' && v) {
     const d = normBirth(v);
     if (!d) { toast('생년월일은 YYYY-MM-DD 형식으로 적어 주세요 (예: 1968-04-12)', true); t.value = s[f] || ''; return; }
     v = d; t.value = d;
   }
   if (s[f] === v) return;
-  updateSpeaker(sid, { [f]: v }, f === 'diet_flag' ? null : (t.closest('#spage') ? 'page' : 'body'));
+  const patch = { [f]: v, ...(f === 'name_en_first' || f === 'name_en_last' ? autoNamePatch(s, { [f]: v }) : {}) };
+  if (patch.name) { const ni = $('#spage .d-name'); if (ni && document.activeElement !== ni) ni.value = patch.name; }
+  updateSpeaker(sid, patch, f === 'diet_flag' ? null : (t.closest('#spage') ? 'page' : 'body'));
 });
 document.addEventListener('input', e => {
   const t = e.target;
@@ -5429,7 +5528,7 @@ function agendaMenu(el) {
 /* ---------- 연사 전체 PDF ---------- */
 const PDF_OPTS = [['photo', '사진'], ['status', '진행 단계·등급·국적'], ['role', '소속·직함 (국문·영문)'], ['memo', '메모 · 보고용'], ['bio_en', 'Bio (영문)'], ['bio_ko', '국문 Bio'],
   ['kw', '분야·키워드'], ['asg', '담당자'], ['attend', '참석일·행사 참석'], ['diet', '특이식성'], ['sched', '일정 (세션·부대행사)'], ['flight', '항공 (상태·항공 정보·비고)'],
-  ['hotel', '숙박 (상태·날짜·비고)'], ['contact', '연락처 (이메일·컨택·현장)'], ['agency', '에이전시·소개 경로'], ['ent', '수행 정보'], ['pass', '여권 정보 (여권 영문명·번호·생년월일)']];
+  ['hotel', '숙박 (상태·날짜·비고)'], ['contact', '연락처 (이메일·컨택·현장)'], ['agency', '에이전시·소개 경로'], ['ent', '수행 정보']];
 const PDF_REPORT = ['photo', 'status', 'role', 'memo', 'bio_en', 'bio_ko', 'kw'];
 function pdfOptsLoad() { try { const v = JSON.parse(localStorage.getItem('spPdfOpts') || 'null'); if (Array.isArray(v)) return v; } catch (_) {} return PDF_OPTS.map(o => o[0]).filter(k => k !== 'pass'); }
 function spPdfModal(id) {
@@ -5476,7 +5575,7 @@ function spPdfHtml(list, photos, single, optsList) {
       ${on('photo') ? `<div class="ph">${photos[s.id] ? `<img src="${esc(photos[s.id])}" alt="">` : `<div class="noimg">${esc((s.name || '?').trim()[0] || '?')}</div>`}</div>` : ''}
       <div class="bd">
         ${!on('status') ? '' : `<div class="pills">${g ? pill(g.tone, g.label) : ''}${pr ? pill(pr.tone, pr.label) : ''}${n ? `<span class="pill t-gray">${esc(n.name)}</span>` : ''}${s.done ? pill('green', '완료') : ''}${s.priority_note ? `<span class="pill t-gray">${esc(s.priority_note)}</span>` : ''}</div>`}
-        <h3>${esc(s.name || '(이름 없음)')}${(() => { const n = nameParts(s), alt = [[n.name_ko_last, n.name_ko_first].filter(Boolean).join(' '), [n.name_en_last, n.name_en_first].filter(Boolean).join(' ')].filter(Boolean); return alt.length ? `<small class="alt">${esc(alt.join(' · '))}</small>` : ''; })()}</h3>
+        <h3>${esc(s.name || '(이름 없음)')}${(() => { const e = enDisplay(s), alt = e && e !== (s.name || '').trim() ? [e] : []; return alt.length ? `<small class="alt">${esc(alt.join(' · '))}</small>` : ''; })()}</h3>
         ${on('role') && role(s.affil_ko, s.title_ko) ? `<div class="ro ko1">${role(s.affil_ko, s.title_ko)}</div>` : ''}
         ${on('role') && role(s.affil_en, s.title_en) ? `<div class="ro en">${role(s.affil_en, s.title_en)}</div>` : ''}
         ${on('memo') && s.memo ? `<div class="memo"><b>메모 · 보고</b>${esc(s.memo)}</div>` : ''}
@@ -5636,7 +5735,7 @@ function scTotals() {
 function scFootHtml() {
   const t = scTotals();
   return `<tr><td colspan="2"><b>합계</b><span class="sc-meta">${t.n}명 · 유료 ${t.paid}명 · 무료/미정 ${t.free}명</span></td>
-    <td class="num sc-total">${fmtUSD(t.total)}</td><td colspan="2"></td></tr>`;
+    <td class="num sc-total">${fmtUSD(t.total)}</td><td colspan="3"></td></tr>`;
 }
 function scHtml() {
   const ed = canEdit(), list = [...S.secret].sort((a, b) => a.position - b.position);
@@ -5650,13 +5749,15 @@ function scHtml() {
     <td class="num"><div class="fee-cell"><span class="usd">$</span><input class="cell-in fee-in" data-cf="fee" value="${fmtNum(x.fee)}" placeholder="0" inputmode="decimal" maxlength="20"></div></td>
     <td><input class="cell-in" data-cf="flight" value="${esc(x.flight)}" placeholder="항공권 내용" maxlength="300"></td>
     <td><input class="cell-in" data-cf="hotel" value="${esc(x.hotel)}" placeholder="숙박 내용" maxlength="300"></td>
+    <td class="sc-files">${S.scNoFiles ? '<span class="muted" title="setup/schema_v20_flight_legs.sql 실행 필요">설정 필요</span>' : `${(x.files || []).map(f => `<span class="sc-file"><a data-act="scFileOpen" data-path="${esc(f.path)}" title="열기 · ${esc(f.name || '')}">${esc(f.name || '계약서')}</a>${ed ? `<button type="button" class="icon-btn sm" data-act="scFileDel" data-cid="${x.id}" data-path="${esc(f.path)}" title="삭제">✕</button>` : ''}</span>`).join('')}
+      ${ed ? `<label class="sc-up" title="계약서 파일 첨부 · 50MB 이하">+ 첨부<input type="file" multiple data-upload="scfile" data-cid="${x.id}" class="vh"></label>` : ''}`}</td>
   </tr>`).join('');
   return `<div class="sc-banner">🔒 <b>대외비</b> · 이 목록은 이 프로젝트에 초대받은 ${members}명만 볼 수 있어요. 편집자라도 초대받지 않았으면 내용은 보이지 않아요.</div>
   <div class="sc-top">${ed ? '<button class="btn-primary" data-act="scAdd">+ 연사 추가</button>' : '<span class="ro-note">보기 전용</span>'}
     <span class="muted sc-hint">연사료는 달러(USD) 기준 · 무료는 0이나 빈칸</span></div>
   <div class="sp-wrap sc-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sc-table">
-    <thead><tr><th class="sc-name">이름</th><th class="sc-asg">담당자</th><th class="num sc-fee">연사료 (USD)</th><th>항공권</th><th>숙박</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="5" class="muted" style="padding:18px">아직 없어요. 위의 <b>+ 연사 추가</b>로 시작하세요.</td></tr>'}</tbody>
+    <thead><tr><th class="sc-name">이름</th><th class="sc-asg">담당자</th><th class="num sc-fee">연사료 (USD)</th><th>항공권</th><th>숙박</th><th class="sc-fh">계약서 🔒</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="6" class="muted" style="padding:18px">아직 없어요. 위의 <b>+ 연사 추가</b>로 시작하세요.</td></tr>'}</tbody>
     <tfoot id="scFoot">${scFootHtml()}</tfoot>
   </table></fieldset></div>`;
 }
@@ -5668,6 +5769,26 @@ async function updateSecret(id, patch, from, opt = {}) {
   if (from !== 'body') renderScBody(); else { const f = $('#scFoot'); if (f) f.innerHTML = scFootHtml(); }
   try { await api.updateSecret(id, patch); return true; }
   catch (e) { const c = scOf(id); if (c) Object.assign(c, prev); if (!opt.noUndo) { S.undo.pop(); updateUndoBtn(); } renderScBody(true); err(e); return false; }
+}
+async function uploadScFiles(cid, files) {
+  const x = scOf(cid); if (!x || !files.length || !canEdit()) return;
+  const added = [];
+  for (const [i, f] of files.entries()) {
+    if (f.size > MAX_SFILE) { toast(`${f.name}: 50MB를 넘어서 올리지 못했어요`, true); continue; }
+    const path = `${x.project_id}/${cid}/contract-${Date.now()}-${i}.${extOf(f.name) || 'bin'}`;
+    toast(`올리는 중… (${i + 1}/${files.length})`);
+    try { await api.uploadFile(path, f, f.type || 'application/octet-stream'); added.push({ path, name: f.name, type: f.type || '', size: f.size }); }
+    catch (e) { err(e); }
+  }
+  if (!added.length) return;
+  const cur = scOf(cid); if (!cur) return;
+  if (await updateSecret(cid, { files: [...(cur.files || []), ...added] })) toast(`계약서 ${added.length}개를 첨부했어요 · 이 프로젝트 멤버만 볼 수 있어요`);
+}
+function scFileDel(el) {
+  const x = scOf(el.dataset.cid); if (!x || !canEdit()) return;
+  const f = (x.files || []).find(y => y.path === el.dataset.path);
+  if (!confirm(`'${f?.name || '계약서'}'을(를) 삭제할까요?`)) return;
+  updateSecret(x.id, { files: (x.files || []).filter(y => y.path !== el.dataset.path) });
 }
 async function scAdd() {
   if (!canEdit()) return;
@@ -5898,7 +6019,6 @@ const SP_COLS = [
   ['숙박', s => (optOf(HOTEL, s.hotel_status) || HOTEL[0]).k === 'none' ? '' : optOf(HOTEL, s.hotel_status).label, 11],
   ['완료', s => s.done ? 'O' : '', 6],
   ['메모 · 보고용', s => s.memo || '', 50],
-  ['여권 영문명', s => s.passport_name, 20], ['여권번호', s => s.passport_no, 14], ['생년월일', s => s.birth_date, 12],
   ['분야', s => (s.fields || []).join(', '), 16], ['키워드', s => (s.keywords || []).join(', '), 20],
   ['Title', s => s.title_en, 24], ['Affil', s => s.affil_en, 24], ['Bio', s => s.bio_en, 50],
   ['직함', s => s.title_ko, 20], ['소속', s => s.affil_ko, 20], ['국문 Bio', s => s.bio_ko, 50],
@@ -5979,14 +6099,16 @@ async function seExport() {
 /* =====================================================================
    v7 · 연사 첨부파일 칸 3개
    ===================================================================== */
-const ATT_DEFAULT = ['계약서', '여권사본', '항공권'];   // 기본 칸 (이름은 바꿀 수 있어요)
+const ATT_DEFAULT = ['여권사본', '항공권'];   // 기본 칸 (이름은 바꿀 수 있어요) · 계약서는 연사 대외비 프로젝트에서만
 function attOf(s) {
-  const a = Array.isArray(s?.attachments) ? s.attachments : [];
-  const out = Array.from({ length: Math.max(ATT_DEFAULT.length, a.length) }, (_, i) => ({
-    label: a[i]?.label || ATT_DEFAULT[i] || '', files: Array.isArray(a[i]?.files) ? a[i].files.slice() : [] }));
+  let a = Array.isArray(s?.attachments) ? s.attachments.map((x, i) => ({ label: x?.label || ['계약서', '여권사본', '항공권'][i] || '', files: Array.isArray(x?.files) ? x.files.slice() : [] })) : [];
+  // 예전 기본 칸 '계약서'는 비어 있으면 없앰 (계약서는 연사 대외비에서 관리) · 파일이 있으면 남겨 두고 옮기라고 안내
+  a = a.filter(x => !(x.label === '계약서' && !x.files.length));
+  ATT_DEFAULT.forEach(l => { if (!a.some(x => x.label === l)) a.push({ label: l, files: [] }); });
   // 예전 '항공 > 첨부파일'에 올렸던 파일은 항공권 칸으로 옮겨서 보여 줌
-  (Array.isArray(s?.flight_files) ? s.flight_files : []).forEach(f => { if (!out[2].files.some(x => x.path === f.path)) out[2].files.push(f); });
-  return out;
+  const fi = a.findIndex(x => x.label === '항공권');
+  (Array.isArray(s?.flight_files) ? s.flight_files : []).forEach(f => { if (fi >= 0 && !a[fi].files.some(x => x.path === f.path)) a[fi].files.push(f); });
+  return a;
 }
 // 파일 이름은 칸 이름으로 표시: 여권사본.pdf, 여권사본_2.jpg …
 function attName(a, k, x) {
@@ -6004,8 +6126,9 @@ async function spAttDown(el) {
 }
 function attHtml(s) {
   return `<div class="att-grid">${attOf(s).map((a, i) => `<div class="att-slot" data-slot="${i}">
+      ${/계약/.test(a.label) ? '<div class="att-warn">⚠️ 여기 파일은 연사 마스터 멤버 모두가 볼 수 있어요. 계약서는 <b>연사 대외비</b>의 계약서 칸으로 옮겨 주세요.</div>' : ''}
       <div class="att-top"><input class="att-label" data-att-label="${i}" value="${esc(a.label)}" placeholder="칸 이름 입력" maxlength="40" title="칸 이름 바꾸기">
-        ${i >= ATT_DEFAULT.length ? `<button type="button" class="icon-btn sm att-rm" data-act="spAttSlotDel" data-slot="${i}" title="이 칸 삭제">✕</button>` : ''}</div>
+        ${!ATT_DEFAULT.includes(a.label) ? `<button type="button" class="icon-btn sm att-rm" data-act="spAttSlotDel" data-slot="${i}" title="이 칸 삭제">✕</button>` : ''}</div>
       <div class="att-files">${a.files.map((x, k) => { const [lbl, cls] = fileKind(x); return `<div class="file-item"><span class="fic ${cls}">${lbl}</span>
         <a class="fname" data-act="spFileOpen" data-path="${esc(x.path)}" title="열기 · 원래 파일 이름: ${esc(x.name)}">${esc(attName(a, k, x))}</a><span class="fsize">${fmtSize(x.size)}</span>
         <button type="button" class="icon-btn att-dl" data-act="spAttDown" data-slot="${i}" data-path="${esc(x.path)}" title="'연사이름_${esc(attName(a, k, x))}'(으)로 내려받기">${ICON.download}</button>
@@ -6029,6 +6152,21 @@ function spAttSlotDel(el) {
   att.splice(i, 1);
   updateSpeaker(s.id, { attachments: att });
 }
+// 항공 정보 칸에 붙여넣은 이미지 → '항공권' 파일 칸
+function flightSlot(s) { const a = attOf(s); const i = a.findIndex(x => /항공/.test(x.label || '')); return i >= 0 ? i : 2; }
+function flightImgsHtml(s) {
+  const a = attOf(s)[flightSlot(s)], imgs = (a?.files || []).filter(x => /^image\//.test(x.type || '') || /\.(png|jpe?g|gif|webp|heic)$/i.test(x.name || x.path));
+  return imgs.length ? `<div class="fl-imgs">${imgs.map(x => `<a class="fl-img" data-act="spFileOpen" data-path="${esc(x.path)}" title="크게 보기 · ${esc(x.name || '')}"><img data-fpath="${esc(x.path)}" alt=""></a>`).join('')}</div>` : '';
+}
+document.addEventListener('paste', e => {
+  const t = e.target; if (!t.matches?.('textarea[data-sf="flight_info"]') || !canEdit()) return;
+  const files = [...(e.clipboardData?.items || [])].filter(it => it.kind === 'file' && /^image\//.test(it.type)).map(it => it.getAsFile()).filter(Boolean);
+  if (!files.length) return;
+  e.preventDefault();
+  const s = spOf(S.spId); if (!s) return;
+  const named = files.map((f, i) => new File([f], `항공권-${Date.now()}-${i}.${(f.type.split('/')[1] || 'png').replace('jpeg', 'jpg')}`, { type: f.type }));
+  uploadAtt(s.id, flightSlot(s), named);
+});
 async function uploadAtt(sid, slot, files) {
   const s = spOf(sid); if (!s || !files.length) return;
   const added = [];
@@ -6058,6 +6196,7 @@ document.addEventListener('change', e => {
   const s = spOf(t.closest('[data-sid]')?.dataset.sid); if (!s) return;
   const att = attOf(s), i = Number(t.dataset.attLabel), v = t.value.trim();
   if (att[i].label === v) return;
+  if (/계약|연사료/.test(v)) toast('계약서·연사료 자료는 연사 마스터 멤버 모두가 볼 수 있어요. 연사 대외비에 올려 주세요', true);
   att[i].label = v; updateSpeaker(s.id, { attachments: att }, 'page');
 });
 
@@ -6245,6 +6384,8 @@ function renderMyWork() {
    ===================================================================== */
 const VR_CAT = [
   { k:'assigned', label:'배정 완료', cls:'vc-assigned' },
+  { k:'new',      label:'신규',     cls:'vc-new' },
+  { k:'change',   label:'변경',     cls:'vc-change' },
   { k:'noshow',   label:'미탑승',   cls:'vc-noshow' },
   { k:'cancel',   label:'취소',     cls:'vc-cancel' },
 ];
@@ -6284,7 +6425,7 @@ function vrStatusHtml(r) { const o = vsOf(r.status_id); return o ? `<span class=
 
 function vrHtml() {
   const ed = canEdit(), rows = vrSorted();
-  const n = { all: rows.length, done: rows.filter(vrDone).length, noshow: rows.filter(r => r.category === 'noshow').length, cancel: rows.filter(r => r.category === 'cancel').length };
+  const n = { all: rows.length, done: rows.filter(vrDone).length, noshow: rows.filter(r => r.category === 'noshow').length, cancel: rows.filter(r => r.category === 'cancel').length, nw: rows.filter(r => r.category === 'new').length, ch: rows.filter(r => r.category === 'change').length };
   const cell = (r, [f, , , kind]) => {
     if (kind === 'cat') return `<td class="vc-c"><button class="cell-btn" data-act="vrPick" data-f="category" data-vid="${r.id}">${vrCatHtml(r.category)}</button></td>`;
     if (kind === 'status') return `<td class="vc-c vc-st"><button class="cell-btn" data-act="vrPick" data-f="status_id" data-vid="${r.id}">${vrStatusHtml(r)}</button></td>`;
@@ -6295,7 +6436,7 @@ function vrHtml() {
   };
   return `<div class="vr-top">
       ${ed ? '<button class="btn-primary" data-act="vrAdd">+ 줄 추가</button><button class="btn" data-act="vrPaste" title="구글 시트·엑셀에서 복사한 줄을 한 번에 넣기">시트에서 붙여넣기</button>' : '<span class="ro-note">보기 전용</span>'}
-      <span class="vr-sum">전체 <b>${n.all}</b> · 완료 ${n.done} · 미탑승 ${n.noshow} · 취소 ${n.cancel}</span>
+      <span class="vr-sum">전체 <b>${n.all}</b> · 완료 ${n.done} · 신규 ${n.nw} · 변경 ${n.ch} · 미탑승 ${n.noshow} · 취소 ${n.cancel}</span>
       <span class="vr-hint">날짜·시간순 자동 정렬 · 다른 사람이 고치면 바로 반영돼요</span></div>
     <div class="vr-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="vr-table">
       <colgroup>${VR_COLS.map(c => `<col style="width:${c[2]}px" data-w0="${c[2]}px">`).join('')}<col style="width:96px" data-w0="96px"></colgroup>
@@ -6444,7 +6585,7 @@ function vrPasteModal() {
       const c = line.split('\t').map(x => x.trim());
       if (c[0] === '구분' || c[1] === '날짜') continue;
       if (c.length < 5) { skipped++; continue; }
-      const cat = /취소/.test(c[0]) ? 'cancel' : /미탑승/.test(c[0]) ? 'noshow' : 'assigned';
+      const cat = /취소/.test(c[0]) ? 'cancel' : /미탑승/.test(c[0]) ? 'noshow' : /신규/.test(c[0]) ? 'new' : /변경/.test(c[0]) ? 'change' : 'assigned';
       const d = vrParseDate(c[1], year);
       parsed.push({ category: cat, run_date: d || null, run_time: vrTime(c[2]), send_time: vrTime(c[3]), last_name: (c[4] || '').toUpperCase(), first_name: (c[5] || '').toUpperCase(),
         pax: /^\d{1,3}$/.test(c[6] || '') ? Number(c[6]) : null, origin: c[7] || '', dest: c[8] || '', flight: c[9] || '', terminal: c[10] || '', note: c[11] || '',
@@ -6572,6 +6713,19 @@ function clashBadge(sess, speakerId) {
    ===================================================================== */
 const vehicleProjects = () => S.projects.filter(p => p.vehicle_tab && isMember(p.id) && sameEdition(p));
 const T2_AIRLINES = /^(KE|DL|AF|KL)\d/;
+function spLegGuess() {
+  const s = spOf(S.spId); if (!s || !canEdit()) return;
+  const g = flightGuess(s.flight_info);
+  if (!g.flights.length && !g.dates.length && !g.times.length) return toast("'항공 정보' 글에서 날짜·시간·편명을 찾지 못했어요", true);
+  const year = Number((s.check_in || '').slice(0, 4)) || Number(curProject()?.edition) || new Date().getFullYear();
+  const D = i => g.dates[i] ? vrISO(year, g.dates[i][0], g.dates[i][1]) : null;
+  const two = g.flights.length > 1 || g.dates.length > 1;
+  const want = { arr_date: D(0), arr_time: g.times[0] || '', arr_flight: g.flights[0] || '', arr_airport: g.airport,
+    dep_date: two ? D(g.dates.length - 1) : null, dep_time: two && g.times.length > 1 ? g.times.at(-1) : '', dep_flight: g.flights.length > 1 ? g.flights.at(-1) : '', dep_airport: two ? g.airport : '' };
+  const patch = {}; for (const [k, v] of Object.entries(want)) if (v && !s[k]) patch[k] = v;
+  if (!Object.keys(patch).length) return toast('채울 빈칸이 없어요 (이미 적힌 칸은 그대로 둬요)');
+  updateSpeaker(s.id, patch).then(ok => ok && toast(`${Object.keys(patch).length}칸을 채웠어요 · 맞는지 확인해 주세요`));
+}
 function flightGuess(text) {
   const t = String(text || '').toUpperCase();
   const flights = [...t.matchAll(/\b([A-Z]{2}|[A-Z]\d|\d[A-Z])\s?(\d{2,4})\b/g)].map(m => m[1] + m[2]).filter(f => !/^(T1|T2)\d*$/.test(f));
@@ -6583,6 +6737,7 @@ function flightGuess(text) {
 function nameGuess(s) {
   const pn = String(s.passport_name || '').trim().toUpperCase().split(/[\s,]+/).filter(Boolean);
   if (pn.length >= 2) return { last: pn[0], first: pn.slice(1).join(' ') };
+  if (String(s.name_en_last || '').trim()) return { last: s.name_en_last.trim().toUpperCase(), first: String(s.name_en_first || '').trim().toUpperCase() };
   const nm = String(s.name || '').trim().split(/\s+/).filter(Boolean);
   if (nm.length >= 2 && /^[A-Za-z]/.test(nm[0])) return { last: nm.at(-1).toUpperCase(), first: nm.slice(0, -1).join(' ').toUpperCase() };
   return { last: (pn[0] || nm[0] || '').toUpperCase(), first: '' };
@@ -6591,7 +6746,7 @@ function spVrHtml(s) {
   const vps = vehicleProjects(); if (!vps.length) return '';
   const L = S.spVr || [];
   const row = r => `<div class="link-item"><a class="lk-open" data-act="spVrOpen" data-id="${r.id}" data-pid="${r.project_id}">
-      ${r.category === 'cancel' ? '<span class="vcat vc-cancel">취소</span>' : r.category === 'noshow' ? '<span class="vcat vc-noshow">미탑승</span>' : ''}
+      ${r.category && r.category !== 'assigned' ? vrCatHtml(r.category) : ''}
       <span class="lk-title">${esc([r.run_date ? vrFmtDate(r.run_date) : '날짜 미정', r.run_time].filter(Boolean).join(' '))}</span>
       <span class="lk-proj">${esc([r.flight, [r.origin, r.dest].filter(Boolean).join(' → '), r.car_type, r.driver].filter(Boolean).join(' · ') || '내용 없음')}</span></a></div>`;
   return `<label class="sl">차량 배정 <span class="hint">${esc(vps.map(p => p.name).join(', '))} · 실시간 차량 탭</span></label>
@@ -6604,6 +6759,12 @@ async function loadSpVr(sid) {
   catch (e) { if (S.spId === sid) S.spVr = []; }
   const box = $('#spVrBox'); if (box && S.spId === sid) box.innerHTML = spVrHtml(spOf(sid));
 }
+// 출국 센딩: 도착 공항이 김포(GMP)면 출발편 2시간 30분 전, 인천(ICN)이면 3시간 전에 호텔 출발
+function vrSendCalc(t, to) {
+  const m = vrMin(vrTime(t)); if (m === 9999) return '';
+  const k = /GMP|김포/i.test(to || '') ? 150 : /ICN|인천/i.test(to || '') ? 180 : 0; if (!k) return '';
+  const x = (m - k + 1440) % 1440; return `${Math.floor(x / 60)}:${String(x % 60).padStart(2, '0')}`;
+}
 function spVrModal() {
   const s = spOf(S.spId); if (!s) return;
   const vps = vehicleProjects().filter(p => canEdit(p.id));
@@ -6615,24 +6776,26 @@ function spVrModal() {
   const pre = dir => {
     const i = dir === 'arr' ? 0 : Math.min(1, g.flights.length - 1);
     const fl = dir === 'arr' ? (g.flights[0] || '') : (g.flights.length > 1 ? g.flights.at(-1) : '');
-    return { date: dISO(dir === 'arr' ? 0 : 1), time: dir === 'arr' ? (g.times[0] || '') : (g.times.length > 1 ? g.times.at(-1) : ''), flight: fl,
-      terminal: g.airport === 'GMP' ? '김포국제' : T2_AIRLINES.test(fl) ? 'T2' : '' , i };
+    const L = dir === 'arr' ? { d: s.arr_date, t: s.arr_time, f: s.arr_flight, a: s.arr_airport } : { d: s.dep_date, t: s.dep_time, f: s.dep_flight, a: s.dep_airport };
+    const flight = L.f || fl, airport = L.a || g.airport;
+    return { date: L.d || dISO(dir === 'arr' ? 0 : 1), time: L.t || (dir === 'arr' ? (g.times[0] || '') : (g.times.length > 1 ? g.times.at(-1) : '')), flight, airport,
+      terminal: airport === 'GMP' ? '김포국제' : T2_AIRLINES.test(flight) ? 'T2' : '' , i };
   };
   const f = (id, label, val, ph = '', w = '') => `<label class="vm-f ${w}"><span>${label}</span><input type="text" id="${id}" name="q${Math.random().toString(36).slice(2, 8)}" autocomplete="off" autocorrect="off" spellcheck="false" readonly data-lpignore="true" data-1p-ignore data-form-type="other" data-v="${esc(val ?? '')}" value="${esc(val ?? '')}" placeholder="${ph}"></label>`;
   // 브라우저 자동완성이 '성/이름' 칸에 로그인한 사람 이름을 넣는 것을 막기: 열린 직후 값을 한 번 더 채움
   const pin = () => setTimeout(() => $$('#vmForm input[data-v]').forEach(i => { if (i.value !== i.dataset.v && document.activeElement !== i) i.value = i.dataset.v; }), 120);
   const form = dir => { const p = pre(dir); return `
     ${f('vmDate', '날짜', p.date ? vrFmtDate(p.date) : '', '9월 7일')}${f('vmTime', dir === 'arr' ? '시간 (도착)' : '시간 (출발편)', p.time, '17:35')}
-    ${dir === 'dep' ? f('vmSend', '호텔 출발시간(센딩)', '', '14:00') : ''}
+    ${dir === 'dep' ? f('vmSend', '호텔 출발시간(센딩) <small>· 김포 2시간 30분 전 / 인천 3시간 전 자동</small>', vrSendCalc(p.time, p.airport), '14:00') : ''}
     ${f('vmFlight', '항공편명', p.flight, 'KE094')}${f('vmTerm', '공항·터미널 구분', p.terminal, 'T2')}
-    ${f('vmFrom', '출발지', dir === 'arr' ? g.airport : hotel)}${f('vmTo', '도착지', dir === 'arr' ? hotel : g.airport)}
+    ${f('vmFrom', '출발지', dir === 'arr' ? p.airport : hotel)}${f('vmTo', '도착지', dir === 'arr' ? hotel : p.airport)}
     ${f('vmSur', '영문 성', nm.last)}${f('vmGiv', '영문 이름', nm.first)}${f('vmPax', '인원', 1)}
     ${f('vmNote', '비고', '', '동행, 영접 등', 'wide')}`; };
   openModal(`<h3>차량 배정 만들기</h3>
     <p class="sub">'${esc(s.name || '이름 없음')}' 연사의 항공 정보로 채웠어요. 확인하고 고친 뒤 만들면 <b>${esc(vps[0].name)}</b>의 실시간 차량 탭에 한 줄이 생겨요. 차종·기사는 차량 스케줄에서 넣어 주세요.</p>
     ${s.flight_info ? `<div class="vm-src"><b>항공 정보</b><div>${esc(s.flight_info)}</div></div>` : '<div class="alert" style="margin:0 0 10px">항공 정보가 비어 있어요. 아래 칸을 직접 채워 주세요.</div>'}
-    <div class="vm-who">이 연사로 만들어요: <b>${esc(s.name || '이름 없음')}</b> · 여권 영문명 <b>${esc(s.passport_name || '(비어 있음)')}</b>
-      <span>→ 영문 성·이름은 ${s.passport_name ? '여권 영문명' : '연사 이름'}에서 가져왔어요</span></div>
+    <div class="vm-who">이 연사로 만들어요: <b>${esc(s.name || '이름 없음')}</b>
+      <span>→ 영문 성·이름은 ${String(s.passport_name || '').trim() ? '예전에 적어 둔 여권 영문명' : String(s.name_en_last || '').trim() ? '연사 페이지의 영문 성·이름' : '연사 이름'}에서 가져왔어요</span></div>
     <div class="role-seg big" id="vmDir"><button type="button" class="on" data-dir="arr">입국 · 공항 → 호텔</button><button type="button" data-dir="dep">출국 · 호텔 → 공항</button></div>
     <div class="vm-grid" id="vmForm">${form('arr')}</div>
     <div class="modal-foot"><button class="btn" data-act="closeModal">취소</button><button class="btn-primary" id="vmGo">차량 배정 만들기</button></div>`);
@@ -6641,6 +6804,12 @@ function spVrModal() {
   $('#vmForm').addEventListener('focusin', e => { if (e.target.matches('input[readonly]')) e.target.removeAttribute('readonly'); });
   $('#vmForm').addEventListener('mousedown', e => { const i = e.target.closest('input[readonly]'); if (i) i.removeAttribute('readonly'); });
   ['vmSur', 'vmGiv'].forEach(id => $('#' + id).addEventListener('input', e => { const t = e.target, u = t.value.toUpperCase(); if (u !== t.value) { const a = t.selectionStart; t.value = u; t.setSelectionRange(a, a); } }));
+  $('#vmForm').addEventListener('input', e => {
+    const t = e.target, sd = $('#vmSend'); if (!sd) return;
+    if (t.id === 'vmSend') { sd.dataset.manual = '1'; sd.dataset.v = sd.value; return; }
+    if ((t.id === 'vmTime' || t.id === 'vmTo') && !sd.dataset.manual) { const v = vrSendCalc($('#vmTime').value, $('#vmTo').value); if (v) { sd.value = v; sd.dataset.v = v; } }
+    if (t.dataset.v !== undefined) t.dataset.v = t.value;
+  });
   $('#vmDir').addEventListener('click', e => { const b = e.target.closest('button[data-dir]'); if (!b) return;
     $$('#vmDir button').forEach(x => x.classList.toggle('on', x === b)); $('#vmForm').innerHTML = form(b.dataset.dir); pin();
     ['vmSur', 'vmGiv'].forEach(id => $('#' + id).addEventListener('input', ev => { ev.target.value = ev.target.value.toUpperCase(); })); });
@@ -6706,6 +6875,12 @@ const ACT = {
   spTab: el => { closePop(); S.stab = el.dataset.tab; if (S.stab === 'dash' || S.stab === 'stay') S.spSessDash = null; renderMain(); },
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
+  spLegGuess: () => spLegGuess(),
+  spNameOrder: el => { const s = spOf(S.spId); if (!s || !canEdit() || nameOrder(s) === el.dataset.v) return; updateSpeaker(s.id, { name_order: el.dataset.v, ...autoNamePatch(s, { name_order: el.dataset.v }) }); },
+  scFileOpen: el => spFileOpen(el.dataset.path),
+  scFileDel: el => scFileDel(el),
+  flView: el => { S.flView = el.dataset.v; renderSpBody(true); },
+  flSort: el => { const k = el.dataset.k; S.flSort = S.flSort?.k === k ? { k, dir: -S.flSort.dir } : { k, dir: 1 }; renderSpBody(true); },
   spWide: () => { SP_WIDE = !SP_WIDE; try { localStorage.setItem('spWide', SP_WIDE ? '1' : '0'); } catch (_) {} $('.split')?.classList.toggle('wide', SP_WIDE); renderSpPage(true); },
   spStep: el => { const L = spNavOrder(), i = L.indexOf(S.spId), n = L[i + Number(el.dataset.d)]; if (n) { openSpPage(n); $('#spage .sp-panel')?.scrollTo(0, 0); } },
   dJump: el => dJump(el.dataset.t),
