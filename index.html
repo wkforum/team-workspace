@@ -1688,6 +1688,8 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .modal.wide .pdf-opts{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 10px;max-height:none}
 .modal.wide .pdf-opt{padding:4px;font-size:13px}
 .pk-list{max-height:28vh}
+.pk-info{font-size:12px;color:var(--accent);margin:-2px 0 6px;min-height:0}
+.pk-top{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -5771,16 +5773,20 @@ function spPdfPickModal() {
   const all = spSort(spVisible()).filter(x => x.grp !== 0);
   if (!all.length) return toast('PDF로 뽑을 연사가 없어요 (필터를 확인해 주세요)', true);
   let sel = new Set(all.map(x => x.id)), on = new Set(pdfOptsLoad()), q = '';
+  // 검색: 연사에 넣어 둔 모든 정보(이름·국문 이름·소속·직함·키워드·분야·특이식성·메모·Bio·기사·평가 등) · 띄어쓰기로 여러 단어(모두 포함)
+  const pkHit = x => { const terms = q.trim().split(/\s+/).map(norm).filter(Boolean); if (!terms.length) return true; const h = spHay(x); return terms.every(t => h.includes(t)); };
+  const shown = () => all.filter(pkHit);
   let layout = 'list'; try { layout = localStorage.getItem('spPdfLayout') || 'list'; } catch (_) {}
   const listBox = () => { const qq = norm(q);
-    return GROUPS.filter(g => g.k !== 0).map(g => { const L = all.filter(x => x.grp === g.k && (!qq || norm(spLabel(x) + ' ' + (x.affil_ko || '') + ' ' + (x.affil_en || '')).includes(qq))); if (!L.length) return '';
+    return GROUPS.filter(g => g.k !== 0).map(g => { const L = all.filter(x => x.grp === g.k && pkHit(x)); if (!L.length) return '';
       const nOn = L.filter(x => sel.has(x.id)).length;
       return `<div class="pk-g"><label class="pk-gh"><input type="checkbox" data-pkg="${g.k}" ${nOn === L.length ? 'checked' : ''}>${tag(g.tone, g.label)}<small>${nOn}/${L.length}</small></label>
         ${L.map(x => `<label class="pk-it"><input type="checkbox" data-pks="${x.id}" ${sel.has(x.id) ? 'checked' : ''}><span>${spLabelHtml(x)}</span><small>${esc(x.affil_ko || x.affil_en || '')}</small></label>`).join('')}</div>`; }).join('') || '<div class="muted" style="padding:10px">검색에 맞는 연사가 없어요</div>'; };
   const draw = () => { $('#pkList').innerHTML = listBox(); $('#pkN').textContent = sel.size; $('#pdfOpts').innerHTML = PDF_OPTS.map(([k, l]) => `<label class="pdf-opt"><input type="checkbox" data-pk="${k}" ${on.has(k) ? 'checked' : ''}>${esc(l)}</label>`).join(''); };
   openModal(`<h3>연사 여러 명 PDF</h3>
     <p class="sub">뽑을 연사와 담을 내용을 고르세요. 지금 화면의 필터·검색에 맞는 연사 ${all.length}명이 목록에 있어요.</p>
-    <div class="pk-top"><input class="lp-search" id="pkQ" placeholder="이름·소속으로 찾기" autocomplete="off"><button type="button" class="btn sm" id="pkAll">전체 선택</button><button type="button" class="btn sm" id="pkNone">전체 해제</button><button type="button" class="btn sm" id="pkConf">확정만</button></div>
+    <div class="pk-top"><input class="lp-search" id="pkQ" placeholder="검색 — 키워드·분야·특이식성·소속·메모 등 넣어 둔 정보 전부 (예: 금리 비건)" autocomplete="off"><button type="button" class="btn sm" id="pkOnly" title="검색에 걸린 연사만 선택">검색 결과만 선택</button><button type="button" class="btn sm" id="pkAll">전체 선택</button><button type="button" class="btn sm" id="pkNone">전체 해제</button><button type="button" class="btn sm" id="pkConf">확정만</button></div>
+    <div class="pk-info" id="pkInfo"></div>
     <div class="pk-list" id="pkList"></div>
     <div class="pk-lay"><b>모양</b><label><input type="radio" name="pkLay" value="list" ${layout !== 'pages' ? 'checked' : ''}> 목록형 (단계별로 이어서)</label><label><input type="radio" name="pkLay" value="pages" ${layout === 'pages' ? 'checked' : ''}> 프로필형 (한 명당 한 페이지)</label></div>
     <div class="pdf-pre"><b style="font-size:12.5px;margin-right:4px">담을 내용</b><button type="button" class="btn" id="pdfAll">전체</button><button type="button" class="btn" id="pdfRep">회장 보고용</button><button type="button" class="btn" id="pdfNone">모두 해제</button></div>
@@ -5788,11 +5794,13 @@ function spPdfPickModal() {
     <div class="modal-foot"><span class="muted" style="margin-right:auto">선택 <b id="pkN">0</b>명</span><button class="btn" data-act="closeModal">취소</button><button class="btn-primary" id="pdfGo">${ICON.pdf}PDF 만들기</button></div>`);
   $('#modalRoot .modal').classList.add('wide');
   draw();
-  $('#pkQ').addEventListener('input', e => { q = e.target.value; $('#pkList').innerHTML = listBox(); });
+  const info = () => { const n = shown().length; $('#pkInfo').innerHTML = q.trim() ? `'${esc(q.trim())}' 검색 결과 <b>${n}</b>명 · 선택은 검색과 상관없이 유지돼요 (지금 선택 ${sel.size}명)` : ''; };
+  $('#pkQ').addEventListener('input', e => { q = e.target.value; $('#pkList').innerHTML = listBox(); info(); });
+  $('#pkOnly').onclick = () => { sel = new Set(shown().map(x => x.id)); draw(); info(); };
   $('#pkList').addEventListener('change', e => { const t = e.target;
     if (t.dataset.pks) t.checked ? sel.add(t.dataset.pks) : sel.delete(t.dataset.pks);
-    else if (t.dataset.pkg != null) { const qq = norm(q); all.filter(x => x.grp === Number(t.dataset.pkg) && (!qq || norm(spLabel(x) + ' ' + (x.affil_ko || '') + ' ' + (x.affil_en || '')).includes(qq))).forEach(x => t.checked ? sel.add(x.id) : sel.delete(x.id)); }
-    $('#pkList').innerHTML = listBox(); $('#pkN').textContent = sel.size; });
+    else if (t.dataset.pkg != null) { const qq = norm(q); all.filter(x => x.grp === Number(t.dataset.pkg) && pkHit(x)).forEach(x => t.checked ? sel.add(x.id) : sel.delete(x.id)); }
+    $('#pkList').innerHTML = listBox(); $('#pkN').textContent = sel.size; info(); });
   $('#pkAll').onclick = () => { sel = new Set(all.map(x => x.id)); draw(); };
   $('#pkNone').onclick = () => { sel = new Set(); draw(); };
   $('#pkConf').onclick = () => { sel = new Set(all.filter(x => x.grp === 3).map(x => x.id)); draw(); };
