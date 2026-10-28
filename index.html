@@ -1668,10 +1668,11 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .evl-row{display:grid;grid-template-columns:150px auto minmax(0,1fr);gap:14px;align-items:start;padding:10px 0;border-top:1px dashed var(--line)}
 .evl-lab{display:flex;flex-direction:column}.evl-lab b{font-size:13.5px}.evl-lab small{font-size:11.5px;color:var(--muted)}
 .evl-seg{display:flex;gap:4px;flex-wrap:wrap}
-.evg{width:38px;height:32px;border:1px solid var(--line2);border-radius:6px;background:#fff;font-weight:800;font-size:13px}
+.evg{width:34px;height:30px;border:1px solid var(--line2);border-radius:6px;background:#fff;font-weight:800;font-size:13px}
 .evg:hover:not(:disabled){border-color:#9aa3b5}
 .evg.on{color:#fff;border-color:transparent}
-.evg.on.tn-a{background:#1f7a4d}.evg.on.tn-b{background:#2340b0}.evg.on.tn-c{background:#b7791f}.evg.on.tn-d{background:#b42318}
+.evg.on.tn-a{background:#1f7a4d}.evg.on.tn-b{background:#2340b0}.evg.on.tn-c{background:#b7791f}.evg.on.tn-d{background:#b42318}.evg.on.tn-f{background:#5b1111}
+.evg-sep{width:6px}
 .evl-crit{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;font-size:12px;color:var(--muted)}
 .evl-crit li b{display:inline-block;min-width:62px;color:var(--text);font-weight:700;margin-right:4px}
 .evl-crit li.on{color:var(--text);font-weight:600}.evl-crit li.on b{color:var(--accent)}
@@ -1690,6 +1691,14 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .pk-list{max-height:28vh}
 .pk-info{font-size:12px;color:var(--accent);margin:-2px 0 6px;min-height:0}
 .pk-top{flex-wrap:wrap}
+
+.evl-row{grid-template-columns:150px minmax(0,1fr);gap:8px 14px}
+.evl-crit{grid-column:2;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 12px}
+.evl-crit li{background:#fff;border:1px solid var(--line);border-radius:6px;padding:5px 8px;line-height:1.4}
+.evl-crit li b{display:block;min-width:0;margin:0 0 1px}
+.evl-crit li.on{border-color:var(--accent);background:var(--accent-weak)}
+@media (max-width:1180px){.evl-row{grid-template-columns:1fr}.evl-crit{grid-column:1;grid-template-columns:1fr 1fr}}
+.bk-opt{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:13px}.bk-opt input{margin-top:3px;accent-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -1935,6 +1944,7 @@ function supabaseApi() {
     },
     // ---- 세션 마스터 ----
     sessions: pid => q(sb.from('sessions').select('*').eq('project_id', pid).order('position')),
+    dumpTable: async t => { const out = []; for (let i = 0; ; i += 1000) { const r = await q(sb.from(t).select('*').range(i, i + 999)); out.push(...r); if (r.length < 1000) break; } return out; },
     createSession: s => q(sb.from('sessions').insert(s).select().single()),
     updateSession: (id, patch) => q(sb.from('sessions').update(patch).eq('id', id).select('id,updated_at').single()),
     deleteSession: id => q(sb.from('sessions').delete().eq('id', id)),
@@ -2230,6 +2240,7 @@ function demoApi() {
       const ss = sessions.filter(x => rows.some(r => r.session_id === x.id));
       return ret({ rows, sessions: ss, venues: venues.filter(v => ss.some(x => x.venue_id === v.id)) }); },
     sessions: pid => ret(sessions.filter(s => s.project_id === pid).sort((a, b) => a.position - b.position)),
+    dumpTable: t => ret(JSON.parse(JSON.stringify(({ projects, project_members: members, nationalities: nats, speakers, speaker_links: links, session_venues: venues, session_pillars: pillars, session_meet_types: meetTypes, sessions, secret_items: secret, vehicle_status_opts: vopts, vehicle_runs: vruns, speaker_event_info: evInfo, session_people: sPeople, tasks, docs, change_log: CL, comments: cmts })[t] || []))),
     createSession: s => { const n = SED({ ...s, id: s.id || newId(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, 0); sessions.push(n); return ret(n); },
     updateSession: (id, patch) => { const s = sessions.find(x => x.id === id); logCh('sessions', s, 'update'); Object.assign(s, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); return ret({ id, updated_at:s.updated_at }); },
     deleteSession: id => { const i = sessions.findIndex(x => x.id === id); if (i > -1) { logCh('sessions', sessions[i], 'delete'); sessions.splice(i, 1); } for (let j = sPeople.length - 1; j >= 0; j--) if (sPeople[j].session_id === id) sPeople.splice(j, 1); return ret(null); },
@@ -2511,6 +2522,7 @@ function renderSidebar() {
   $('#addProjectBtn').classList.toggle('hidden', !isAdmin());
   const me = S.me;
   $('#meBox').innerHTML = `<button class="me-btn" data-act="editName" title="${esc(me.full_name || me.email)} · 이름 바꾸기">${avatar(me, 28)}<span class="n">${esc(me.full_name || me.email)}</span></button>
+    ${isAdmin() ? `<button class="icon-btn" data-act="backup" title="전체 백업 내려받기 (관리자)" aria-label="전체 백업">${ICON.download}</button>` : ''}
     <button class="icon-btn" data-act="logout" title="로그아웃" aria-label="로그아웃">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3H3.5v10H6M10.5 5l3 3-3 3M13.5 8H6.5"/></svg>
     </button>`;
@@ -3952,19 +3964,19 @@ function spArtDel(el) {
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing && (e.target.id === 'artUrl' || e.target.id === 'artTitle')) { e.preventDefault(); spArtAdd(); } });
 
 /* ---------- 평가 (행사 후) — 절대 등급 · 가격 대비 등급 ---------- */
-const EVAL_GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D'];
+const EVAL_GRADES = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
 const EVAL_DEF = {
   eval_abs: { label: '절대 등급', sub: '세션 내용과 관심도', crit: [['A', '세션 내용과 관심도 모두 높음'], ['B', '세션 내용과 관심도 중 하나만 높음'], ['C', '세션 내용과 관심도 평범함 또는 둘 중 하나 평균 미달'], ['D', '세션 내용과 관심도 모두 미달']] },
   eval_value: { label: '가격 대비 등급', sub: '연사료 대비 다시 초청할 가치', crit: [['A', '당장 내년에 초청해야'], ['B', '수년 후 다시 초청할만 함'], ['C', '특이 이슈가 있다면 다시 초청할만 함'], ['D', '다시 초청하지 말아야']] },
 };
-const evalTone = g => ({ A: 'tn-a', B: 'tn-b', C: 'tn-c', D: 'tn-d' })[String(g || '')[0]] || '';
+const evalTone = g => ({ A: 'tn-a', B: 'tn-b', C: 'tn-c', D: 'tn-d', F: 'tn-f' })[String(g || '')[0]] || '';
 function spEvalHtml(s, ed) {
   if (!('eval_abs' in s) && !DEMO) return '<div class="alert">평가 칸을 쓰려면 Supabase SQL Editor에서 setup/schema_v23_articles_eval.sql을 실행해 주세요.</div>';
   const row = f => { const d = EVAL_DEF[f], cur = s[f] || '';
     return `<div class="evl-row"><div class="evl-lab"><b>${d.label}</b><small>${d.sub}</small></div>
-      <div class="evl-seg">${EVAL_GRADES.map(g => `<button type="button" class="evg ${cur === g ? 'on ' + evalTone(g) : ''}" data-act="spEval" data-f="${f}" data-v="${g}" ${ed ? '' : 'disabled'} title="${cur === g ? '다시 누르면 해제' : g}">${g}</button>`).join('')}</div>
-      <ul class="evl-crit">${d.crit.map(([k, t]) => `<li class="${String(cur)[0] === k ? 'on' : ''}"><b>${k === 'D' ? 'C 미만 (D)' : k + ' 이상'}</b>${esc(t)}</li>`).join('')}</ul></div>`; };
-  return `<div class="fx-card evl-card"><div class="evl-top"><span>행사가 끝난 뒤 매겨 주세요 · 등급은 A·B·C·D, +로 한 단계 위 · 다시 누르면 해제</span></div>
+      <div class="evl-seg">${EVAL_GRADES.map((g, i) => `${i && g[0] !== EVAL_GRADES[i - 1][0] ? '<span class="evg-sep"></span>' : ''}<button type="button" class="evg ${cur === g ? 'on ' + evalTone(g) : ''}" data-act="spEval" data-f="${f}" data-v="${g}" ${ed ? '' : 'disabled'} title="${cur === g ? '다시 누르면 해제' : g}">${g}</button>`).join('')}</div>
+      <ul class="evl-crit">${d.crit.map(([k, t]) => `<li class="${String(cur)[0] === k || (k === 'D' && String(cur)[0] === 'F') ? 'on' : ''}"><b>${k === 'D' ? 'C 미만 (D·F)' : k + ' 이상'}</b>${esc(t)}</li>`).join('')}</ul></div>`; };
+  return `<div class="fx-card evl-card"><div class="evl-top"><span>행사가 끝난 뒤 매겨 주세요 · 등급은 A·B·C·D·F, + / − 로 세분 · 다시 누르면 해제</span></div>
     ${row('eval_abs')}${row('eval_value')}
     <label class="sl">판단 근거 <span class="hint">· 세션 반응, 청중 관심도, 다음 초청 의견 등</span></label>
     ${ed ? `<textarea class="ta" data-sf="eval_note" rows="2" placeholder="예: 질의응답 반응이 매우 좋았음. 내년 오찬 기조연설로 재초청 검토">${esc(s.eval_note || '')}</textarea>` : `<div class="pv">${esc(s.eval_note || '') || '<span class="tg-empty">없음</span>'}</div>`}</div>`;
@@ -4335,6 +4347,57 @@ async function uploadPhoto(sid, file) {
 document.addEventListener('dragover', e => { const z = e.target.closest?.('#spage .ph-drop'); if (!z || !canEdit() || !e.dataTransfer?.types?.includes('Files')) return; e.preventDefault(); z.classList.add('ph-over'); });
 document.addEventListener('dragleave', e => { const z = e.target.closest?.('#spage .ph-drop'); if (z) z.classList.remove('ph-over'); });
 document.addEventListener('drop', e => { const z = e.target.closest?.('#spage .ph-drop'); if (!z || !canEdit()) return; const f = [...(e.dataTransfer?.files || [])].find(x => /^image\//.test(x.type)); if (!f) return; e.preventDefault(); z.classList.remove('ph-over'); uploadPhoto(S.spId, f); });
+/* =====================================================================
+   관리자 · 전체 백업 내려받기 — 데이터 전체(JSON) + 사진·첨부 파일을 ZIP 하나로
+   (자동 백업은 GitHub Actions가 매주 따로 함 · 이건 필요할 때 손으로 받는 비상용)
+   ===================================================================== */
+const BACKUP_TABLES = ['profiles', 'projects', 'project_members', 'nationalities', 'speakers', 'speaker_private', 'speaker_links', 'speaker_event_info',
+  'sessions', 'session_people', 'session_venues', 'session_pillars', 'session_meet_types', 'secret_items', 'tasks', 'docs', 'vehicle_runs', 'vehicle_status_opts', 'comments', 'change_log'];
+function backupModal() {
+  if (!isAdmin()) return;
+  let last = ''; try { last = localStorage.getItem('lastBackup') || ''; } catch (_) {}
+  openModal(`<h3>전체 백업 내려받기</h3>
+    <p class="sub">모든 프로젝트의 데이터를 이 컴퓨터에 파일로 받아요. 매주 자동 백업(GitHub)과 별개로, 행사 직전·직후처럼 중요한 때 한 번씩 받아 두면 좋아요.${last ? `<br>이 컴퓨터에서 마지막으로 받은 때: <b>${esc(fmtDT(last))}</b>` : ''}</p>
+    <label class="bk-opt"><input type="radio" name="bkMode" value="data" checked><span><b>데이터만</b> · 몇 초 · 연사·세션·부대행사·대외비·차량·댓글·수정 기록 전부</span></label>
+    <label class="bk-opt"><input type="radio" name="bkMode" value="all"><span><b>데이터 + 사진·첨부 파일</b> · 파일이 많으면 몇 분 걸려요</span></label>
+    <div class="hint" id="bkProg" style="margin-top:8px"></div>
+    <div class="modal-foot"><button class="btn" data-act="closeModal">닫기</button><button class="btn-primary" id="bkGo">${ICON.download}백업 받기</button></div>`);
+  $('#bkGo').onclick = async () => {
+    const mode = document.querySelector('input[name=bkMode]:checked')?.value || 'data', prog = t => { const el = $('#bkProg'); if (el) el.textContent = t; };
+    $('#bkGo').disabled = true;
+    try { await runBackup(mode === 'all', prog); try { localStorage.setItem('lastBackup', new Date().toISOString()); } catch (_) {} prog('다 받았어요. 내려받기 폴더를 확인해 주세요.'); }
+    catch (e) { prog(''); err(e); }
+    finally { const b = $('#bkGo'); if (b) b.disabled = false; }
+  };
+}
+async function runBackup(withFiles, prog = () => {}) {
+  const tables = {}, skipped = [];
+  for (const [i, t] of BACKUP_TABLES.entries()) {
+    prog(`데이터 모으는 중… ${i + 1}/${BACKUP_TABLES.length} (${t})`);
+    try { tables[t] = await api.dumpTable(t); } catch (e) { skipped.push(t); }
+  }
+  const now = new Date(), stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const meta = { app: 'team-workspace', exported_at: now.toISOString(), by: S.me?.email || '', counts: Object.fromEntries(Object.entries(tables).map(([k, v]) => [k, v.length])), skipped };
+  const Z = await loadZip(), zip = new Z();
+  zip.file('data.json', JSON.stringify({ ...meta, tables }, null, 1));
+  zip.file('README.txt', '\ufeff팀 워크스페이스 백업\n\n- data.json: 모든 표의 내용 (표 이름별)\n- files/: 사진·첨부·발표자료·계약서 원본 (저장소 경로 그대로)\n\n복원이 필요하면 이 ZIP을 개발 담당자(또는 Claude)에게 주세요. data.json을 같은 구조의 데이터베이스에 다시 넣을 수 있어요.\n\n' + JSON.stringify(meta, null, 2));
+  let nf = 0, nfail = 0;
+  if (withFiles) {
+    const paths = [];
+    const addF = (b, p) => { if (p && !paths.some(x => x.b === b && x.p === p)) paths.push({ b, p }); };
+    (tables.speakers || []).forEach(x => { addF('speaker-files', x.photo_path); (x.attachments || []).forEach(a => (a?.files || []).forEach(f => addF('speaker-files', f.path))); (x.flight_files || []).forEach(f => addF('speaker-files', f.path)); });
+    (tables.secret_items || []).forEach(x => (x.files || []).forEach(f => addF('speaker-files', f.path)));
+    (tables.sessions || []).forEach(x => (x.files || []).forEach(f => addF('session-files', f.path)));
+    for (const [i, f] of paths.entries()) {
+      prog(`파일 받는 중… ${i + 1}/${paths.length}`);
+      try { const b = await (await fetch(await fileUrl(f.p, f.b))).blob(); zip.file(`files/${f.b}/${f.p}`, b); nf++; } catch (_) { nfail++; }
+    }
+  }
+  prog('ZIP으로 묶는 중…');
+  const out = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(out); a.download = `팀워크스페이스_백업_${stamp}${withFiles ? '_파일포함' : ''}.zip`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  toast(`백업을 받았어요 · 표 ${Object.keys(tables).length}개${withFiles ? ` · 파일 ${nf}개${nfail ? ` (못 받은 파일 ${nfail}개)` : ''}` : ''}`);
+}
 async function spPhotoDown() {
   const s = spOf(S.spId); if (!s?.photo_path) return;
   try { const url = await fileUrl(s.photo_path); const b = await (await fetch(url)).blob();
@@ -7289,6 +7352,7 @@ const ACT = {
   selectAll: () => { const all = $$('#modalRoot .sw'); const on = all.some(i => !i.checked); all.forEach(i => i.checked = on); },
   logout: () => { if (confirm('로그아웃할까요?')) api.signOut(); },
   editName: nameModal,
+  backup: () => backupModal(),
   togglePeople,
 };
 
