@@ -1699,6 +1699,19 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .evl-crit li.on{border-color:var(--accent);background:var(--accent-weak)}
 @media (max-width:1180px){.evl-row{grid-template-columns:1fr}.evl-crit{grid-column:1;grid-template-columns:1fr 1fr}}
 .bk-opt{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:13px}.bk-opt input{margin-top:3px;accent-color:var(--accent)}
+
+.todo-list{max-height:none;gap:10px}
+.todo-n{font-size:12px;font-weight:700;color:var(--mark);background:var(--mark-soft);border-radius:10px;padding:1px 8px;margin-left:4px;vertical-align:1px}
+.todo-g{border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff}
+.todo-gh{display:flex;align-items:center;gap:6px;font-size:13.5px}
+.todo-ico{width:18px;text-align:center}
+.todo-cnt{margin-left:auto;font-size:12px;font-weight:700;color:var(--mark)}
+.todo-how{font-size:12px;color:var(--muted);margin:3px 0 7px 24px;line-height:1.45}
+.todo-names{display:flex;flex-wrap:wrap;gap:5px;margin-left:24px}
+.todo-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:14px;border:1px solid var(--line2);background:#fff;font-size:12.5px;cursor:pointer}
+.todo-chip:hover{border-color:var(--accent);color:var(--accent)}
+.todo-chip small{font-size:11px;color:var(--mark)}
+.todo-ok{color:var(--ok);font-size:13px;padding:4px 0}
 </style>
 </head>
 <body>
@@ -3539,7 +3552,7 @@ function spDashHtml() {
       ${kpi('all', '피칭 연사', total, `아이디어 ${by(1)} · 논의중 ${by(2)} · 보류 ${by(4)}`)}
       ${kpi('grp:3', '섭외 확정', `${conf}<small> / ${pct}%</small>`, '확정 연사 수 / 피칭 대비', 'ok')}
       ${kpi('', '세션', d ? d.sessions.length : '…', d ? `일정 미정 ${d.sessions.filter(x => !x.day || !x.start_time).length}개` : '불러오는 중')}
-      ${kpi('todo', '챙길 일', todoN, '확정 연사 중 · 아래 목록에서 바로 이동', todoN ? 'mark' : '')}
+      ${kpi('todo', '챙길 일', todoN, todoN ? '확정 연사 중 준비 덜 된 연사 · 오른쪽 아래 목록 참고' : '확정 연사 준비 완료', todoN ? 'mark' : '')}
     </div>
     ${['all', 'grp:3', 'todo'].includes(S.dashKey) ? peekHtml(S.dashKey) : ''}
     <div class="dash2-cols">
@@ -3559,12 +3572,24 @@ function spDashHtml() {
     </div>
   </div>`;
 }
+// 챙길 일: 일 종류별로 묶어서 '무엇을 · 어디서 · 어떻게 하면 사라지는지'까지 보여 줌
+const TODO_DEF = [
+  { k: '항공', ico: '✈︎', title: '항공권 처리', how: "연사 페이지 › 항공·숙박에서 항공 상태를 '발권 완료 · 내용 송부 · 불필요' 중 하나로 바꾸면 사라져요", sec: 'logi' },
+  { k: '숙박', ico: '🏨', title: '숙박 처리', how: "연사 페이지 › 항공·숙박에서 숙박 상태를 '숙박 완료 · 내용 송부 · 불필요' 중 하나로 바꾸면 사라져요", sec: 'logi' },
+  { k: '세션', ico: '🎤', title: '세션 배정', how: '세션 마스터나 부대행사 마스터에서 이 연사를 Speaker 또는 Moderator로 넣으면 사라져요', sec: 'sched' },
+  { k: '참석일', ico: '📅', title: '참석 가능일 체크', how: '연사 페이지 › 기본 정보 › 참석일(1·2·3일차)에서 오는 날을 체크하면 사라져요', sec: 'basic' },
+  { k: '식성', ico: '🍽', title: '특이식성 내용 적기', how: "특이식성은 켜져 있는데 내용이 비어 있어요. 연사 페이지 › 기본 정보의 식성 칸에 '비건', '견과류 알레르기'처럼 적으면 사라져요", sec: 'basic' },
+];
 function todoCardHtml() {
-  const L = dashList('todo'), MAX = 40;
-  return `<div class="dcard dc-flush"><div class="dc-h"><h4>챙길 일</h4><span class="muted">확정 연사 기준 자동 점검</span></div>
-    <div class="dc-b todo-list">${L.length ? L.slice(0, MAX).map(s => `<a class="todo-row" data-act="spOpen" data-sid="${s.id}">${todoOf(s).map(([k]) => `<span class="todo-k">${k}</span>`).join('')}<b>${spLabelHtml(s)}</b><span class="muted">— ${todoOf(s).map(x => x[1]).join(', ')}</span></a>`).join('')
-      + (L.length > MAX ? `<a class="peek-more" data-act="dashBig" data-key="todo">+${L.length - MAX}명 더 보기</a>` : '')
-      : '<div class="muted">챙길 일이 없어요 👍</div>'}</div></div>`;
+  const L = dashList('todo');
+  const groups = TODO_DEF.map(d => ({ d, rows: L.map(s => ({ s, t: todoOf(s).find(x => x[0] === d.k) })).filter(x => x.t) })).filter(g => g.rows.length);
+  const total = groups.reduce((a, g) => a + g.rows.length, 0);
+  return `<div class="dcard dc-flush"><div class="dc-h"><h4>챙길 일 ${total ? `<span class="todo-n">${total}건</span>` : ''}</h4><span class="muted">확정 연사 중 준비가 덜 된 것 · 이름을 누르면 그 칸으로 가요</span></div>
+    <div class="dc-b todo-list">${groups.length ? groups.map(({ d, rows }) => `<div class="todo-g">
+      <div class="todo-gh"><span class="todo-ico">${d.ico}</span><b>${d.title}</b><span class="todo-cnt">${rows.length}명</span></div>
+      <div class="todo-how">${esc(d.how)}</div>
+      <div class="todo-names">${rows.map(({ s, t }) => `<a class="todo-chip" data-act="spOpenSec" data-sid="${s.id}" data-sec="${d.sec}" title="${esc(t[1])}">${spLabelHtml(s)}${t[1] !== d.title && /요청|미정/.test(t[1]) ? `<small>${esc(t[1])}</small>` : ''}</a>`).join('')}</div></div>`).join('')
+      : '<div class="todo-ok">확정 연사들의 항공·숙박·세션·참석일·식성이 모두 채워졌어요 👍</div>'}</div></div>`;
 }
 function recentCardHtml() {
   const L = [...S.speakers].filter(s => s.grp !== 0).sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || ''))).slice(0, 8);
@@ -7227,6 +7252,7 @@ const ACT = {
   sePmReset: () => { const s = seOf(S.seId); if (s && canEdit()) updateSession(s.id, { pm_start: '', pm_end: '', pm_venue_id: null }); },
   spPub: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v === '1'; if ((s.is_public !== false) !== v) updateSpeaker(s.id, { is_public: v }); },
   spDelOne: el => spDelete(el.dataset.sid),
+  spOpenSec: el => { openSpPage(el.dataset.sid); const k = el.dataset.sec; if (k && k !== 'basic') setTimeout(() => dJump(k), 350); },
   spNameOrder: el => { const s = spOf(S.spId); if (!s || !canEdit() || nameOrder(s) === el.dataset.v) return; updateSpeaker(s.id, { name_order: el.dataset.v, ...autoNamePatch(s, { name_order: el.dataset.v }) }); },
   scFileOpen: el => spFileOpen(el.dataset.path),
   scFileDel: el => scFileDel(el),
