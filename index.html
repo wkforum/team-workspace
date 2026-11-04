@@ -1712,6 +1712,29 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .todo-chip:hover{border-color:var(--accent);color:var(--accent)}
 .todo-chip small{font-size:11px;color:var(--mark)}
 .todo-ok{color:var(--ok);font-size:13px;padding:4px 0}
+
+/* v25 */
+.asg-blk{padding:2px 0 8px;border-bottom:1px dashed var(--line);margin-bottom:6px}.asg-blk:last-of-type{border-bottom:0}
+.asg-blk.me{background:#f7f9ff;border-radius:8px;padding:4px 8px 8px;margin:0 -8px 8px}
+.me-tag{font-size:10.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:8px;padding:0 6px;margin-left:4px}
+.asg-todo-n{margin-left:8px;font-size:11.5px;font-weight:700;color:var(--mark);background:var(--mark-soft);border-radius:8px;padding:1px 7px}
+.asg-todos{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 2px}
+.asg-help{font-size:11.5px;color:var(--muted);margin-top:6px}
+.fd-board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.fd-col{background:#eceef2;border-radius:10px;padding:8px;min-height:120px}
+.fd-col.over{background:var(--accent-weak);outline:2px dashed var(--accent-line)}
+.fd-col header{display:flex;align-items:center;gap:6px;padding:2px 4px 8px;font-size:13.5px}.fd-col header .cnt{color:var(--muted);font-size:12px}.fd-col header .sp{flex:1}
+.fd-cards{display:flex;flex-direction:column;gap:6px}
+.fd-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;cursor:grab}
+.fd-card.dragging{opacity:.4}
+.fd-nm{font-weight:600;font-size:13.5px;cursor:pointer}.fd-nm:hover{color:var(--accent)}
+.fd-card small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fd-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}.fd-tags .tg{font-size:11px}
+.fd-multi{font-size:11px;color:var(--accent)}
+.fd-empty{font-size:12px;color:#9aa1af;padding:6px}
+.ph .tabs .tab[data-tab]{cursor:grab}
+.tab.dragging{opacity:.4}.tab.td-l{box-shadow:inset 3px 0 0 var(--accent)!important}.tab.td-r{box-shadow:inset -3px 0 0 var(--accent)!important}
+.asg-blk{display:block}.asg-blk>.drow{display:block;width:100%}
 </style>
 </head>
 <body>
@@ -1957,6 +1980,8 @@ function supabaseApi() {
     },
     // ---- 세션 마스터 ----
     sessions: pid => q(sb.from('sessions').select('*').eq('project_id', pid).order('position')),
+    setFieldOpts: (pid, opts) => q(sb.rpc('speaker_field_opts_set', { pid, opts })),
+    renameField: (pid, old_name, new_name) => q(sb.rpc('speaker_field_rename', { pid, old_name, new_name })),
     dumpTable: async t => { const out = []; for (let i = 0; ; i += 1000) { const r = await q(sb.from(t).select('*').range(i, i + 999)); out.push(...r); if (r.length < 1000) break; } return out; },
     createSession: s => q(sb.from('sessions').insert(s).select().single()),
     updateSession: (id, patch) => q(sb.from('sessions').update(patch).eq('id', id).select('id,updated_at').single()),
@@ -2083,7 +2108,7 @@ function demoApi() {
     created_at:new Date(Date.now() - (20 - i) * 864e5).toISOString(), updated_at:new Date(Date.now() - (10 - i) * 36e5).toISOString(), ...o });
   const speakers = [
     { name:'연사 섭외 가이드 (먼저 읽어 주세요)', grp:0, assignees:['u1'] },
-    { name:'John Carter', name_ko_last:'카터', name_ko_first:'존', name_en_last:'Carter', name_en_first:'John', memo:'前 연준 이코노미스트, 2025 다보스 패널. 강연 주제: 금리·거시경제 전망.\n연사료 USD 25,000 + 비즈니스 항공 논의 중 (에이전시 통해 확정 예정).', fields:['경제','지정학'], keywords:['금리','거시경제'], agency:'Northbridge Speakers 소속. 담당 에이전트와 메일로 조율, 회신 2~3일 소요.', referral:'국제부 기자 소개로 2025년 첫 접촉.', grp:3, assignees:['u3'], nationality_id:'n1', flight_status:'issued', hotel_status:'booked', priority:'S', passport_name:'CARTER JOHN', passport_no:'M12345678', birth_date:'1968-04-12', title_en:'CEO', affil_en:'Northwind Labs', title_ko:'대표이사', affil_ko:'노스윈드 랩스', day1:true, day2:true, opening:true, gala:true, check_in:dplus(30), check_out:dplus(33), flight_info:'입국 11/14 KE012 LAX→ICN 05:20 도착\n출국 11/17 KE017 ICN 14:30 출발' },
+    { name:'John Carter', name_ko_last:'카터', name_ko_first:'존', name_en_last:'Carter', name_en_first:'John', memo:'前 연준 이코노미스트, 2025 다보스 패널. 강연 주제: 금리·거시경제 전망.\n연사료 USD 25,000 + 비즈니스 항공 논의 중 (에이전시 통해 확정 예정).', fields:['비즈니스·경제','정치·지정학'], keywords:['금리','거시경제'], agency:'Northbridge Speakers 소속. 담당 에이전트와 메일로 조율, 회신 2~3일 소요.', referral:'국제부 기자 소개로 2025년 첫 접촉.', grp:3, assignees:['u3'], nationality_id:'n1', flight_status:'issued', hotel_status:'booked', priority:'S', passport_name:'CARTER JOHN', passport_no:'M12345678', birth_date:'1968-04-12', title_en:'CEO', affil_en:'Northwind Labs', title_ko:'대표이사', affil_ko:'노스윈드 랩스', day1:true, day2:true, opening:true, gala:true, check_in:dplus(30), check_out:dplus(33), flight_info:'입국 11/14 KE012 LAX→ICN 05:20 도착\n출국 11/17 KE017 ICN 14:30 출발' },
     { name:'홍길동', name_order:'ff', name_ko_last:'홍', name_ko_first:'길동', name_en_last:'HONG', name_en_first:'Gildong', title_ko:'회장', affil_ko:'길동그룹', title_en:'Chairman', affil_en:'Gildong Group', grp:3, assignees:['u2','u3'], nationality_id:'n2', flight_status:'na', hotel_status:'sent', priority:'A', passport_name:'HONG GILDONG', birth_date:'1975-09-30', day1:true, opening:true, vip_dinner:true, diet_flag:true, diet_note:'채식 (유제품 가능)', done:true },
     { name:'Yuki Tanaka', grp:2, assignees:['u5'], nationality_id:'n3', flight_status:'request', hotel_status:'request', priority:'B', passport_name:'TANAKA YUKI', day2:true, day3:true, gala:true },
     { name:'Marie Dubois', grp:2, assignees:['u3'], nationality_id:'n5', flight_status:'sent', hotel_status:'booked', priority:'A', vip_dinner:true, diet_flag:true, diet_note:'견과류 알레르기' },
@@ -2253,6 +2278,8 @@ function demoApi() {
       const ss = sessions.filter(x => rows.some(r => r.session_id === x.id));
       return ret({ rows, sessions: ss, venues: venues.filter(v => ss.some(x => x.venue_id === v.id)) }); },
     sessions: pid => ret(sessions.filter(s => s.project_id === pid).sort((a, b) => a.position - b.position)),
+    setFieldOpts: (pid, opts) => { const p = projects.find(x => x.id === pid); if (p) p.field_opts = opts; return ret(null); },
+    renameField: (pid, o, n) => { const p = projects.find(x => x.id === pid); if (p) p.field_opts = (p.field_opts || FIELDS_DEFAULT).flatMap(x => x === o ? (n ? [n] : []) : [x]); speakers.filter(x => x.project_id === pid).forEach(x => { x.fields = (x.fields || []).flatMap(y => y === o ? (n ? [n] : []) : [y]); }); return ret(null); },
     dumpTable: t => ret(JSON.parse(JSON.stringify(({ projects, project_members: members, nationalities: nats, speakers, speaker_links: links, session_venues: venues, session_pillars: pillars, session_meet_types: meetTypes, sessions, secret_items: secret, vehicle_status_opts: vopts, vehicle_runs: vruns, speaker_event_info: evInfo, session_people: sPeople, tasks, docs, change_log: CL, comments: cmts })[t] || []))),
     createSession: s => { const n = SED({ ...s, id: s.id || newId(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, 0); sessions.push(n); return ret(n); },
     updateSession: (id, patch) => { const s = sessions.find(x => x.id === id); logCh('sessions', s, 'update'); Object.assign(s, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); return ret({ id, updated_at:s.updated_at }); },
@@ -3165,9 +3192,11 @@ const HOTEL = [
   { k:'sent', label:'내용 송부', tone:'green' }, { k:'na', label:'불필요', tone:'yellow' },
 ];
 const PRI = [{ k:'S', label:'S급', tone:'red' }, { k:'A', label:'A급', tone:'yellow' }, { k:'B', label:'B급', tone:'blue' }, { k:'C', label:'C급', tone:'green' }];
-const FIELDS = ['경제', '인문', 'AI', '산업', '경영', '지정학'];
+const FIELDS_DEFAULT = ['비즈니스·경제', '사회·문화', '테크·AI', '산업·기업', '정치·지정학'];
+// 분야 목록은 프로젝트마다 저장 (projects.field_opts) · 분야별 탭에서 이름 바꾸기·추가·삭제
+const spFields = () => { const f = curProject()?.field_opts; return Array.isArray(f) && f.length ? f : FIELDS_DEFAULT; };
 const EVENTS = [{ f:'opening', label:'개막식' }, { f:'vip_dinner', label:'VIP 만찬' }, { f:'gala', label:'갈라디너' }];
-const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['stay','체류일정'], ['ent','수행원']];
+const SP_TABS = [['dash','대시보드'], ['cards','목록'], ['field','분야별'], ['list','표'], ['status','현황판'], ['flight','항공'], ['hotel','숙박'], ['avail','참석일'], ['stay','체류일정'], ['ent','수행원']];
 const SORTS = [{ k:'manual', label:'기본 순서' }, { k:'assignee', label:'담당자별' }, { k:'alpha', label:'알파벳순 (이름)' },
   { k:'created', label:'생성일 (최신순)' }, { k:'updated', label:'마지막 수정일 (최신순)' }];
 const NAT_COLORS = ['#0891b2','#be123c','#65a30d','#9333ea','#b45309','#0f766e','#c026d3','#1e40af','#a16207','#475569','#e11d48','#15803d'];
@@ -3244,7 +3273,7 @@ function spSort(list) {
 
 /* ---------- 화면 틀 ---------- */
 function renderSpeakerMain(p) {
-  const tabs = SP_TABS.map(([k, l]) => `<button class="tab ${S.stab === k ? 'active' : ''}" data-act="spTab" data-tab="${k}">${l}</button>`).join('');
+  const tabs = tabOrder('sp', SP_TABS).map(([k, l]) => `<button class="tab ${S.stab === k ? 'active' : ''}" data-act="spTab" data-tab="${k}" draggable="true" title="끌어서 순서 바꾸기">${l}</button>`).join('');
   if (S.stab === 'cards') {
     $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
       <div class="split ${SP_WIDE ? 'wide' : ''}"><aside class="split-side" id="spBody"></aside><section class="split-dock" id="spDock"><div class="dock-empty">왼쪽에서 연사를 고르세요</div></section></div>`;
@@ -3310,7 +3339,7 @@ function renderSpBody(force) {
   const sc = b.scrollTop, sl = b.querySelector('.sp-wrap, .sboard')?.scrollLeft || 0;
   if (S.stab === 'cards') { patchSide(b, spSideHtml()); return; }
   b.innerHTML = S.stab === 'list' ? spListHtml() : S.stab === 'status' ? spBoardHtml('grp')
-    : S.stab === 'flight' ? ((S.flView || 'list') === 'list' ? spFlightListHtml() : flViewSeg() + spBoardHtml('flight_status')) : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : S.stab === 'ent' ? spEntHtml() : spDashHtml();
+    : S.stab === 'flight' ? ((S.flView || 'list') === 'list' ? spFlightListHtml() : flViewSeg() + spBoardHtml('flight_status')) : S.stab === 'hotel' ? spBoardHtml('hotel_status') : S.stab === 'avail' ? spAvailHtml() : S.stab === 'stay' ? spStayHtml() : S.stab === 'field' ? spFieldHtml() : S.stab === 'ent' ? spEntHtml() : spDashHtml();
   b.scrollTop = sc; const w = b.querySelector('.sp-wrap, .sboard'); if (w) w.scrollLeft = sl;
   updateToolbarState();
 }
@@ -3435,6 +3464,63 @@ function spFlightListHtml() {
         <td class="fl-t">${x.check_in ? fd(x.check_in) + ' ~ ' + fd(x.check_out) : '<span class="muted">—</span>'}</td></tr>`; }).join('') || '<tr><td colspan="12" class="muted" style="padding:20px">연사가 없어요</td></tr>'}</tbody></table></div>
     <p class="hint" style="margin-top:8px">머리글(이름·입국일·출국일)을 누르면 오름차순 ▲ / 내림차순 ▼로 바뀌어요. 날짜가 없는 연사는 맨 아래에 나와요. 줄을 누르면 연사 페이지가 열려요.</p>`;
 }
+/* ---------- 보기 탭 순서: 끌어서 바꾸기 (이 브라우저에 사람별로 기억) ---------- */
+function tabOrder(key, T) { let o = []; try { o = JSON.parse(localStorage.getItem('tabOrder:' + key) || '[]'); } catch (_) {}
+  const rank = k => { const i = o.indexOf(k); return i < 0 ? 999 + T.findIndex(t => t[0] === k) : i; }; return [...T].sort((a, b) => rank(a[0]) - rank(b[0])); }
+let tabDrag = null;
+document.addEventListener('dragstart', e => { const t = e.target.closest?.('.ph .tabs .tab[data-tab]'); if (!t) return; tabDrag = t.dataset.tab; t.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', 'tab'); } catch (_) {} });
+document.addEventListener('dragover', e => { if (!tabDrag) return; const t = e.target.closest?.('.ph .tabs .tab[data-tab]'); $$('.tab.td-l,.tab.td-r').forEach(x => x.classList.remove('td-l', 'td-r')); if (!t || t.dataset.tab === tabDrag) return; e.preventDefault(); const r = t.getBoundingClientRect(); t.classList.add(e.clientX < r.left + r.width / 2 ? 'td-l' : 'td-r'); });
+document.addEventListener('drop', e => { if (!tabDrag) return; const t = e.target.closest?.('.ph .tabs .tab.td-l, .ph .tabs .tab.td-r'); const src = tabDrag; tabDrag = null; if (!t) return; e.preventDefault();
+  const key = t.dataset.act === 'seTab' ? 'se' : 'sp', keys = $$('.ph .tabs .tab[data-tab]').map(x => x.dataset.tab).filter(k => k !== src);
+  keys.splice(keys.indexOf(t.dataset.tab) + (t.classList.contains('td-r') ? 1 : 0), 0, src);
+  try { localStorage.setItem('tabOrder:' + key, JSON.stringify(keys)); } catch (_) {} renderMain(); });
+document.addEventListener('dragend', () => { if (!tabDrag) return; tabDrag = null; $$('.tab.dragging,.tab.td-l,.tab.td-r').forEach(x => x.classList.remove('dragging', 'td-l', 'td-r')); });
+/* ---------- 분야별: 연사 페이지의 '분야'로 묶어 보기 (같은 값이라 서로 연동) ---------- */
+function spFieldHtml() {
+  const ed = canEdit(), F = spFields(), list = spSort(spVisible()).filter(x => x.grp !== 0);
+  const noCol = !('field_opts' in (curProject() || {})) && !DEMO;
+  const card = (x, f) => { const g = optOf(GROUPS, x.grp), pr = optOf(PRI, x.priority), role = [x.affil_ko || x.affil_en, x.title_ko || x.title_en].filter(Boolean).join(' · ');
+    return `<div class="fd-card" ${ed ? 'draggable="true"' : ''} data-sid="${x.id}" data-from="${esc(f)}"><a data-act="spOpen" data-sid="${x.id}" class="fd-nm">${spLabelHtml(x)}</a>
+      <small>${esc(role) || '<span class="muted">소속 미입력</span>'}</small><div class="fd-tags">${g ? tag(g.tone, g.label) : ''}${pr ? tag(pr.tone, pr.label) : ''}${(x.fields || []).length > 1 ? `<span class="fd-multi" title="${esc(x.fields.join(', '))}">분야 ${x.fields.length}개</span>` : ''}</div></div>`; };
+  const col = (f, L, fixed) => `<section class="fd-col" data-fdrop="${esc(f)}"><header>${fixed ? `<b class="muted">${f}</b>` : `<b>${esc(f)}</b>`}<span class="cnt">${L.length}</span>
+      ${ed && !fixed && !noCol ? `<span class="sp"></span><button type="button" class="icon-btn sm" data-act="fdRename" data-f="${esc(f)}" title="분야 이름 바꾸기 · 이 분야인 연사도 함께 바뀌어요">✎</button><button type="button" class="icon-btn sm" data-act="fdDel" data-f="${esc(f)}" title="분야 삭제">✕</button>` : ''}</header>
+    <div class="fd-cards">${L.map(x => card(x, fixed ? '' : f)).join('') || '<div class="fd-empty">없음</div>'}</div></section>`;
+  const extra = [...new Set(list.flatMap(x => x.fields || []).filter(x => !F.includes(x)))];
+  return `<div class="sy-top"><span>연사 페이지의 '분야'와 같은 값이에요 · 카드를 다른 분야로 끌면 분야가 바뀌어요 (분야 없음에서 끌면 추가) · 분야가 여러 개면 여러 칸에 나와요</span>
+      ${ed && !noCol ? '<span class="sp" style="flex:1"></span><button type="button" class="btn sm" data-act="fdAdd">+ 분야 추가</button>' : ''}</div>
+    ${noCol ? '<div class="alert">분야 이름 바꾸기·추가를 하려면 Supabase SQL Editor에서 setup/schema_v25_fields.sql을 실행해 주세요.</div>' : ''}
+    <div class="fd-board">${F.map(f => col(f, list.filter(x => (x.fields || []).includes(f)))).join('')}${extra.map(f => col(f, list.filter(x => (x.fields || []).includes(f)))).join('')}${col('분야 없음', list.filter(x => !(x.fields || []).some(y => F.includes(y) || extra.includes(y))), true)}</div>`;
+}
+async function fdSaveOpts(next) {
+  const p = curProject(); if (!p) return false;
+  const prev = p.field_opts; p.field_opts = next; renderSpBody(true);
+  try { await api.setFieldOpts(p.id, next); return true; } catch (e) { p.field_opts = prev; renderSpBody(true); err(e); return false; }
+}
+async function fdRename(el) {
+  const o = el.dataset.f, F = spFields(); const n = (prompt(`'${o}' 분야의 새 이름`, o) || '').trim();
+  if (!n || n === o) return; if (F.includes(n)) return toast('이미 있는 분야 이름이에요', true);
+  const p = curProject(), prevF = p.field_opts, prevS = S.speakers.map(x => [x.id, x.fields]);
+  p.field_opts = F.map(x => x === o ? n : x); S.speakers.forEach(x => { if ((x.fields || []).includes(o)) x.fields = x.fields.map(y => y === o ? n : y); }); renderSpBody(true);
+  try { await api.renameField(p.id, o, n); toast(`'${o}' → '${n}' · 이 분야인 연사도 모두 바뀌었어요`); }
+  catch (e) { p.field_opts = prevF; prevS.forEach(([id, f]) => { const x = spOf(id); if (x) x.fields = f; }); renderSpBody(true); err(e); }
+}
+async function fdDel(el) {
+  const o = el.dataset.f, n = S.speakers.filter(x => (x.fields || []).includes(o)).length;
+  if (!confirm(`'${o}' 분야를 삭제할까요?${n ? `\n이 분야로 표시된 연사 ${n}명에게서도 빠져요.` : ''}`)) return;
+  const p = curProject(), prevF = p.field_opts, prevS = S.speakers.map(x => [x.id, x.fields]);
+  p.field_opts = spFields().filter(x => x !== o); S.speakers.forEach(x => { if ((x.fields || []).includes(o)) x.fields = x.fields.filter(y => y !== o); }); renderSpBody(true);
+  try { await api.renameField(p.id, o, null); toast(`'${o}' 분야를 삭제했어요`); }
+  catch (e) { p.field_opts = prevF; prevS.forEach(([id, f]) => { const x = spOf(id); if (x) x.fields = f; }); renderSpBody(true); err(e); }
+}
+function fdAdd() { const n = (prompt('새 분야 이름') || '').trim(); if (!n) return; if (spFields().includes(n)) return toast('이미 있는 분야예요', true); fdSaveOpts([...spFields(), n]); }
+let fdDrag = null;
+document.addEventListener('dragstart', e => { const c = e.target.closest?.('.fd-card[draggable]'); if (!c) return; fdDrag = { sid: c.dataset.sid, from: c.dataset.from }; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', 'fd'); } catch (_) {} c.classList.add('dragging'); });
+document.addEventListener('dragover', e => { if (!fdDrag) return; const z = e.target.closest?.('[data-fdrop]'); $$('.fd-col.over').forEach(x => x !== z && x.classList.remove('over')); if (!z) return; e.preventDefault(); z.classList.add('over'); });
+document.addEventListener('drop', e => { if (!fdDrag) return; const z = e.target.closest?.('[data-fdrop]'); const d = fdDrag; fdDrag = null; $$('.fd-col.over').forEach(x => x.classList.remove('over')); if (!z) return; e.preventDefault();
+  const to = z.dataset.fdrop === '분야 없음' ? '' : z.dataset.fdrop, x = spOf(d.sid); if (!x || to === d.from) return;
+  let f = (x.fields || []).filter(y => y !== d.from); if (to && !f.includes(to)) f.push(to); if (!to) f = (x.fields || []).filter(y => y !== d.from);
+  updateSpeaker(x.id, { fields: f }); });
+document.addEventListener('dragend', () => { if (!fdDrag) return; fdDrag = null; $$('.fd-card.dragging').forEach(x => x.classList.remove('dragging')); $$('.fd-col.over').forEach(x => x.classList.remove('over')); });
 /* ---------- 수행원 리스트: 연사 페이지 '수행 정보'에 넣은 수행원을 한곳에 ---------- */
 function spEntHtml() {
   const ed = canEdit(), list = spSort(spVisible()).filter(x => x.grp !== 0);
@@ -3498,7 +3584,7 @@ function dashList(key) {
     : t === 'asg' ? (v === 'none' ? s => !(s.assignees || []).length : s => (s.assignees || []).includes(v))
     : t === 'fl' ? s => (s.flight_status || 'none') === v : t === 'ho' ? s => (s.hotel_status || 'none') === v
     : t === 'ev' ? s => !!s[v] : t === 'diet' ? s => s.diet_flag : t === 'day' ? s => !!s['day' + v]
-    : t === 'todo' ? s => todoOf(s).length > 0 : () => false;
+    : t === 'todo' ? s => todoOf(s).length > 0 : t === 'mytodo' ? s => todoOf(s).length > 0 && (s.assignees || []).includes(S.me?.id) : () => false;
   return all.filter(f).sort((a, b) => (a.name || '￿').localeCompare(b.name || '￿', 'en', { sensitivity:'base' }));
 }
 function dashLabel(key) {
@@ -3507,7 +3593,7 @@ function dashLabel(key) {
     : t === 'grp' ? `${v} ${optOf(GROUPS, Number(v))?.label || ''}`
     : t === 'asg' ? (v === 'none' ? '담당자 없음' : `담당 ${pname(v)}`)
     : t === 'fl' ? `항공 · ${optOf(FLIGHT, v)?.label}` : t === 'ho' ? `숙박 · ${optOf(HOTEL, v)?.label}`
-    : t === 'ev' ? `${EVENTS.find(e => e.f === v)?.label} 참석` : t === 'diet' ? '특이식성 있음' : t === 'day' ? `${v}일차 참석 가능` : t === 'todo' ? '챙길 일이 있는 확정 연사' : '';
+    : t === 'ev' ? `${EVENTS.find(e => e.f === v)?.label} 참석` : t === 'diet' ? '특이식성 있음' : t === 'day' ? `${v}일차 참석 가능` : t === 'todo' ? '챙길 일이 있는 확정 연사' : t === 'mytodo' ? '내 담당 · 챙길 일이 있는 확정 연사' : '';
 }
 function peekHtml(key) {
   if (S.dashKey !== key) return '';
@@ -3536,7 +3622,7 @@ function spDashHtml() {
   const conf = all.filter(s => s.grp === 3).length, pct = total ? Math.round(conf / total * 100) : 0;
   const by = k => all.filter(s => s.grp === k).length;
   const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : null;
-  const todoN = dashList('todo').length;
+  const myTodo = dashList('mytodo').length;
   const on = k => S.dashKey === k ? 'open' : '';
   const kpi = (key, label, val, sub, cls = '') => `<${key ? `button type="button" data-act="dashKey" data-key="${key}"` : 'div'} class="kpi2 ${cls} ${key ? 'click ' + on(key) : ''}"><div class="k-l">${label}</div><div class="k-v">${val}</div><div class="k-s">${sub}</div></${key ? 'button' : 'div'}>`;
   const bar = (n, dn, max) => `<div class="bar"><i style="width:${max ? dn / max * 100 : 0}%;background:var(--ok)"></i><i style="width:${max ? (n - dn) / max * 100 : 0}%;background:var(--accent-line)"></i></div>`;
@@ -3552,18 +3638,21 @@ function spDashHtml() {
       ${kpi('all', '피칭 연사', total, `아이디어 ${by(1)} · 논의중 ${by(2)} · 보류 ${by(4)}`)}
       ${kpi('grp:3', '섭외 확정', `${conf}<small> / ${pct}%</small>`, '확정 연사 수 / 피칭 대비', 'ok')}
       ${kpi('', '세션', d ? d.sessions.length : '…', d ? `일정 미정 ${d.sessions.filter(x => !x.day || !x.start_time).length}개` : '불러오는 중')}
-      ${kpi('todo', '챙길 일', todoN, todoN ? '확정 연사 중 준비 덜 된 연사 · 오른쪽 아래 목록 참고' : '확정 연사 준비 완료', todoN ? 'mark' : '')}
+      ${kpi('mytodo', '내 챙길 일', myTodo, myTodo ? '내 담당 확정 연사 중 준비 덜 된 연사' : '내 담당 확정 연사 준비 완료', myTodo ? 'mark' : '')}
     </div>
-    ${['all', 'grp:3', 'todo'].includes(S.dashKey) ? peekHtml(S.dashKey) : ''}
+    ${['all', 'grp:3', 'mytodo'].includes(S.dashKey) ? peekHtml(S.dashKey) : ''}
     <div class="dash2-cols">
       <div class="dash2-col">${progressCardHtml()}${sessCardHtml()}
         <div class="dcard dc-flush"><div class="dc-h"><h4>완료 현황</h4><span class="muted">연사 완료 체크 기준 · 숫자를 누르면 명단</span></div><div class="dc-b">
           <div class="prog-h"><span>완료율</span><b>${doneP}%</b></div><div class="bar big"><i style="width:${doneP}%;background:var(--ok)"></i></div>
           <div class="stats" style="margin-top:10px">${stat('all', '<span>전체</span>')}${stat('done', '<span>완료</span>')}${stat('open', '<span>미완료</span>')}</div>${peekIn(['done', 'open'])}
           <div class="at-gh" style="margin-top:14px">그룹별 합계</div>${grpRows.map(r => `<div class="drow click ${on(r.key)}" data-act="dashKey" data-key="${r.key}"><div class="drow-top"><div class="dlab">${r.label}</div><div class="dnum"><b>${r.n}</b><span class="muted"> · 완료 ${r.d} · 미완료 ${r.n - r.d}</span></div></div>${bar(r.n, r.d, maxG)}</div>${peekHtml(r.key)}`).join('')}</div></div>
-        <div class="dcard dc-flush"><div class="dc-h"><h4>담당자별</h4><span class="muted">항목을 누르면 명단</span></div><div class="dc-b">${asgRows.length ? asgRows.map(r => `<div class="drow click ${on(r.key)}" data-act="dashKey" data-key="${r.key}"><div class="drow-top"><div class="dlab">${r.label}</div><div class="dnum"><b>${r.n}</b><span class="muted"> · 완료 ${r.d}</span></div></div>${bar(r.n, r.d, maxA)}</div>${peekHtml(r.key)}`).join('') : '<div class="muted">아직 연사가 없어요</div>'}</div></div>
+        <div class="dcard dc-flush"><div class="dc-h"><h4>담당자별 · 챙길 일</h4><span class="muted">내 담당이 맨 위 · 이름을 누르면 그 칸으로 가요</span></div><div class="dc-b">${asgRows.length ? asgRows.sort((a, b) => (b.key === 'asg:' + S.me?.id) - (a.key === 'asg:' + S.me?.id)).map(r => { const T = asgTodo(r.key.slice(4));
+          return `<div class="asg-blk ${r.key === 'asg:' + S.me?.id ? 'me' : ''}"><div class="drow click ${on(r.key)}" data-act="dashKey" data-key="${r.key}"><div class="drow-top"><div class="dlab">${r.label}${r.key === 'asg:' + S.me?.id ? ' <span class="me-tag">나</span>' : ''}</div><div class="dnum"><b>${r.n}</b><span class="muted"> · 완료 ${r.d}</span>${T.length ? `<span class="asg-todo-n">챙길 일 ${T.length}</span>` : ''}</div></div>${bar(r.n, r.d, maxA)}</div>${peekHtml(r.key)}
+          ${T.length ? `<div class="asg-todos">${T.map(x => { const it = todoOf(x); const d = TODO_DEF.find(t => t.k === it[0][0]); return `<a class="todo-chip" data-act="spOpenSec" data-sid="${x.id}" data-sec="${d?.sec || 'basic'}" title="${esc(it.map(i => i[1]).join(', '))}">${spLabelHtml(x)}<small>${esc(it.map(i => i[1]).join(' · '))}</small></a>`; }).join('')}</div>` : ''}</div>`; }).join('') : '<div class="muted">아직 연사가 없어요</div>'}
+          <div class="asg-help">챙길 일 = 확정 연사 중 항공·숙박 미정/요청, 세션 미배정, 참석일 미체크, 특이식성 내용 없음</div></div></div>
       </div>
-      <div class="dash2-col">${eventCardHtml()}${attendCardHtml()}${todoCardHtml()}
+      <div class="dash2-col">${eventCardHtml()}${attendCardHtml()}
         <div class="dcard dc-flush"><div class="dc-h"><h4>항공 · 숙박</h4><span class="muted">상태를 누르면 명단</span></div><div class="dc-b">
           <div class="at-gh">항공</div><div class="stats">${FLIGHT.map(o => stat('fl:' + o.k, tag(o.tone, o.label))).join('')}</div>${peekIn(['fl'])}
           <div class="at-gh" style="margin-top:12px">숙박</div><div class="stats">${HOTEL.map(o => stat('ho:' + o.k, tag(o.tone, o.label))).join('')}</div>${peekIn(['ho'])}</div></div>
@@ -3580,6 +3669,7 @@ const TODO_DEF = [
   { k: '참석일', ico: '📅', title: '참석 가능일 체크', how: '연사 페이지 › 기본 정보 › 참석일(1·2·3일차)에서 오는 날을 체크하면 사라져요', sec: 'basic' },
   { k: '식성', ico: '🍽', title: '특이식성 내용 적기', how: "특이식성은 켜져 있는데 내용이 비어 있어요. 연사 페이지 › 기본 정보의 식성 칸에 '비건', '견과류 알레르기'처럼 적으면 사라져요", sec: 'basic' },
 ];
+const asgTodo = uid => S.speakers.filter(x => todoOf(x).length && (uid === 'none' ? !(x.assignees || []).length : (x.assignees || []).includes(uid)));
 function todoCardHtml() {
   const L = dashList('todo');
   const groups = TODO_DEF.map(d => ({ d, rows: L.map(s => ({ s, t: todoOf(s).find(x => x[0] === d.k) })).filter(x => x.t) })).filter(g => g.rows.length);
@@ -4866,7 +4956,7 @@ function seSort(list) {
 /* ---------- 화면 틀 ---------- */
 function renderSessionMain(p) {
   seRange();
-  const tabs = SE_TABS.map(([k, l]) => `<button class="tab ${S.setab === k ? 'active' : ''}" data-act="seTab" data-tab="${k}">${k === 'pillar' ? PIL() : l}</button>`).join('');
+  const tabs = tabOrder('se', SE_TABS).map(([k, l]) => `<button class="tab ${S.setab === k ? 'active' : ''}" data-act="seTab" data-tab="${k}" draggable="true" title="끌어서 순서 바꾸기">${k === 'pillar' ? PIL() : l}</button>`).join('');
   const v = ssv();
   if (S.setab === 'cards') {
     $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
@@ -7252,6 +7342,7 @@ const ACT = {
   sePmReset: () => { const s = seOf(S.seId); if (s && canEdit()) updateSession(s.id, { pm_start: '', pm_end: '', pm_venue_id: null }); },
   spPub: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v === '1'; if ((s.is_public !== false) !== v) updateSpeaker(s.id, { is_public: v }); },
   spDelOne: el => spDelete(el.dataset.sid),
+  fdRename: el => fdRename(el), fdDel: el => fdDel(el), fdAdd: () => fdAdd(),
   spOpenSec: el => { openSpPage(el.dataset.sid); const k = el.dataset.sec; if (k && k !== 'basic') setTimeout(() => dJump(k), 350); },
   spNameOrder: el => { const s = spOf(S.spId); if (!s || !canEdit() || nameOrder(s) === el.dataset.v) return; updateSpeaker(s.id, { name_order: el.dataset.v, ...autoNamePatch(s, { name_order: el.dataset.v }) }); },
   scFileOpen: el => spFileOpen(el.dataset.path),
@@ -7266,8 +7357,9 @@ const ACT = {
   spDiet: () => { const s = spOf(S.spId); if (s && canEdit()) updateSpeaker(s.id, { diet_flag: !s.diet_flag }); },
   spMine: () => { const v = sv(); v.mine = !v.mine; S.pinned.clear(); renderSpBody(true); },
   spFieldPick: el => { const s = spOf(S.spId); if (!s || !canEdit()) return;
-    pickList(el, { multi: true, value: s.fields || [], title: '분야 · 여러 개 고를 수 있어요', options: FIELDS.map(x => ({ v: x, text: x, html: `<span>${esc(x)}</span>` })),
-      onPick: vals => updateSpeaker(s.id, { fields: FIELDS.filter(x => vals.includes(x)) }) }); },
+    const F = spFields(), extra = (s.fields || []).filter(x => !F.includes(x));
+    pickList(el, { multi: true, value: s.fields || [], title: '분야 · 여러 개 고를 수 있어요 · 이름은 분야별 탭에서 바꿔요', options: [...F, ...extra].map(x => ({ v: x, text: x, html: `<span>${esc(x)}</span>` })),
+      onPick: vals => updateSpeaker(s.id, { fields: [...F, ...extra].filter(x => vals.includes(x)) }) }); },
   spMore: el => { const s = spOf(S.spId); if (!s) return; const ed = canEdit();
     const opts = [{ v: 'win', text: '새 창', html: '새 창으로 크게 열기' }, { v: 'hist', text: '기록', html: '수정 기록' },
       ...(ed ? [{ v: 'done', text: '완료', html: s.done ? '완료 표시 해제' : '✓ 완료로 표시' }, { v: 'del', text: '삭제', html: '<span style="color:#dc2626">이 연도 기록 삭제</span>' }] : [])];
