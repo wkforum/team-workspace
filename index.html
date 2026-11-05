@@ -1735,6 +1735,16 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .ph .tabs .tab[data-tab]{cursor:grab}
 .tab.dragging{opacity:.4}.tab.td-l{box-shadow:inset 3px 0 0 var(--accent)!important}.tab.td-r{box-shadow:inset -3px 0 0 var(--accent)!important}
 .asg-blk{display:block}.asg-blk>.drow{display:block;width:100%}
+
+.fd-sub{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.fd-sub button{height:30px;padding:0 12px;border-radius:15px;border:1px solid var(--line2);background:#fff;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.fd-sub button small{font-size:11.5px;color:var(--muted)}
+.fd-sub button.on{background:var(--text);border-color:var(--text);color:#fff}.fd-sub button.on small{color:#c9ccd3}
+.fd-sub button.none:not(.on){border-style:dashed;color:var(--muted)}
+.fd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.fd-g{position:relative;cursor:default;padding-right:30px}
+.fd-g .fd-x{position:absolute;top:6px;right:6px;opacity:0}.fd-g:hover .fd-x{opacity:1}
+.fd-other{font-size:11px;color:var(--accent);background:var(--accent-weak);border-radius:4px;padding:0 5px}
 </style>
 </head>
 <body>
@@ -3486,7 +3496,21 @@ function spFieldHtml() {
       ${ed && !fixed && !noCol ? `<span class="sp"></span><button type="button" class="icon-btn sm" data-act="fdRename" data-f="${esc(f)}" title="분야 이름 바꾸기 · 이 분야인 연사도 함께 바뀌어요">✎</button><button type="button" class="icon-btn sm" data-act="fdDel" data-f="${esc(f)}" title="분야 삭제">✕</button>` : ''}</header>
     <div class="fd-cards">${L.map(x => card(x, fixed ? '' : f)).join('') || '<div class="fd-empty">없음</div>'}</div></section>`;
   const extra = [...new Set(list.flatMap(x => x.fields || []).filter(x => !F.includes(x)))];
-  return `<div class="sy-top"><span>연사 페이지의 '분야'와 같은 값이에요 · 카드를 다른 분야로 끌면 분야가 바뀌어요 (분야 없음에서 끌면 추가) · 분야가 여러 개면 여러 칸에 나와요</span>
+  const inF = f => f === '분야 없음' ? list.filter(x => !(x.fields || []).some(y => F.includes(y) || extra.includes(y))) : list.filter(x => (x.fields || []).includes(f));
+  const subs = [...F, ...extra, '분야 없음'];
+  let cur = S.fdTab; if (cur == null) { try { cur = localStorage.getItem('fdTab') || ''; } catch (_) { cur = ''; } }
+  if (cur && !subs.includes(cur)) cur = '';
+  const seg = `<div class="fd-sub">${[['', '전체', list.length], ...subs.map(f => [f, f, inF(f).length])].map(([k, l, n]) => `<button type="button" class="${cur === k ? 'on' : ''} ${k === '분야 없음' ? 'none' : ''}" data-act="fdSub" data-f="${esc(k)}">${esc(l)}<small>${n}</small></button>`).join('')}</div>`;
+  if (cur) {   // 분야 하나만: 화면 폭에 맞춰 여러 줄로 (가로 스크롤 없음)
+    const L = inF(cur), fixed = cur === '분야 없음';
+    return `${seg}<div class="sy-top"><span><b>${esc(cur)}</b> ${L.length}명${fixed ? ' · 분야를 아직 고르지 않은 연사' : ''}</span><span class="sp" style="flex:1"></span>
+        ${ed && !fixed && !noCol ? `<button type="button" class="btn sm" data-act="fdRename" data-f="${esc(cur)}">✎ 이름 바꾸기</button><button type="button" class="btn sm" data-act="fdDel" data-f="${esc(cur)}">✕ 분야 삭제</button>` : ''}</div>
+      <div class="fd-grid">${L.map(x => { const g = optOf(GROUPS, x.grp), pr = optOf(PRI, x.priority), role = [x.affil_ko || x.affil_en, x.title_ko || x.title_en].filter(Boolean).join(' · '), other = (x.fields || []).filter(y => y !== cur);
+        return `<div class="fd-card fd-g"><a data-act="spOpen" data-sid="${x.id}" class="fd-nm">${spLabelHtml(x)}</a><small>${esc(role) || '<span class="muted">소속 미입력</span>'}</small>
+          <div class="fd-tags">${g ? tag(g.tone, g.label) : ''}${pr ? tag(pr.tone, pr.label) : ''}${other.map(y => `<span class="fd-other">${esc(y)}</span>`).join('')}</div>
+          ${ed && !fixed ? `<button type="button" class="icon-btn sm fd-x" data-act="fdOut" data-sid="${x.id}" data-f="${esc(cur)}" title="이 분야에서 빼기">✕</button>` : ''}</div>`; }).join('') || '<div class="fd-empty">이 분야의 연사가 없어요. 연사 페이지에서 분야를 고르거나 전체 보기에서 카드를 끌어 넣으세요.</div>'}</div>`;
+  }
+  return `${seg}<div class="sy-top"><span>연사 페이지의 '분야'와 같은 값이에요 · 카드를 다른 분야로 끌면 분야가 바뀌어요 (분야 없음에서 끌면 추가) · 분야가 여러 개면 여러 칸에 나와요</span>
       ${ed && !noCol ? '<span class="sp" style="flex:1"></span><button type="button" class="btn sm" data-act="fdAdd">+ 분야 추가</button>' : ''}</div>
     ${noCol ? '<div class="alert">분야 이름 바꾸기·추가를 하려면 Supabase SQL Editor에서 setup/schema_v25_fields.sql을 실행해 주세요.</div>' : ''}
     <div class="fd-board">${F.map(f => col(f, list.filter(x => (x.fields || []).includes(f)))).join('')}${extra.map(f => col(f, list.filter(x => (x.fields || []).includes(f)))).join('')}${col('분야 없음', list.filter(x => !(x.fields || []).some(y => F.includes(y) || extra.includes(y))), true)}</div>`;
@@ -3500,6 +3524,7 @@ async function fdRename(el) {
   const o = el.dataset.f, F = spFields(); const n = (prompt(`'${o}' 분야의 새 이름`, o) || '').trim();
   if (!n || n === o) return; if (F.includes(n)) return toast('이미 있는 분야 이름이에요', true);
   const p = curProject(), prevF = p.field_opts, prevS = S.speakers.map(x => [x.id, x.fields]);
+  if (S.fdTab === o) S.fdTab = n;
   p.field_opts = F.map(x => x === o ? n : x); S.speakers.forEach(x => { if ((x.fields || []).includes(o)) x.fields = x.fields.map(y => y === o ? n : y); }); renderSpBody(true);
   try { await api.renameField(p.id, o, n); toast(`'${o}' → '${n}' · 이 분야인 연사도 모두 바뀌었어요`); }
   catch (e) { p.field_opts = prevF; prevS.forEach(([id, f]) => { const x = spOf(id); if (x) x.fields = f; }); renderSpBody(true); err(e); }
@@ -7343,6 +7368,8 @@ const ACT = {
   spPub: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v === '1'; if ((s.is_public !== false) !== v) updateSpeaker(s.id, { is_public: v }); },
   spDelOne: el => spDelete(el.dataset.sid),
   fdRename: el => fdRename(el), fdDel: el => fdDel(el), fdAdd: () => fdAdd(),
+  fdSub: el => { S.fdTab = el.dataset.f; try { localStorage.setItem('fdTab', S.fdTab); } catch (_) {} renderSpBody(true); },
+  fdOut: el => { const x = spOf(el.dataset.sid); if (x && canEdit()) updateSpeaker(x.id, { fields: (x.fields || []).filter(y => y !== el.dataset.f) }); },
   spOpenSec: el => { openSpPage(el.dataset.sid); const k = el.dataset.sec; if (k && k !== 'basic') setTimeout(() => dJump(k), 350); },
   spNameOrder: el => { const s = spOf(S.spId); if (!s || !canEdit() || nameOrder(s) === el.dataset.v) return; updateSpeaker(s.id, { name_order: el.dataset.v, ...autoNamePatch(s, { name_order: el.dataset.v }) }); },
   scFileOpen: el => spFileOpen(el.dataset.path),
