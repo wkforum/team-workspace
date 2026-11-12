@@ -1246,13 +1246,13 @@ body.page-full #spage [data-act="pageNewWin"]{display:none}
 .d-head .btn{padding:6px 11px;font-size:12.5px}
 .d-head .btn.agenda-btn svg{color:#dc2626}
 .d-guide{padding:10px 12px;border-radius:8px;background:#fff;border:1px solid var(--line);color:var(--muted);margin-bottom:10px}
-.stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 120px;gap:6px;margin-bottom:10px}
+.stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 96px 96px;gap:6px;margin-bottom:10px}
 .st-b{height:42px;border-radius:8px;border:1px solid #d9dce2;background:#fff;font-weight:600;color:#4b4f58;display:flex;align-items:center;justify-content:center;gap:6px}
 .st-b small{font-weight:500;color:#9a9ea6;font-size:12px}
 .st-b:hover:not(:disabled){border-color:#9aa3b5}
 .st-b.on{color:#fff;border-color:transparent}
 .st-b.on small{color:rgba(255,255,255,.85)}
-.st-b.on.st-purple{background:#6e56cf}.st-b.on.st-yellow{background:#b7791f}.st-b.on.st-green{background:#1f7a4d}.st-b.on.st-red{background:#b42318}
+.st-b.on.st-purple{background:#6e56cf}.st-b.on.st-yellow{background:#b7791f}.st-b.on.st-green{background:#1f7a4d}.st-b.on.st-red{background:#b42318}.st-b.on.st-gray{background:#5f6368}
 .years{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:30px}
 .yr-l{font-size:12px;color:#5f6368;margin-right:2px}
 .yr{height:28px;padding:0 11px;border-radius:14px;border:1px solid #d9dce2;background:#fff;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center}
@@ -3191,8 +3191,10 @@ const ICON = {
 };
 const GROUPS = [
   { k:0, label:'가이드', tone:'gray' }, { k:1, label:'아이디어 피칭', tone:'purple' }, { k:2, label:'논의중', tone:'yellow' },
-  { k:3, label:'확정', tone:'green' }, { k:4, label:'보류', tone:'red' },
+  { k:3, label:'확정', tone:'green' }, { k:5, label:'거절', tone:'gray' }, { k:4, label:'보류', tone:'red' },
 ];
+// 화면에 보이는 그룹 번호·정렬은 배열 순서 기준 (k는 DB 값이라 그대로 둠: 거절=5가 보류=4보다 위)
+const gno = k => Math.max(0, GROUPS.findIndex(g => g.k === k));
 const FLIGHT = [
   { k:'none', label:'값 없음', tone:'gray' }, { k:'request', label:'항공권 요청', tone:'red' }, { k:'issued', label:'발권 완료', tone:'blue' },
   { k:'sent', label:'내용 송부', tone:'green' }, { k:'na', label:'불필요', tone:'yellow' },
@@ -3371,7 +3373,7 @@ function spListHtml() {
     const rows = vis.filter(s => s.grp === g.k), folded = v.fold.includes(g.k);
     return `<tbody class="grp" data-gdrop="${g.k}">
       <tr class="grp-head"><td colspan="8"><div class="grp-h"><a class="fold" data-act="spFold" data-grp="${g.k}">${folded ? '▸' : '▾'}</a>
-        <span class="gnum">${g.k}</span>${tag(g.tone, g.label)}<span class="cnt">${rows.length}</span></div></td></tr>
+        <span class="gnum">${gno(g.k)}</span>${tag(g.tone, g.label)}<span class="cnt">${rows.length}</span></div></td></tr>
       ${folded ? '' : rows.map(spRowHtml).join('')}
       ${folded || !ed ? '' : `<tr class="add-row"><td colspan="8"><a class="add-link" data-act="spAdd" data-field="grp" data-val="${g.k}">+ 새 연사</a></td></tr>`}
     </tbody>`;
@@ -3405,7 +3407,7 @@ function spBoardHtml(field) {
   return `${note}<div class="sboard">${opts.map(o => {
     const items = vis.filter(s => (s[field] ?? (field === 'grp' ? 1 : 'none')) === o.k);
     return `<section class="scol" data-sdrop="${o.k}" data-sfield="${field}">
-      <header>${field === 'grp' ? `<span class="gnum">${o.k}</span>` : ''}${tag(o.tone, o.label)}<span class="cnt">${items.length}</span></header>
+      <header>${field === 'grp' ? `<span class="gnum">${gno(o.k)}</span>` : ''}${tag(o.tone, o.label)}<span class="cnt">${items.length}</span></header>
       <div class="scards">${items.map(s => spCardHtml(s, field)).join('')}</div>
       ${ed ? `<button class="scol-add" data-act="spAdd" data-field="${field}" data-val="${o.k}">+ 연사 추가</button>` : ''}
     </section>`;
@@ -3438,7 +3440,7 @@ function spAvailHtml() {
     const g = optOf(GROUPS, s.grp), n = [1, 2, 3].filter(d => s['day' + d]).length;
     return `<tr data-sid="${s.id}" class="${s.done ? 'is-done' : ''}">
       <td><div class="av-name"><a data-act="spOpen" data-sid="${s.id}">${spLabelHtml(s)}</a>${natTag(natOf(s.nationality_id))}</div></td>
-      <td>${g ? `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}` : ''}</td>
+      <td>${g ? `<span class="gnum">${gno(g.k)}</span>${tag(g.tone, g.label)}` : ''}</td>
       ${[1, 2, 3].map(d => `<td class="av-cell"><button type="button" class="av-box ${s['day' + d] ? 'on' : ''}" data-act="spAvFlip" data-sid="${s.id}" data-f="day${d}" title="${d}일차 ${s['day' + d] ? '가능 → 해제' : '불가 → 가능으로'}">${s['day' + d] ? '✓' : ''}</button></td>`).join('')}
       <td class="av-sum">${n ? `<b>${n}</b>일` : '<span class="tg-empty">—</span>'}</td></tr>`;
   }).join('');
@@ -3657,10 +3659,10 @@ function spDashHtml() {
   const maxA = Math.max(1, ...asgRows.map(r => r.n));
   const stat = (key, inner) => `<button type="button" class="stat click ${on(key)}" data-act="dashKey" data-key="${key}">${inner}<b>${dashList(key).length}</b></button>`;
   const doneN = S.speakers.filter(x => x.done).length, doneP = S.speakers.length ? Math.round(doneN / S.speakers.length * 100) : 0;
-  const grpRows = GROUPS.map(g => mk('grp:' + g.k, `<span class="gnum">${g.k}</span>${tag(g.tone, g.label)}`)), maxG = Math.max(1, ...grpRows.map(r => r.n));
+  const grpRows = GROUPS.map(g => mk('grp:' + g.k, `<span class="gnum">${gno(g.k)}</span>${tag(g.tone, g.label)}`)), maxG = Math.max(1, ...grpRows.map(r => r.n));
   return `<div class="dash dash2">
     <div class="kpis2">
-      ${kpi('all', '피칭 연사', total, `아이디어 ${by(1)} · 논의중 ${by(2)} · 보류 ${by(4)}`)}
+      ${kpi('all', '피칭 연사', total, `아이디어 ${by(1)} · 논의중 ${by(2)} · 거절 ${by(5)} · 보류 ${by(4)}`)}
       ${kpi('grp:3', '섭외 확정', `${conf}<small> / ${pct}%</small>`, '확정 연사 수 / 피칭 대비', 'ok')}
       ${kpi('', '세션', d ? d.sessions.length : '…', d ? `일정 미정 ${d.sessions.filter(x => !x.day || !x.start_time).length}개` : '불러오는 중')}
       ${kpi('mytodo', '내 챙길 일', myTodo, myTodo ? '내 담당 확정 연사 중 준비 덜 된 연사' : '내 담당 확정 연사 준비 완료', myTodo ? 'mark' : '')}
@@ -3740,7 +3742,7 @@ function progressCardHtml() {
   const all = S.speakers, total = all.length || 1;
   const order = { S:0, A:1, B:2, C:3 };
   const cols = GROUPS.filter(g => g.k !== 0).map(g => ({ g, list: all.filter(s => s.grp === g.k).sort((a, b) => (order[a.priority] ?? 9) - (order[b.priority] ?? 9) || (a.name || '').localeCompare(b.name || '', 'en')) }));
-  const toneColor = { gray:'#a8a29e', purple:'#5b74d6', yellow:'#e0a100', green:'#16a34a', red:'#b4405a' };
+  const toneColor = { gray:'#6b7280', purple:'#5b74d6', yellow:'#e0a100', green:'#16a34a', red:'#b4405a' };
   return `<div class="dcard dc-flush"><div class="dc-h"><h4>연사 진행도</h4><span class="muted">전체 ${all.length}명</span></div>
     <div class="dc-b">
       <div class="prog-bar">${cols.map(c => c.list.length ? `<i style="width:${c.list.length / total * 100}%;background:${toneColor[c.g.tone]}" title="${esc(c.g.label)} ${c.list.length}명"></i>` : '').join('')}</div>
@@ -3956,7 +3958,7 @@ function spPick(el) {
       onCreate: async name => { const n = await addNationality(name); if (n) { closePop(); set(n.id); } } });
   } else {
     const list = f === 'flight_status' ? FLIGHT : f === 'hotel_status' ? HOTEL : f === 'grp' ? GROUPS : PRI;
-    const opts = list.map(o => ({ v:o.k, text:o.label, html:(f === 'grp' ? `<span class="gnum">${o.k}</span>` : '') + tag(o.tone, o.label) }));
+    const opts = list.map(o => ({ v:o.k, text:o.label, html:(f === 'grp' ? `<span class="gnum">${gno(o.k)}</span>` : '') + tag(o.tone, o.label) }));
     if (f === 'priority') opts.unshift({ v:null, text:'', html:'<span class="tg-empty">선택 안 함</span>' });
     pickList(el, { value:s[f] ?? null, options:opts, onPick:set, title: f === 'grp' ? '그룹' : f === 'priority' ? '중요도' : f === 'flight_status' ? '항공' : '숙박' });
   }
@@ -6521,7 +6523,7 @@ const SP_COLS = [
 ];
 async function spExport() {
   const p = curProject(); if (!p) return;
-  const list = spSort(spVisible()).filter(s => s.grp !== 0).sort((a, b) => (a.grp ?? 1) - (b.grp ?? 1));
+  const list = spSort(spVisible()).filter(s => s.grp !== 0).sort((a, b) => gno(a.grp ?? 1) - gno(b.grp ?? 1));
   if (!list.length) return toast('내려받을 연사가 없어요 (필터를 확인해 주세요)', true);
   const head = SP_COLS.map(c => c[0]);
   const rows = list.map(s => SP_COLS.map(c => { const v = c[1](s); return v == null ? '' : String(v); }));
