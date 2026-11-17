@@ -922,7 +922,7 @@ fieldset:disabled .kw-x,fieldset:disabled .kw-in,fieldset:disabled .meet-add{dis
   .meet-row{grid-template-areas:'type type day del' 'time time time del' 'title title title del' 'place place place del'}
   .kv-table th{width:90px}
 }
-.ws .ws-n{flex:1;min-width:0}
+.ws .ws-n{flex:1;min-width:0}.ws .ws-home{display:flex;align-items:center;gap:inherit;flex:1;min-width:0;color:inherit;text-decoration:none;cursor:pointer;border-radius:6px}.ws .ws-home:hover .ws-n{opacity:.75}.ws .ws-home:focus-visible{outline:2px solid #2457c5;outline-offset:2px}
 /* ---------- v7: 알림 · 되돌리기 · 기록 · 댓글 · 첨부 · 내 작업 ---------- */
 .bell{position:relative;margin-right:-6px}
 .bell:hover{background:var(--hover);color:var(--text)}
@@ -1767,7 +1767,7 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 <!-- 앱 -->
 <div id="app" class="hidden">
   <aside id="sidebar">
-    <div class="ws"><span class="logo">W</span><span class="ws-n">팀 워크스페이스</span>
+    <div class="ws"><a class="ws-home" data-act="goDash" title="연사 대시보드로" role="button" tabindex="0"><span class="logo">W</span><span class="ws-n">팀 워크스페이스</span></a>
       <button class="icon-btn bell" id="bellBtn" data-act="bell" title="알림"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 6.6a4 4 0 018 0v2.6l1.3 2.2H2.7L4 9.2z"/><path d="M6.4 13.2a1.7 1.7 0 003.2 0"/></svg><b class="bell-n hidden" id="bellN"></b></button></div>
     <nav>
       <button class="nav-item" id="navMy" data-act="my">
@@ -7364,6 +7364,15 @@ const ACT = {
   share: () => shareModal(),
   shRemove: async el => { await removeFromProject(S.pid, el.dataset.uid); if (curProject() && isMember(S.pid)) shareModal(); },
   spTodoOnly: () => { S.todoOnly = !S.todoOnly; if (S.todoOnly && (!S.spSessDash || S.spSessDash.pid !== S.pid)) loadDashSessions(); renderMain(); },
+  // 왼쪽 위 '팀 워크스페이스' → 지금 보는 연도의 연사 마스터 대시보드
+  goDash: async () => {
+    closePop(); closeSpPage();
+    const L = myProjects().filter(isSpeakerProject).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const sp = L.find(p => (p.edition ?? '') === (S.navEd ?? '')) || L[0];
+    if (!sp) return toast('열 수 있는 연사 프로젝트가 없어요', true);
+    S.stab = 'dash'; S.spSessDash = null;
+    if (S.view === 'project' && S.pid === sp.id) { renderMain(); $('#spBody')?.scrollTo(0, 0); } else await openProject(sp.id);
+  },
   spTab: el => { closePop(); S.stab = el.dataset.tab; if (S.stab === 'dash' || S.stab === 'stay') S.spSessDash = null; renderMain(); },
   spAdd: el => spAdd(el),
   spOpen: el => openSpPage(el.dataset.sid),
