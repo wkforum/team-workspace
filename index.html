@@ -1557,7 +1557,7 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .sy-c.forum{background:#fafbff}
 .sy-c.stay{background:linear-gradient(to bottom,transparent 0 calc(100% - 7px),#9fb0ea calc(100% - 7px) calc(100% - 3px),transparent calc(100% - 3px))}
 .sy-c.stay.forum{background-color:#fafbff}
-.sy-io{font-size:10.5px;color:#4a5a99;font-weight:600}
+.ev-period{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:10px 14px;margin:0 0 12px;border:1px solid var(--line,#e5e7eb);border-radius:10px;background:var(--card,#fff);font-size:13.5px}.ev-period small{color:var(--muted,#6b7280)}.ev-period .btn{margin-left:auto}.sy-io{font-size:10.5px;color:#4a5a99;font-weight:600}.sy-fl{font-size:10.5px;color:#0b6e4f;font-weight:700}.sy-edge{font-size:10.5px;color:#2457c5;font-weight:700;white-space:nowrap}.sy-edge.r{align-self:flex-end}
 .sy-s,.sy-e,.sy-a{font-size:11px;line-height:1.35;padding:0 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sy-s{background:var(--accent-weak);color:var(--accent)}
 .sy-e{background:#e2f3ea;color:#1d7a4c}
@@ -1977,6 +1977,8 @@ function supabaseApi() {
     removeFiles: (paths, bucket = 'speaker-files') => q(sb.storage.from(bucket).remove(paths)),
     // ---- 공식 행사 일시·장소 ----
     eventInfo: pid => q(sb.from('speaker_event_info').select('*').eq('project_id', pid)),
+    editionInfo: () => q(sb.from('edition_info').select('*')),
+    setEditionStart: (ed, d) => q(sb.rpc('edition_set_start', { ed, new_start: d })),
     saveEventInfo: (project_id, ev, patch) => q(sb.from('speaker_event_info').upsert({ project_id, ev, ...patch, updated_at: new Date().toISOString() }, { onConflict:'project_id,ev' })),
     async sessionsForSpeakers(ids) {
       const rows = [];
@@ -2182,6 +2184,7 @@ function demoApi() {
     { ...VR('assigned', null, '', 'HONG', 'GILDONG', 1, '', '', '', '', '', '', '', '', null), speaker_id:'s3' },
     VR('assigned', '2026-09-07', '16:15', 'CAMERON', 'DAVID', 3, 'ICN', 'KE908', 'T2', 'VIP 의전 대상자 / 전담 차량(7-8) / 호텔 영접', 'BMW', '390주6458', '김동수', '010-0000-0004', null),
   ];
+  const edInfo = [];
   const evInfo = [{ project_id:'p1', ev:'opening', day:7, time:'09:30', place:'장충아레나' }, { project_id:'p1', ev:'vip_dinner', day:7, time:'19:00', place:'신라호텔' }];
   const sPeople = [
     { id:'pp1', session_id:'e1', speaker_id:'s2', role:'speaker', position:1 },
@@ -2283,6 +2286,11 @@ function demoApi() {
       return ret([...speakers.filter(s => memberOf(s.project_id) && n(s.name).includes(t)).map(x => toT(x, 'speaker')),
                   ...tasks.filter(x => memberOf(x.project_id) && n(x.title).includes(t)).map(x => toT(x, 'task'))]); },
     eventInfo: pid => ret(evInfo.filter(e => e.project_id === pid)),
+    editionInfo: () => ret(edInfo),
+    setEditionStart: (ed, d) => { const days = st => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(st); const t = new Date(+m[1], +m[2] - 1, +m[3]); return [0, 1, 2].map(i => new Date(t.getFullYear(), t.getMonth(), t.getDate() + i).getDate()); };
+      const cur = edInfo.find(x => x.edition === ed), o = cur ? days(cur.start_date) : [7, 8, 9], n = days(d), pids = projects.filter(p => p.edition === ed).map(p => p.id);
+      [...sessions, ...evInfo].filter(x => pids.includes(x.project_id) && o.includes(x.day)).forEach(x => { x.day = n[o.indexOf(x.day)]; });
+      if (cur) cur.start_date = d; else edInfo.push({ edition: ed, start_date: d }); return ret(null); },
     saveEventInfo: (project_id, ev, patch) => { let e = evInfo.find(x => x.project_id === project_id && x.ev === ev); if (!e) { e = { project_id, ev, day:null, time:'', place:'' }; evInfo.push(e); } Object.assign(e, patch); return ret(null); },
     sessionsForSpeakers: ids => { const rows = sPeople.filter(r => ids.includes(r.speaker_id)).map(r => ({ session_id:r.session_id, speaker_id:r.speaker_id, role:r.role }));
       const ss = sessions.filter(x => rows.some(r => r.session_id === x.id));
@@ -2461,6 +2469,8 @@ async function boot(user) {
 async function reloadMeta() {
   [S.profiles, S.projects, S.members] = await Promise.all([api.profiles(), api.projects(), api.members()]);
   S.me = prof(S.me.id) || S.me;
+  try { S.edInfo = await api.editionInfo(); S.noEdInfo = false; } catch (_) { S.edInfo = []; S.noEdInfo = true; }
+  syncDays();
 }
 
 function loginMsg(text, color) { const m = $('#loginMsg'); m.style.color = color || 'var(--muted)'; m.textContent = text; }
@@ -2529,6 +2539,33 @@ function renderAll() { renderSidebar(); renderMain(); renderPeople(); }
 
 function edFold() { try { return JSON.parse(localStorage.getItem('edFold') || '[]'); } catch (_) { return []; } }
 function edToggle(ed) { const f = edFold(), n = f.includes(ed) ? f.filter(x => x !== ed) : [...f, ed]; try { localStorage.setItem('edFold', JSON.stringify(n)); } catch (_) {} renderSidebar(); }
+// 연도별 행사 기간 (관리자) · 시작일만 고르면 3일
+function evPeriodModal() {
+  if (!isAdmin()) return;
+  if (S.noEdInfo) return toast('먼저 Supabase SQL Editor에서 setup/schema_v27_event_dates.sql을 실행해 주세요', true);
+  const ed = curEdition(), st = evStartOf(ed);
+  const def = st ? ymd(st) : `${ed || new Date().getFullYear()}-09-07`;
+  openModal(`<h3>${esc(ed)}년 행사 기간</h3>
+    <p class="sub">첫날만 고르면 3일로 잡혀요. 세션 날짜·아젠다·참석일·체류일정이 이 날짜를 따라가요.</p>
+    <label class="lbl">행사 첫날</label><input type="date" id="evStart" value="${def}">
+    <p class="hint" id="evPrev" style="margin:8px 0 0"></p>
+    ${st ? '<p class="hint" style="margin:6px 0 0">이미 날짜를 넣은 세션·공식 행사도 같이 옮겨져요 (1일차 → 새 1일차, 2일차 → 새 2일차).</p>' : '<p class="hint" style="margin:6px 0 0">지금 7·8·9일로 들어가 있는 세션·공식 행사는 새 날짜의 1·2·3일차로 옮겨져요.</p>'}
+    <div class="modal-foot"><button class="btn" data-act="closeModal">취소</button><button class="btn-primary" id="evGo">저장</button></div>`);
+  const prev = () => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec($('#evStart').value); if (!m) { $('#evPrev').textContent = ''; return; }
+    const t = new Date(+m[1], +m[2] - 1, +m[3]), e = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 2);
+    $('#evPrev').textContent = `→ ${t.getMonth() + 1}/${t.getDate()}(${WK[t.getDay()]}) ~ ${e.getMonth() + 1}/${e.getDate()}(${WK[e.getDay()]}) · 체류일정 탭은 ${new Date(t.getFullYear(), t.getMonth(), t.getDate() - 2).getMonth() + 1}/${new Date(t.getFullYear(), t.getMonth(), t.getDate() - 2).getDate()}부터 보여요`; };
+  $('#evStart').oninput = prev; prev();
+  $('#evGo').onclick = async () => {
+    const v = $('#evStart').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return toast('날짜를 골라 주세요', true);
+    const b = $('#evGo'); b.disabled = true; b.textContent = '저장 중…';
+    try {
+      await api.setEditionStart(ed, v);
+      S.edInfo = await api.editionInfo(); syncDays(); closeModal();
+      if (S.view === 'project' && S.pid) await openProject(S.pid); else renderAll();
+      toast('행사 기간을 저장했어요');
+    } catch (e) { b.disabled = false; b.textContent = '저장'; /edition_set_start|edition_info/i.test(e.message || '') && /exist|find|schema cache/i.test(e.message || '') ? toast('setup/schema_v27_event_dates.sql을 먼저 실행해 주세요', true) : err(e); }
+  };
+}
 function edAddModal() {
   if (!isAdmin()) return;
   const eds = [...new Set(S.projects.map(p => p.edition).filter(Boolean))].sort();
@@ -2779,6 +2816,7 @@ function leaveProject() {
 async function openProject(pid) {
   leaveProject();
   S.view = 'project'; S.pid = pid; S.docId = null; S.pinned = new Set();
+  syncDays();
   renderSidebar();
   $('#main').innerHTML = '<div class="loading">불러오는 중…</div>';
   $('#people').classList.remove('open');
@@ -3312,7 +3350,7 @@ const isDocked = () => !!document.getElementById('spage')?.classList.contains('d
 function toolbarHtml() {
   const v = sv();
   return `<div class="sp-toolbar">
-    ${canEdit() ? '<button class="btn-primary" data-act="spAdd">+ 연사 추가</button>' : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
+    ${canEdit() ? (CONF_TABS.has(S.stab) ? '' : '<button class="btn-primary" data-act="spAdd">+ 연사 추가</button>') : '<span class="ro-note">보기 전용 · 편집하려면 관리자에게 편집자 권한을 요청하세요</span>'}
     <div class="sp-tools">
       <button class="tool" data-act="spExport" title="지금 보이는 연사 목록(필터·검색·정렬 적용)을 엑셀 파일로 내려받기">${ICON.download}엑셀 내려받기</button>
       <button class="tool" data-act="spPdfMany" title="연사 여러 명을 골라 PDF 하나로">${ICON.pdf}PDF 여러 명</button>
@@ -3572,35 +3610,45 @@ function spStayHtml() {
   const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : { rows: [], sessions: [], venues: [] };
   const list = spConfVisible();
   const pd = v => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
-  const ins = list.map(x => pd(x.check_in)).filter(Boolean);
-  const ym = {}; ins.forEach(t => { const k = t.getFullYear() + '-' + t.getMonth(); ym[k] = (ym[k] || 0) + 1; });
-  const top = Object.entries(ym).sort((a, b) => b[1] - a[1])[0]?.[0];
-  const yr = top ? +top.split('-')[0] : (Number(curProject()?.edition) || new Date().getFullYear()), mo = top ? +top.split('-')[1] : 8;
-  const dayD = n => new Date(yr, mo, n);
-  const pts = [...ins, ...list.map(x => pd(x.check_out)).filter(Boolean), ...d.sessions.filter(x => x.day).map(x => dayD(x.day)), ...DAYS.map(dayD), ...(S.evInfo || []).filter(e => e.day).map(e => dayD(e.day))];
-  const f0 = dayD(Math.min(...DAYS)).getTime(), f1 = dayD(Math.max(...DAYS)).getTime();
-  let a = new Date(Math.max(Math.min(...pts), f0 - 10 * 864e5)), b = new Date(Math.min(Math.max(...pts), f1 + 10 * 864e5));
-  const cols = []; for (let t = new Date(a); t <= b; t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1)) cols.push(t);
+  // 행사 기간(연도별 설정)이 있으면 그 날짜 · 없으면 체크인이 많은 달로 추측 (예전 방식)
+  const st = evStartOf(curEdition());
+  let yr, mo;
+  if (st) { yr = st.getFullYear(); mo = st.getMonth(); }
+  else { const ym = {}; list.map(x => pd(x.check_in)).filter(Boolean).forEach(t => { const k = t.getFullYear() + '-' + t.getMonth(); ym[k] = (ym[k] || 0) + 1; });
+    const top = Object.entries(ym).sort((a, b) => b[1] - a[1])[0]?.[0];
+    yr = top ? +top.split('-')[0] : (Number(curProject()?.edition) || new Date().getFullYear()); mo = top ? +top.split('-')[1] : 8; }
+  const dayD = n => dayDate(n) || new Date(yr, mo, n);
+  const f0 = dayD(DAYS[0]), f1 = dayD(DAYS[DAYS.length - 1]);
+  // 보이는 범위 = 행사 3일 + 앞 2일 · 그 밖의 입국·출국은 양 끝에 화살표로 표시
+  const cols = []; for (let t = new Date(f0.getFullYear(), f0.getMonth(), f0.getDate() - 2); t <= f1; t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1)) cols.push(t);
+  const c0 = cols[0], cN = cols.at(-1);
   const same = (x, y) => x && y && x.getFullYear() === y.getFullYear() && x.getMonth() === y.getMonth() && x.getDate() === y.getDate();
-  const isForum = t => t.getFullYear() === yr && t.getMonth() === mo && DAYS.includes(t.getDate());
+  const isForum = t => DAYS.some(n => same(dayD(n), t));
+  const md = t => `${t.getMonth() + 1}/${t.getDate()}`;
   const wk = '일월화수목금토';
   const sessOf = sid => d.rows.filter(r => r.speaker_id === sid).map(r => ({ r, x: d.sessions.find(y => y.id === r.session_id) })).filter(o => o.x);
-  const rows = list.map(x => ({ x, ci: pd(x.check_in), co: pd(x.check_out) }))
-    .sort((p, q) => (p.ci ? p.ci.getTime() : 9e15) - (q.ci ? q.ci.getTime() : 9e15) || (p.x.name || '').localeCompare(q.x.name || '', 'en'));
+  const rows = list.map(x => { const ci = pd(x.check_in), co = pd(x.check_out), ar = pd(x.arr_date), dp = pd(x.dep_date);
+      const first = [ar, ci].filter(Boolean).sort((a, b) => a - b)[0] || null, last = [dp, co].filter(Boolean).sort((a, b) => b - a)[0] || null;
+      return { x, ci, co, ar, dp, first, last }; })
+    .sort((p, q) => (p.first ? p.first.getTime() : 9e15) - (q.first ? q.first.getTime() : 9e15) || (p.x.name || '').localeCompare(q.x.name || '', 'en'));
   const cell = (o, t) => {
-    const { x, ci, co } = o;
+    const { x, ci, co, ar, dp, first, last } = o;
+    const edgeL = same(t, c0) && first && first < c0 ? `<span class="sy-edge">← ${first === ar ? '입국' : '체크인'} ${md(first)}</span>` : '';
+    const edgeR = same(t, cN) && last && last > cN ? `<span class="sy-edge r">${last === dp ? '출국' : '체크아웃'} ${md(last)} →</span>` : '';
     const stay = ci && co && t >= ci && t < co, inD = same(t, ci), outD = same(t, co);
     const ss = sessOf(x.id).filter(y => y.x.day && same(dayD(y.x.day), t)).sort((p, q) => (p.x.start_time || '').localeCompare(q.x.start_time || ''));
     const evs = EVENTS.filter(e => x[e.f] && (S.evInfo || []).some(v => v.ev === e.f && v.day && same(dayD(v.day), t)));
     const di = DAYS.findIndex(n => same(dayD(n), t)), att = di >= 0 && x['day' + (di + 1)];
     return `<div class="sy-c ${stay ? 'stay' : ''} ${inD ? 'in' : ''} ${outD ? 'out' : ''} ${isForum(t) ? 'forum' : ''}">
-      ${inD ? '<span class="sy-io">체크인</span>' : ''}${outD ? '<span class="sy-io">체크아웃</span>' : ''}
+      ${edgeL}${same(t, ar) ? '<span class="sy-fl">✈ 입국</span>' : ''}${inD ? '<span class="sy-io">체크인</span>' : ''}${outD ? '<span class="sy-io">체크아웃</span>' : ''}${same(t, dp) ? '<span class="sy-fl">✈ 출국</span>' : ''}${edgeR}
       ${ss.map(y => `<span class="sy-s" title="${esc((y.x.start_time || '') + ' ' + (y.x.name || ''))}">${esc((y.x.start_time || '').slice(0, 5))} ${esc(y.x.name || '세션')}</span>`).join('')}
       ${evs.map(e => `<span class="sy-e">${e.label}</span>`).join('')}
       ${att && !ss.length && !evs.length ? '<span class="sy-a" title="참석 가능">참석</span>' : ''}</div>`;
   };
   const noStay = rows.filter(o => o.x.grp === 3 && !(o.ci && o.co)).length;
-  return `${confNote()}<div class="sy-top"><span>연사 ${rows.length}명 · 막대 = 숙박(체크인~체크아웃) · <b class="sy-k s">세션·부대행사</b> <b class="sy-k e">공식 행사</b> <b class="sy-k a">참석 가능일</b></span>
+  const early = rows.filter(o => o.first && o.first < c0).length, late = rows.filter(o => o.last && o.last > cN).length;
+  const period = st ? `행사 ${evRangeLabel()}` : `<span class="sy-warn">행사 기간 미설정 · 대시보드에서 설정해 주세요</span>`;
+  return `${confNote()}<div class="sy-top"><span>${period} · 연사 ${rows.length}명 · 행사 3일 + 앞 2일 · 막대 = 숙박(체크인~체크아웃) · ${early ? `행사 2일 전보다 먼저 입국 ${early}명 · ` : ''}${late ? `행사 후 출국 ${late}명 · ` : ''}<b class="sy-k s">세션·부대행사</b> <b class="sy-k e">공식 행사</b> <b class="sy-k a">참석 가능일</b></span>
       ${noStay ? `<span class="sy-warn">확정 연사 중 숙박 날짜 없음 ${noStay}명</span>` : ''}</div>
     <div class="sy-wrap"><div class="sy" style="grid-template-columns:220px repeat(${cols.length},minmax(84px,1fr))">
       <div class="sy-h sy-n">연사</div>${cols.map(t => `<div class="sy-h ${isForum(t) ? 'forum' : ''}">${t.getMonth() + 1}/${t.getDate()} <small>${wk[t.getDay()]}</small></div>`).join('')}
@@ -3664,7 +3712,10 @@ function spDashHtml() {
   const stat = (key, inner) => `<button type="button" class="stat click ${on(key)}" data-act="dashKey" data-key="${key}">${inner}<b>${dashList(key).length}</b></button>`;
   const doneN = S.speakers.filter(x => x.done).length, doneP = S.speakers.length ? Math.round(doneN / S.speakers.length * 100) : 0;
   const grpRows = GROUPS.map(g => mk('grp:' + g.k, `<span class="gnum">${gno(g.k)}</span>${tag(g.tone, g.label)}`)), maxG = Math.max(1, ...grpRows.map(r => r.n));
+  const evp = evRangeLabel();
   return `<div class="dash dash2">
+    <div class="ev-period">${ICON.cal || '📅'} 행사 기간 <b>${evp || '아직 설정 안 됨'}</b>${evp ? '<small>세션 날짜·아젠다·참석일·체류일정이 이 날짜를 따라가요</small>' : '<small>설정 전에는 7·8·9일로 보여요</small>'}
+      ${isAdmin() ? `<button type="button" class="btn sm" data-act="evPeriod">${evp ? '변경' : '설정하기'}</button>` : ''}</div>
     <div class="kpis2">
       ${kpi('all', '피칭 연사', total, `아이디어 ${by(1)} · 논의중 ${by(2)} · 거절 ${by(5)} · 보류 ${by(4)}`)}
       ${kpi('grp:3', '섭외 확정', `${conf}<small> / ${pct}%</small>`, '확정 연사 수 / 피칭 대비', 'ok')}
@@ -3782,7 +3833,7 @@ async function loadDashSessions() {
 function sessCardHtml() {
   const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : null;
   if (!d) return '<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">불러오는 중…</span></div></div>';
-  const list = [...d.sessions].sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
+  const list = [...d.sessions].sort((a, b) => dayRank(a.day) - dayRank(b.day) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
   const nm = id => { const x = spOf(id); return x ? esc(spLabel(x)) : '이름 없음'; };
   const days = [...new Set(list.map(x => x.day || 0))];
   return `<div class="dcard dc-flush"><div class="dc-h"><h4>세션 일정</h4><span class="muted">${list.length}개 · 이 연사들이 들어간 세션</span></div>
@@ -4884,7 +4935,19 @@ document.addEventListener('drop', e => {
    세션 마스터 (projects.kind = 'session')
    ===================================================================== */
 const SE_TABS = [['cards','목록'], ['list','표'], ['board','보드'], ['pillar','트랙'], ['tt','시간표']];
-const DAYS = [7, 8, 9];
+// 행사 3일 = 연도별 '행사 기간'(edition_info.start_date)에서 계산 · 설정 전이면 예전 고정값 7·8·9일
+// 세션·공식행사의 day 칸은 '그 달의 며칠'(예: 7)을 그대로 저장해요
+let DAYS = [7, 8, 9];
+const WK = '일월화수목금토';
+function curEdition() { return curProject()?.edition ?? S.navEd ?? ''; }
+function evStartOf(ed) { const r = (S.edInfo || []).find(x => x.edition === ed), m = r && /^(\d{4})-(\d{2})-(\d{2})/.exec(r.start_date || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+function syncDays() { const st = evStartOf(curEdition()); DAYS = st ? [0, 1, 2].map(i => new Date(st.getFullYear(), st.getMonth(), st.getDate() + i).getDate()) : [7, 8, 9]; }
+function dayDate(d) { const st = evStartOf(curEdition()), i = DAYS.indexOf(d); return st && i >= 0 ? new Date(st.getFullYear(), st.getMonth(), st.getDate() + i) : null; }
+const dayLab = d => { const t = dayDate(d); return t ? `${d}일(${WK[t.getDay()]})` : `${d}일`; };
+const dayRank = d => { const i = DAYS.indexOf(d); return i < 0 ? 99 : i; };
+const ymd = t => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+const evRangeLabel = () => { const st = evStartOf(curEdition()); if (!st) return ''; const e = new Date(st.getFullYear(), st.getMonth(), st.getDate() + 2);
+  return `${st.getFullYear()}. ${st.getMonth() + 1}. ${st.getDate()}(${WK[st.getDay()]}) – ${e.getMonth() + 1}. ${e.getDate()}(${WK[e.getDay()]})`; };
 const CATS = [['luncheon','Luncheon · 오찬'], ['session','Session · 세션'], ['private','Private · 프라이빗'], ['dinner','Dinner · 만찬'], ['interview','Interview · 인터뷰'], ['te','T.E'], ['special','Special Event · 스페셜 이벤트']];
 const CAT_LABEL = Object.fromEntries(CATS);
 const MEET_TYPES = [['private','프라이빗'], ['lunch','런치'], ['dinner','디너'], ['teatime','티타임']];
@@ -4959,7 +5022,7 @@ const fmtAP = t => t ? apLabel(hm2m(t)) : '';
 const seTimeLabel = s => { if (!s.start_time) return ''; const a = fmtAP(s.start_time); if (!s.end_time) return a;
   const b = fmtAP(s.end_time); return a.slice(0, 2) === b.slice(0, 2) ? `${a}–${b.slice(3)}` : `${a}–${b}`; };
 const seWhen = s => [s.day ? s.day + '일' : '', seTimeLabel(s)].filter(Boolean).join(' ');
-function ssv() { return (S.svs['se:' + S.pid] ||= { q:'', sort:'time', day:[], venue:[], pillar:[], tday:7 }); }
+function ssv() { const v = (S.svs['se:' + S.pid] ||= { q:'', sort:'time', day:[], venue:[], pillar:[], tday:DAYS[0] }); if (!DAYS.includes(v.tday)) v.tday = DAYS[0]; return v; }
 const seFilterCount = () => { const v = ssv(); return v.day.length + v.venue.length + v.pillar.length; };
 const sortOpts = L => L.sort((a, b) => (a.sort_order - b.sort_order) || String(a.created_at || '').localeCompare(String(b.created_at || '')));
 
@@ -4981,7 +5044,7 @@ function seSort(list) {
   if (k === 'alpha') a.sort(cmpName);
   else if (k === 'created') a.sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
   else if (k === 'updated') a.sort((x, y) => String(y.updated_at).localeCompare(String(x.updated_at)));
-  else a.sort((x, y) => (x.day || 99) - (y.day || 99) || (x.start_time ? hm2m(x.start_time) : 9999) - (y.start_time ? hm2m(y.start_time) : 9999) || x.position - y.position);
+  else a.sort((x, y) => dayRank(x.day) - dayRank(y.day) || (x.start_time ? hm2m(x.start_time) : 9999) - (y.start_time ? hm2m(y.start_time) : 9999) || x.position - y.position);
   return a;
 }
 
@@ -4997,7 +5060,7 @@ function renderSessionMain(p) {
     renderSeBody(true);
     const keep = (S.seId && seOf(S.seId)) || (S.seLast && seOf(S.seLast));
     if (keep) openSePage(keep.id);
-    else { const first = [...S.sessions].sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999))[0]; if (first) openSePage(first.id); }
+    else { const first = [...S.sessions].sort((a, b) => dayRank(a.day) - dayRank(b.day) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999))[0]; if (first) openSePage(first.id); }
     return;
   }
   $('#main').innerHTML = `<div class="ph">${projectHeadHtml(p)}<div class="tabs">${tabs}</div></div>
@@ -5080,7 +5143,7 @@ function seListHtml() {
   // 세션 마스터: '세션' / '프리미팅(자동)' 두 묶음, 각각 접고 펴기
   const v = ssv(), gf = v.gfold || [];
   const pms = vis.map(x => premeetOf(x, venueOf(x.venue_id))).filter(Boolean)
-    .sort((a, b) => a.day - b.day || hm2m(a.start) - hm2m(b.start) || (venueOf(a.session.venue_id)?.sort_order ?? 99) - (venueOf(b.session.venue_id)?.sort_order ?? 99));
+    .sort((a, b) => dayRank(a.day) - dayRank(b.day) || hm2m(a.start) - hm2m(b.start) || (venueOf(a.session.venue_id)?.sort_order ?? 99) - (venueOf(b.session.venue_id)?.sort_order ?? 99));
   const gh = (k, label, n, hint) => `<tr class="grp-head"><td colspan="${nc}"><div class="grp-h"><a class="fold" data-act="seGFold" data-g="${k}">${gf.includes(k) ? '▸' : '▾'}</a>
     <span class="tg ${k === 'pm' ? 'tg-blue' : 'tg-gray'}">${label}</span><span class="cnt">${n}</span>${hint ? `<span class="hint" style="margin-left:6px">${hint}</span>` : ''}</div></td></tr>`;
   return `${seNote(vis)}<div class="sp-wrap"><fieldset class="fs" ${ed ? '' : 'disabled'}><table class="sp-table se-table">${head}
@@ -5164,7 +5227,7 @@ function ttMissingHtml(day, vis) {
   ${noDay.length ? `<div class="tt-missing"><b>날짜가 정해지지 않은 세션 ${noDay.length}개</b><div class="peek-list">${noDay.map(s => `<a class="peek-item" data-act="seOpen" data-eid="${s.id}">${s.name ? esc(s.name) : '이름 없음'}</a>`).join('')}</div></div>` : ''}`;
 }
 function ttDayTabs(day, vis, act) {
-  return DAYS.map(d => `<button class="daytab ${d === day ? 'on' : ''}" data-act="${act}" data-day="${d}">${d}일<span class="cnt">${vis.filter(s => s.day === d).length}</span></button>`).join('');
+  return DAYS.map(d => `<button class="daytab ${d === day ? 'on' : ''}" data-act="${act}" data-day="${d}">${dayLab(d)}<span class="cnt">${vis.filter(s => s.day === d).length}</span></button>`).join('');
 }
 function seTTHtml() {
   const v = ssv(), day = v.tday, vis = seVisible();
@@ -5331,7 +5394,7 @@ function sePick(el) {
       footer: { label:`✎ ${o.label} 토글 편집 (이름·순서·색·삭제)`, onClick: () => optManage(kind) } });
   } else if (f === 'day') {
     pickList(el, { value:s.day ?? null, title:'날짜',
-      options: [{ v:null, text:'', html:'<span class="tg-empty">미정</span>' }, ...DAYS.map(d => ({ v:d, text:d + '일', html:`<span class="tg tg-gray">${d}일</span>` }))], onPick:set });
+      options: [{ v:null, text:'', html:'<span class="tg-empty">미정</span>' }, ...DAYS.map(d => ({ v:d, text:dayLab(d), html:`<span class="tg tg-gray">${dayLab(d)}</span>` }))], onPick:set });
   }
 }
 
@@ -5448,7 +5511,7 @@ async function sideEventsFor(spkIds) {
     evs.forEach(e => { const spk = ppl.filter(r => r.session_id === e.id && spkIds.includes(r.speaker_id)).map(r => r.speaker_id);
       if (spk.length) out.push({ ...e, _pil: pils.find(x => x.id === e.pillar_id), _ven: vens.find(x => x.id === e.venue_id), _spk: spk }); });
   }
-  return out.sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
+  return out.sort((a, b) => dayRank(a.day) - dayRank(b.day) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999));
 }
 const seSpkIds = sid => [...new Set(S.sePeopleAll.filter(r => r.session_id === sid).sort((a, b) => (a.role === 'moderator') - (b.role === 'moderator') || a.position - b.position).map(r => r.speaker_id))];
 async function loadSeSide(sid) {
@@ -5600,7 +5663,7 @@ function seSideHtml() {
   const v = ssv(), ed = canEdit(), side = sideNow();
   const dayF = v.sday || '';
   const list = seSort(seVisible()).filter(s => !dayF || (dayF === 'none' ? !s.day : String(s.day) === dayF))
-    .sort((a, b) => (a.day || 99) - (b.day || 99) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999) || (venueOf(a.venue_id)?.sort_order ?? 99) - (venueOf(b.venue_id)?.sort_order ?? 99));
+    .sort((a, b) => dayRank(a.day) - dayRank(b.day) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999) || (venueOf(a.venue_id)?.sort_order ?? 99) - (venueOf(b.venue_id)?.sort_order ?? 99));
   const nPpl = id => new Set(S.sePeopleAll.filter(x => x.session_id === id).map(x => x.speaker_id)).size;
   const card = s => { const n = nPpl(s.id), meta = [venueOf(s.venue_id)?.name || '장소 미정', pillarOf(s.pillar_id)?.name, n ? `연사 ${n}` : ''].filter(Boolean).join(' · ');
     return `<button type="button" class="sc se-c ${S.seId === s.id ? 'on' : ''}" data-act="seOpen" data-eid="${s.id}">
@@ -5611,7 +5674,7 @@ function seSideHtml() {
   return `<div class="ss-top">
       <div class="ss-row"><label class="ss-search">${ICON.search}<input id="seSearchIn" placeholder="${SEW()} 이름·제목" value="${esc(v.q)}" autocomplete="off"></label>
         ${ed ? `<button class="btn-primary" data-act="seAdd">+ ${SEW()}</button>` : ''}</div>
-      <div class="ss-row"><div class="day-seg">${segB('', '전체')}${DAYS.map(d => segB(String(d), d + '일')).join('')}${segB('none', '미정')}</div></div></div>
+      <div class="ss-row"><div class="day-seg">${segB('', '전체')}${DAYS.map(d => segB(String(d), dayLab(d))).join('')}${segB('none', '미정')}</div></div></div>
     <div class="ss-list" id="ssList">${days.map(g => `<div class="ss-g"><div class="ss-gh t-gray"><span>${g.label}</span><small>${g.L.length}</small></div>${g.L.map(card).join('')}</div>`).join('')
       || `<div class="ss-empty" style="padding:20px">${side ? '부대행사가' : '세션이'} 없어요</div>`}</div>
     <div class="ss-foot"><span>${list.length}개${side ? '' : ' · 프리미팅은 자동'}</span>
@@ -5819,7 +5882,7 @@ function agendaHtml(det, onlyId, lang = 'en', side = []) {
   // 기타일정: 세션 카드 밖, 선 아래 별도 섹션
   const allMeets = [...SS.flatMap(se => (se.meetings || []).filter(m => m.title || m.place || m.venue_id || m.time || m.type_id || m.type).map(m => ({ ...m, _s: se }))),
       ...side.map(e => ({ id: e.id, title: KO ? (e.title_ko || e.name || e.title_en) : (e.title_en || e.name), day: e.day, time: e.start_time ? hm(e.start_time) : '', end: e.end_time ? hm(e.end_time) : '', _ev: e }))]
-    .sort((a, b) => (a.day || 99) - (b.day || 99) || String(a.time || '99').padStart(5, '0').localeCompare(String(b.time || '99').padStart(5, '0')));
+    .sort((a, b) => dayRank(a.day) - dayRank(b.day) || String(a.time || '99').padStart(5, '0').localeCompare(String(b.time || '99').padStart(5, '0')));
   const meetRow = m => { const o = m._ev ? m._ev._pil : meetTypeOf(m.type_id), nm = enOnly(m._ev ? (o?.name || '') : meetTypeName(m)), place = m._ev ? (m._ev._ven?.name || '') : meetPlaceName(m);
     return `<article class="s">
       <div class="when"><div class="t">${enRange(m.time, m.end) || T.tbdTime}</div><div class="v">${[m.day ? ord(m.day) : T.tbdDate, place ? esc(place) : T.tbdVenue].join(' · ')}</div></div>
@@ -5903,7 +5966,7 @@ function speakerAgendaHtml({ me, items }, lang = 'en') {
   const ord = n => KO ? n + '일' : n + (n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th');
   const one = t => { const parts = String(t || '').split(' · ').map(x => x.trim()); return KO ? (parts[1] || parts[0]) : parts[0]; };
   const title = e => KO ? (e.title_ko || e.name || e.title_en) : (e.title_en || e.name);
-  const byTime = (a, b) => (a.e.day || 99) - (b.e.day || 99) || (a.e.start_time ? hm2m(a.e.start_time) : 9999) - (b.e.start_time ? hm2m(b.e.start_time) : 9999);
+  const byTime = (a, b) => dayRank(a.e.day) - dayRank(b.e.day) || (a.e.start_time ? hm2m(a.e.start_time) : 9999) - (b.e.start_time ? hm2m(b.e.start_time) : 9999);
   const roleTag = r => `<span class="role">${r === 'moderator' ? 'Moderator' : 'Speaker'}</span>`;
   const person = x => { const role = (KO ? [x.d?.title_ko || x.d?.title_en, x.d?.affil_ko || x.d?.affil_en] : [x.d?.title_en, x.d?.affil_en]).filter(Boolean).join(', ');
     return `<li class="${x.self ? 'me' : ''}"><b>${esc(agName(x.d, KO) || T.noname)}</b>${role ? `<span> · ${esc(role)}</span>` : ''}</li>`; };
@@ -6062,7 +6125,7 @@ function spPdfHtml(list, photos, single, optsList, schedMap, pages) {
     const evs = EVENTS.filter(e => s[e.f]).map(e => e.label).join(', ');
     const role = (t, a) => [t, a].filter(Boolean).map(esc).join(' · ');
     const asg = (s.assignees || []).map(pname).filter(Boolean).join(', ');
-    const sched = x => { const SS = schedMap ? (schedMap[x.id] || []) : (S.spId === x.id && S.spSess ? S.spSess : []); return SS.length ? [...SS].sort((a, b) => (a.session.day || 99) - (b.session.day || 99) || String(a.session.start_time || '99').localeCompare(String(b.session.start_time || '99')))
+    const sched = x => { const SS = schedMap ? (schedMap[x.id] || []) : (S.spId === x.id && S.spSess ? S.spSess : []); return SS.length ? [...SS].sort((a, b) => dayRank(a.session.day) - dayRank(b.session.day) || String(a.session.start_time || '99').localeCompare(String(b.session.start_time || '99')))
       .map(r => esc([r.session.day ? r.session.day + '일' : '날짜 미정', r.session.start_time ? fmtAP(r.session.start_time) : '', r.session.name || '', `(${r.role === 'moderator' ? 'Moderator' : 'Speaker'})`, projName(r.session.project_id).replace(/^\[\d{4}\]\s*/, '')].filter(Boolean).join(' '))).join('<br>') : ''; };
     return `<article class="sp ${on('photo') ? '' : 'nophoto'}">
       ${on('photo') ? `<div class="ph">${photos[s.id] ? `<img src="${esc(photos[s.id])}" alt="">` : `<div class="noimg">${esc((s.name || '?').trim()[0] || '?')}</div>`}</div>` : ''}
@@ -7365,6 +7428,7 @@ const ACT = {
   shRemove: async el => { await removeFromProject(S.pid, el.dataset.uid); if (curProject() && isMember(S.pid)) shareModal(); },
   spTodoOnly: () => { S.todoOnly = !S.todoOnly; if (S.todoOnly && (!S.spSessDash || S.spSessDash.pid !== S.pid)) loadDashSessions(); renderMain(); },
   // 왼쪽 위 '팀 워크스페이스' → 지금 보는 연도의 연사 마스터 대시보드
+  evPeriod: () => evPeriodModal(),
   goDash: async () => {
     closePop(); closeSpPage();
     const L = myProjects().filter(isSpeakerProject).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
