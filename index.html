@@ -1557,7 +1557,7 @@ table .av{width:20px!important;height:20px!important;font-size:10px}
 .sy-c.forum{background:#fafbff}
 .sy-c.stay{background:linear-gradient(to bottom,transparent 0 calc(100% - 7px),#9fb0ea calc(100% - 7px) calc(100% - 3px),transparent calc(100% - 3px))}
 .sy-c.stay.forum{background-color:#fafbff}
-.ev-period{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:10px 14px;margin:0 0 12px;border:1px solid var(--line,#e5e7eb);border-radius:10px;background:var(--card,#fff);font-size:13.5px}.ev-period small{color:var(--muted,#6b7280)}.ev-period .btn{margin-left:auto}.sy-io{font-size:10.5px;color:#4a5a99;font-weight:600}.sy-fl{font-size:10.5px;color:#0b6e4f;font-weight:700}.sy-edge{font-size:10.5px;color:#2457c5;font-weight:700;white-space:nowrap}.sy-edge.r{align-self:flex-end}
+.ev-period{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:10px 14px;margin:0 0 12px;border:1px solid var(--line,#e5e7eb);border-radius:10px;background:var(--card,#fff);font-size:13.5px}.ev-period small{color:var(--muted,#6b7280)}.ev-period .btn{margin-left:auto}.sy-io{font-size:10.5px;color:#4a5a99;font-weight:600}.sy-k.fl{color:#0b6e4f;background:#e7f5ee}.sy-span{color:#0b6e4f!important;font-weight:600}.sy-fl{font-size:10.5px;color:#0b6e4f;font-weight:700}.sy-edge{font-size:10.5px;color:#2457c5;font-weight:700;white-space:nowrap}.sy-edge.r{align-self:flex-end}
 .sy-s,.sy-e,.sy-a{font-size:11px;line-height:1.35;padding:0 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sy-s{background:var(--accent-weak);color:var(--accent)}
 .sy-e{background:#e2f3ea;color:#1d7a4c}
@@ -2017,10 +2017,11 @@ function supabaseApi() {
     },
     addSessionPerson: (session_id, speaker_id, role) => q(sb.from('session_people').insert({ session_id, speaker_id, role, position: Date.now() }).select().single()),
     removeSessionPerson: id => q(sb.from('session_people').delete().eq('id', id)),
-    async searchSpeakers(term, pids) {
+    async searchSpeakers(term, pids, opt = {}) {
       if (!pids.length) return [];
       const t = term.replace(/[,()"%_\\*]/g, ' ').trim();
       const run = extra => { let qq = sb.from('speakers').select('id,name,passport_name,project_id').in('project_id', pids).order('name').limit(60);
+        if (opt.confirmed) qq = qq.eq('grp', 3);
         if (t) qq = qq.or([`name.ilike."%${t}%"`, `passport_name.ilike."%${t}%"`, ...(extra ? [`name_ko.ilike."%${t}%"`, `name_en.ilike."%${t}%"`] : [])].join(','));
         return q(qq); };
       return run(true).catch(() => run(false));
@@ -2332,8 +2333,8 @@ function demoApi() {
     addSessionPerson: (session_id, speaker_id, role) => { if (sPeople.some(p => p.session_id === session_id && p.speaker_id === speaker_id && p.role === role)) return Promise.reject(new Error('이미 추가된 연사예요'));
       const r = { id:newId(), session_id, speaker_id, role, position:Date.now() }; sPeople.push(r); return ret(r); },
     removeSessionPerson: id => { const i = sPeople.findIndex(p => p.id === id); if (i > -1) sPeople.splice(i, 1); return ret(null); },
-    searchSpeakers: (term, pids) => { const t = String(term || '').toLowerCase().replace(/\s+/g, '');
-      return ret(speakers.filter(s => pids.includes(s.project_id) && (!t || (s.name + ' ' + s.passport_name + ' ' + s.name_ko + ' ' + s.name_en).toLowerCase().replace(/\s+/g, '').includes(t)))
+    searchSpeakers: (term, pids, opt = {}) => { const t = String(term || '').toLowerCase().replace(/\s+/g, '');
+      return ret(speakers.filter(s => pids.includes(s.project_id) && (!opt.confirmed || s.grp === 3) && (!t || (s.name + ' ' + s.passport_name + ' ' + s.name_ko + ' ' + s.name_en).toLowerCase().replace(/\s+/g, '').includes(t)))
         .map(s => ({ id:s.id, name:s.name, passport_name:s.passport_name, project_id:s.project_id }))); },
     speakerSessions: spk => ret(sPeople.filter(p => p.speaker_id === spk).map(p => ({ id:p.id, session_id:p.session_id, role:p.role, session: sessions.find(s => s.id === p.session_id) })).filter(r => r.session)),
     uploadFile: (path, file) => { files.set(path, URL.createObjectURL(file)); return ret(null); },
@@ -3605,9 +3606,8 @@ function spEntHtml() {
       || '<tr><td colspan="5" class="muted" style="padding:20px">아직 수행원이 없어요. 연사 페이지 \'연락처 · 수행\'에서 <b>+ 수행원 추가</b>로 넣으면 여기에 모여요.</td></tr>'}</tbody></table></fieldset></div>`;
 }
 /* ---------- 체류일정: 연사별 숙박 기간 · 세션 · 행사 · 참석일을 날짜 칸에 ---------- */
+// 체류일정 = 입국·출국(항공) + 숙박(호텔)만 · 세션·행사 일정은 넣지 않음
 function spStayHtml() {
-  if (!S.spSessDash || S.spSessDash.pid !== S.pid) { if (S.spSessDashLoading !== S.pid) { S.spSessDashLoading = S.pid; loadDashSessions(); } }
-  const d = S.spSessDash && S.spSessDash.pid === S.pid ? S.spSessDash : { rows: [], sessions: [], venues: [] };
   const list = spConfVisible();
   const pd = v => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
   // 행사 기간(연도별 설정)이 있으면 그 날짜 · 없으면 체크인이 많은 달로 추측 (예전 방식)
@@ -3626,7 +3626,6 @@ function spStayHtml() {
   const isForum = t => DAYS.some(n => same(dayD(n), t));
   const md = t => `${t.getMonth() + 1}/${t.getDate()}`;
   const wk = '일월화수목금토';
-  const sessOf = sid => d.rows.filter(r => r.speaker_id === sid).map(r => ({ r, x: d.sessions.find(y => y.id === r.session_id) })).filter(o => o.x);
   const rows = list.map(x => { const ci = pd(x.check_in), co = pd(x.check_out), ar = pd(x.arr_date), dp = pd(x.dep_date);
       const first = [ar, ci].filter(Boolean).sort((a, b) => a - b)[0] || null, last = [dp, co].filter(Boolean).sort((a, b) => b - a)[0] || null;
       return { x, ci, co, ar, dp, first, last }; })
@@ -3636,23 +3635,20 @@ function spStayHtml() {
     const edgeL = same(t, c0) && first && first < c0 ? `<span class="sy-edge">← ${first === ar ? '입국' : '체크인'} ${md(first)}</span>` : '';
     const edgeR = same(t, cN) && last && last > cN ? `<span class="sy-edge r">${last === dp ? '출국' : '체크아웃'} ${md(last)} →</span>` : '';
     const stay = ci && co && t >= ci && t < co, inD = same(t, ci), outD = same(t, co);
-    const ss = sessOf(x.id).filter(y => y.x.day && same(dayD(y.x.day), t)).sort((p, q) => (p.x.start_time || '').localeCompare(q.x.start_time || ''));
-    const evs = EVENTS.filter(e => x[e.f] && (S.evInfo || []).some(v => v.ev === e.f && v.day && same(dayD(v.day), t)));
-    const di = DAYS.findIndex(n => same(dayD(n), t)), att = di >= 0 && x['day' + (di + 1)];
     return `<div class="sy-c ${stay ? 'stay' : ''} ${inD ? 'in' : ''} ${outD ? 'out' : ''} ${isForum(t) ? 'forum' : ''}">
       ${edgeL}${same(t, ar) ? '<span class="sy-fl">✈ 입국</span>' : ''}${inD ? '<span class="sy-io">체크인</span>' : ''}${outD ? '<span class="sy-io">체크아웃</span>' : ''}${same(t, dp) ? '<span class="sy-fl">✈ 출국</span>' : ''}${edgeR}
-      ${ss.map(y => `<span class="sy-s" title="${esc((y.x.start_time || '') + ' ' + (y.x.name || ''))}">${esc((y.x.start_time || '').slice(0, 5))} ${esc(y.x.name || '세션')}</span>`).join('')}
-      ${evs.map(e => `<span class="sy-e">${e.label}</span>`).join('')}
-      ${att && !ss.length && !evs.length ? '<span class="sy-a" title="참석 가능">참석</span>' : ''}</div>`;
+</div>`;
   };
-  const noStay = rows.filter(o => o.x.grp === 3 && !(o.ci && o.co)).length;
+  const noStay = rows.filter(o => !(o.ci && o.co)).length, noFl = rows.filter(o => !o.ar || !o.dp).length;
+  const nights = o => o.ci && o.co ? Math.round((o.co - o.ci) / 864e5) : 0;
+  const span = o => [o.ar ? `${md(o.ar)} 입국` : '', o.dp ? `${md(o.dp)} 출국` : '', nights(o) ? `${nights(o)}박` : ''].filter(Boolean).join(' · ');
   const early = rows.filter(o => o.first && o.first < c0).length, late = rows.filter(o => o.last && o.last > cN).length;
   const period = st ? `행사 ${evRangeLabel()}` : `<span class="sy-warn">행사 기간 미설정 · 대시보드에서 설정해 주세요</span>`;
-  return `${confNote()}<div class="sy-top"><span>${period} · 연사 ${rows.length}명 · 행사 3일 + 앞 2일 · 막대 = 숙박(체크인~체크아웃) · ${early ? `행사 2일 전보다 먼저 입국 ${early}명 · ` : ''}${late ? `행사 후 출국 ${late}명 · ` : ''}<b class="sy-k s">세션·부대행사</b> <b class="sy-k e">공식 행사</b> <b class="sy-k a">참석 가능일</b></span>
-      ${noStay ? `<span class="sy-warn">확정 연사 중 숙박 날짜 없음 ${noStay}명</span>` : ''}</div>
+  return `${confNote()}<div class="sy-top"><span>${period} · 연사 ${rows.length}명 · 행사 3일 + 앞 2일 · 막대 = 숙박(체크인~체크아웃) · ✈ = 입국·출국${early ? ` · 행사 2일 전보다 먼저 입국 ${early}명` : ''}${late ? ` · 행사 후 출국 ${late}명` : ''}</span>
+      ${noStay ? `<span class="sy-warn">숙박 날짜 없음 ${noStay}명</span>` : ''}${noFl ? `<span class="sy-warn">입국·출국일 없음 ${noFl}명</span>` : ''}</div>
     <div class="sy-wrap"><div class="sy" style="grid-template-columns:220px repeat(${cols.length},minmax(84px,1fr))">
       <div class="sy-h sy-n">연사</div>${cols.map(t => `<div class="sy-h ${isForum(t) ? 'forum' : ''}">${t.getMonth() + 1}/${t.getDate()} <small>${wk[t.getDay()]}</small></div>`).join('')}
-      ${rows.map(o => `<a class="sy-n sy-name" data-act="spOpen" data-sid="${o.x.id}"><b>${spLabelHtml(o.x)}</b><small>${esc([o.x.affil_ko || o.x.affil_en, optOf(GROUPS, o.x.grp)?.label].filter(Boolean).join(' · '))}</small></a>${cols.map(t => cell(o, t)).join('')}`).join('')}
+      ${rows.map(o => `<a class="sy-n sy-name" data-act="spOpen" data-sid="${o.x.id}"><b>${spLabelHtml(o.x)}</b><small>${esc([o.x.affil_ko || o.x.affil_en].filter(Boolean).join(' · '))}</small>${span(o) ? `<small class="sy-span">${esc(span(o))}</small>` : ''}</a>${cols.map(t => cell(o, t)).join('')}`).join('')}
     </div></div>`;
 }
 /* ---------- 대시보드 ---------- */
@@ -4655,6 +4651,14 @@ async function spFileDel(path) {
   if (!confirm(`'${f?.name || '파일'}'을(를) 삭제할까요?`)) return;
   await updateSpeaker(s.id, { flight_files: (s.flight_files || []).filter(x => x.path !== path) });
 }
+// 올린 파일을 원래 이름 그대로 내려받기
+async function fileDownload(path, bucket, name) {
+  try {
+    const nm = name || String(path).split('/').pop();
+    const url = await api.fileUrl(path, bucket, nm);
+    const a = document.createElement('a'); a.href = url; a.download = nm; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { err(e); }
+}
 async function spFileOpen(path, bucket) {
   const w = window.open('', '_blank');
   try { const url = await fileUrl(path, bucket); if (w) w.location.href = url; else location.href = url; }
@@ -5623,7 +5627,8 @@ function sePageHtml(s) {
       <div class="files">
         ${files.length ? files.map(x => { const [lbl, cls] = fileKind(x); return `<div class="file-item"><span class="fic ${cls}">${lbl}</span>
           <a class="fname" data-act="seFileOpen" data-path="${esc(x.path)}" title="열기">${esc(x.name)}</a><span class="fsize">${fmtSize(x.size)}</span>
-          <button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button></div>`; }).join('') : `<div class="hint">첨부된 ${FILEW()}가 없어요</div>`}
+          <button type="button" class="icon-btn fdl" data-act="seFileDl" data-path="${esc(x.path)}" data-name="${esc(x.name)}" title="내려받기">${ICON.download}</button>
+          ${canEdit() ? `<button type="button" class="icon-btn" data-act="seFileDel" data-path="${esc(x.path)}" title="삭제">✕</button>` : ''}</div>`; }).join('') : `<div class="hint">첨부된 ${FILEW()}가 없어요</div>`}
         <label class="btn file-btn">+ 파일 첨부<input type="file" accept="${SE_ACCEPT}" multiple data-upload="session" class="vh"></label>
       </div></div>`
   : '';
@@ -5736,7 +5741,7 @@ function sePersonPicker(role) {
   if (!pids.length) return toast('연사 마스터 프로젝트에 초대받아야 연사를 추가할 수 있어요', true);
   const label = role === 'speaker' ? 'Speaker' : 'Moderator';
   openModal(`<h3>${label} 추가</h3>
-    <p class="sub">[2027] 연사 마스터의 연사를 검색해서 누르면 바로 추가돼요. 한글·영문 이름 모두 검색되고, 여러 명을 이어서 추가할 수 있어요.</p>
+    <p class="sub">연사 마스터에서 <b>확정</b> 단계인 연사만 고를 수 있어요. 검색해서 누르면 바로 추가되고, 한글·영문 이름 모두 검색돼요.</p>
     <input type="text" id="pkQ" placeholder="연사 이름 검색 (예: 홍길, tanaka)" autocomplete="off">
     <div id="pkRes" class="lk-res"></div>
     <div class="modal-foot"><button class="btn-primary" data-act="closeModal">완료</button></div>`);
@@ -5744,13 +5749,13 @@ function sePersonPicker(role) {
   const run = async () => {
     const my = ++seq, q = $('#pkQ')?.value.trim() || '', box = $('#pkRes'); if (!box) return;
     try {
-      const res = await api.searchSpeakers(q, pids);
+      const res = await api.searchSpeakers(q, pids, { confirmed: true });
       if (my !== seq || !$('#pkRes')) return;
       const have = new Set(S.sePeopleAll.filter(x => x.session_id === sid && x.role === role).map(x => x.speaker_id));
       box.innerHTML = res.map(r => `<button type="button" class="lk-opt pk-opt" data-id="${r.id}" data-pid="${r.project_id}" data-name="${esc(r.name)}" ${have.has(r.id) ? 'disabled' : ''}>
           <span class="lk-title">${r.name ? esc(r.name) : '이름 없음'}</span>${r.passport_name ? `<span class="muted" style="font-size:12px">${esc(r.passport_name)}</span>` : ''}
           <span class="pk-state">${have.has(r.id) ? '✓ 추가됨' : '+ 추가'}</span></button>`).join('')
-        || `<div class="hint" style="padding:10px">${q ? '검색 결과가 없어요' : '연사 마스터에 연사가 없어요'}</div>`;
+        || `<div class="hint" style="padding:10px">${q ? '확정 연사 중에 검색 결과가 없어요 · 아직 확정이 아니면 연사 마스터에서 확정으로 바꿔 주세요' : '확정 단계 연사가 아직 없어요'}</div>`;
     } catch (e) { box.innerHTML = `<div class="alert">${esc(e.message)}</div>`; }
   };
   $('#pkQ').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 200); });
@@ -7554,6 +7559,7 @@ const ACT = {
   sePersonDel: async el => { try { await api.removeSessionPerson(el.dataset.id); S.sePeopleAll = S.sePeopleAll.filter(x => x.id !== el.dataset.id); renderSePage(); renderSeBody(); } catch (e) { err(e); } },
   sePersonOpen: el => spLinkOpen({ type:'speaker', id: el.dataset.spk, pid: el.dataset.pid }),
   seFileOpen: el => spFileOpen(el.dataset.path, 'session-files'),
+  seFileDl: el => fileDownload(el.dataset.path, 'session-files', el.dataset.name),
   seFileDel: el => seFileDel(el.dataset.path),
   optManage: el => optManage(el.dataset.kind),
   dashKey: el => { S.dashKey = S.dashKey === el.dataset.key ? null : el.dataset.key; renderSpBody(true); },
