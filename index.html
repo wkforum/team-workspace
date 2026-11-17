@@ -5271,13 +5271,13 @@ function ttAllWrite(w) { if (!w || w.closed) return; w.document.open(); w.docume
 window.ttAllRefresh = (opt = {}) => { Object.assign(S.ttAllOpt ||= {}, opt); ttAllWrite(S.ttAllWin); };
 window.ttAllOpen = id => { try { window.focus(); openSePage(id); } catch (_) {} };
 function ttAllHtml() {
-  const p = curProject(), O = S.ttAllOpt || {}, showEmpty = !!O.empty, now = new Date();
+  const p = curProject(), O = S.ttAllOpt || {}, showEmpty = O.empty !== false, now = new Date();
   const stamp = `${now.getMonth() + 1}/${now.getDate()} ${apLabel(now.getHours() * 60 + now.getMinutes())} 기준`;
   const all = S.sessions.filter(s => DAYS.includes(s.day));
   const timed = all.filter(s => s.venue_id && s.start_time);
-  // 시간 범위: 실제 세션이 있는 시간대만 (정시 단위) · 없으면 기본 범위
+  // 시간 범위: 기본 시간표 범위 전체 (세션이 그 밖에 있으면 그만큼 넓힘)
   let t0 = TT_START, t1 = TT_END;
-  if (timed.length) { t0 = Math.max(0, Math.floor(Math.min(...timed.map(s => hm2m(s.start_time))) / 60) * 60); t1 = Math.min(24 * 60, Math.ceil(Math.max(...timed.map(seEnd)) / 60) * 60); if (t1 <= t0) t1 = t0 + 60; }
+  if (timed.length) { t0 = Math.min(t0, Math.max(0, Math.floor(Math.min(...timed.map(s => hm2m(s.start_time))) / 60) * 60)); t1 = Math.max(t1, Math.min(24 * 60, Math.ceil(Math.max(...timed.map(seEnd)) / 60) * 60)); }
   const slots = (t1 - t0) / 10;
   const nm = r => esc(S.spkNames[r.speaker_id]?.name || '');
   const venuesOf = d => S.venues.filter(v => showEmpty || timed.some(s => s.day === d && s.venue_id === v.id));
@@ -5290,7 +5290,7 @@ function ttAllHtml() {
       <div class="bt">${seTimeLabel(s)}</div><div class="bn">${esc(s.name || '(이름 없음)')}</div>${sp.length ? `<div class="bp">S ${sp.join(', ')}</div>` : ''}${mo.length ? `<div class="bp">M ${mo.join(', ')}</div>` : ''}</div>`;
   };
   const totalCols = days.reduce((n, o) => n + o.vs.length, 0);
-  const tmpl = ['14mm', ...days.flatMap((o, i) => o.vs.map((_, j) => (j === 0 && i > 0 ? 'minmax(78px,1fr)' : 'minmax(78px,1fr)')))].join(' ');
+  const tmpl = `52px repeat(${totalCols}, minmax(var(--cmin,78px), 1fr))`;
   const hours = []; for (let h = t0 / 60; h <= t1 / 60; h++) hours.push(`<div class="hr" style="--t:${(h * 60 - t0) / 10}">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
   let col = 2;
   const dayHead = days.map((o, i) => { const c = col; col += o.vs.length; return `<div class="dh ${i ? 'sep' : ''}" style="grid-column:${c} / span ${o.vs.length}">${i + 1}일차 · ${dayLab(o.d)} <small>${all.filter(s => s.day === o.d).length}개</small></div>`; }).join('');
@@ -5312,6 +5312,7 @@ body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color
 .g{--row:var(--rowpx,10px);display:grid;grid-template-columns:${tmpl};background:#fff;border:1px solid #d4d4cf;border-radius:8px;min-width:min-content}
 .dh{position:sticky;top:0;z-index:3;background:#16181d;color:#fff;font-weight:700;font-size:13px;padding:6px 10px}
 .dh small{opacity:.65;font-weight:500;margin-left:4px}
+.g.narrow .vh{white-space:normal;font-size:10px;line-height:1.2;padding:3px 1px;word-break:break-all;text-overflow:clip}.g.narrow .b{font-size:10px;padding:2px 3px}.g.narrow .bt,.g.narrow .bp{font-size:9px}
 .vh{position:sticky;top:31px;z-index:3;background:#f4f4f2;font-size:11.5px;font-weight:700;text-align:center;padding:4px 3px;border-left:1px solid #e2e2de;border-bottom:1px solid #d4d4cf;color:color-mix(in srgb,var(--c,#333) 78%,#000);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .corner{position:sticky;left:0;top:0;z-index:4;background:#fff;grid-row:1 / span 2}
 .tm{position:sticky;left:0;z-index:2;background:#fff;border-right:1px solid #d4d4cf;height:calc(var(--row) * ${slots})}
@@ -5334,15 +5335,19 @@ body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color
 </style></head><body>
 <div class="bar"><b>${esc(p?.name || '')} · 3일 시간표</b><span class="muted">${stamp} · 블록을 누르면 원래 창에서 세션이 열려요</span><span class="sp"></span>
   <label><input type="checkbox" id="fit" checked> 창 높이에 맞추기</label>
-  <label><input type="checkbox" id="empty" ${showEmpty ? 'checked' : ''}> 빈 장소도 보기</label>
+  <label><input type="checkbox" id="fitw" checked> 창 너비에 맞추기</label>
+  <label><input type="checkbox" id="empty" ${showEmpty ? '' : 'checked'}> 세션 있는 장소만</label>
   <button id="re">↻ 최신으로</button><button class="pri" onclick="window.print()">PDF로 저장 (A3 가로)</button></div>
 <div class="wrap" id="wrap"><div class="g" id="g">
   <div class="corner"></div>${dayHead}${vHead}
   <div class="tm">${hours.join('')}</div>${cols}
 </div>${miss.length ? `<div class="miss">장소·시간이 없어 안 보이는 세션: ${miss.map(s => esc(s.name || '(이름 없음)')).join(', ')}</div>` : ''}${noDay.length ? `<div class="miss">날짜가 행사 3일이 아닌 세션: ${noDay.map(s => esc(s.name || '(이름 없음)')).join(', ')}</div>` : ''}</div>
 <script>(function(){
-  var g=document.getElementById('g'), wrap=document.getElementById('wrap'), fit=document.getElementById('fit');
-  try{ fit.checked = localStorage.getItem('tt3fit') !== '0'; }catch(e){}
+  var g=document.getElementById('g'), wrap=document.getElementById('wrap'), fit=document.getElementById('fit'), fitw=document.getElementById('fitw');
+  try{ fit.checked = localStorage.getItem('tt3fit') !== '0'; fitw.checked = localStorage.getItem('tt3fitw') !== '0'; }catch(e){}
+  function width(){ g.style.setProperty('--cmin', fitw.checked ? '0px' : '78px'); g.classList.toggle('narrow', fitw.checked && (wrap.clientWidth - 72) / ${totalCols} < 78); }
+  fitw.onchange = function(){ try{ localStorage.setItem('tt3fitw', fitw.checked ? '1' : '0'); }catch(e){} width(); size(); };
+  addEventListener('resize', width); width();
   function size(){ var px = 14; g.style.setProperty('--rowpx', '10px');
     if (fit.checked) { var tm = g.querySelector('.tm'), other = g.offsetHeight - tm.offsetHeight + 20; [].forEach.call(wrap.querySelectorAll('.miss'), function(m){ other += m.offsetHeight + 8; }); px = Math.max(7, Math.floor((wrap.clientHeight - other - 2) / ${slots} * 10) / 10); }
     g.style.setProperty('--rowpx', px + 'px'); }
@@ -5350,7 +5355,7 @@ body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color
   addEventListener('resize', size); size();
   function op(){ return window.opener && !window.opener.closed ? window.opener : null; }
   document.getElementById('re').onclick = function(){ var o = op(); if (o && o.ttAllRefresh) o.ttAllRefresh(); else alert('원래 창이 닫혀서 새로 고칠 수 없어요. 앱에서 다시 열어 주세요.'); };
-  document.getElementById('empty').onchange = function(e){ var o = op(); if (o && o.ttAllRefresh) o.ttAllRefresh({ empty: e.target.checked }); };
+  document.getElementById('empty').onchange = function(e){ var o = op(); if (o && o.ttAllRefresh) o.ttAllRefresh({ empty: !e.target.checked }); };
   g.addEventListener('click', function(e){ var b = e.target.closest('.b'); if (!b) return; var o = op(); if (o && o.ttAllOpen) { o.ttAllOpen(b.dataset.id); try{ o.focus(); }catch(_){} } });
 })();<\/script>
 </body></html>`;
