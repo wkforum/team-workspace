@@ -5208,6 +5208,19 @@ function seCardHtml(s, field) {
 }
 
 /* ---------- 시간표 ---------- */
+// 같은 장소에서 시간이 겹치는 블록(부대행사 등)은 칸을 나눠 나란히 · { id: [몇 번째 줄, 줄 수] }
+function ttLanes(items) {
+  const L = items.filter(s => s.start_time).map(s => ({ id: s.id, a: hm2m(s.start_time), b: Math.max(seEnd(s), hm2m(s.start_time) + 10) })).sort((x, y) => x.a - y.a || y.b - x.b);
+  const out = {}; let cl = [], end = -1, ends = [];
+  const flush = () => { const n = ends.length || 1; cl.forEach(o => { out[o.id] = [o.lane, n]; }); cl = []; ends = []; };
+  for (const o of L) {
+    if (o.a >= end) { flush(); end = -1; }
+    let k = ends.findIndex(e => e <= o.a); if (k < 0) { k = ends.length; ends.push(o.b); } else ends[k] = o.b;
+    o.lane = k; cl.push(o); end = Math.max(end, o.b);
+  }
+  flush(); return out;
+}
+const laneCss = (ln, gap) => !ln || ln[1] < 2 ? '' : `left:calc(${(ln[0] / ln[1] * 100).toFixed(3)}% + ${gap});right:auto;width:calc(${(100 / ln[1]).toFixed(3)}% - ${gap} * 2);`;
 // 시간표 격자 (탭·크게 보기 공용). row = 10분 한 칸의 높이(px), colMin = 장소 칸 최소 폭
 function ttGridHtml(day, vis, row, colMin) {
   const cols = S.venues, H = (TT_END - TT_START) / 10 * row;
@@ -5215,15 +5228,17 @@ function ttGridHtml(day, vis, row, colMin) {
   const hours = []; for (let h = TT_START / 60; h <= TT_END / 60; h++) hours.push(`<div class="tt-hour" style="top:${(h * 60 - TT_START) / 10 * row}px">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
   const colsHtml = cols.map(vn => {
     const items = vis.filter(s => s.day === day && s.venue_id === vn.id && s.start_time).sort((a, b) => hm2m(a.start_time) - hm2m(b.start_time));
+    const lanes = ttLanes(items);
     return `<div class="tt-col" style="height:${H}px">${items.map(s => {
       const a = Math.max(TT_START, hm2m(s.start_time)), b = Math.min(TT_END, seEnd(s));
       const top = (a - TT_START) / 10 * row, h = Math.max(row, (b - a) / 10 * row);
       const pil = pillarOf(s.pillar_id);
-      return `<div class="tt-block ${h < row * 2.2 ? 'short' : ''}" style="top:${top + 1}px;height:${h - 2}px;--c:${safeColor(pil?.color || vn.color)}" data-act="seOpen" data-eid="${s.id}" title="${esc((s.name || '이름 없음') + ' · ' + seTimeLabel(s))}">
+      return `<div class="tt-block ${h < row * 2.2 ? 'short' : ''} ${lanes[s.id]?.[1] > 1 ? 'lane' : ''}" style="top:${top + 1}px;height:${h - 2}px;${laneCss(lanes[s.id], '2px')}--c:${safeColor(pil?.color || vn.color)}" data-act="seOpen" data-eid="${s.id}" title="${esc((s.name || '이름 없음') + ' · ' + seTimeLabel(s))}">
         <div class="tt-time">${seTimeLabel(s)}${pil ? ` · ${esc(pil.name)}` : ''}</div><div class="tt-name">${s.name ? esc(s.name) : '이름 없음'}</div>${sePplLine(s)}</div>`;
     }).join('')}</div>`;
   }).join('');
-  return `<div class="tt" style="--row:${row}px;grid-template-columns:62px repeat(${cols.length}, minmax(${colMin}px, 1fr))">
+  const wt = cols.map(vn => Math.max(1, ...Object.values(ttLanes(vis.filter(s => s.day === day && s.venue_id === vn.id && s.start_time))).map(x => x[1])));
+  return `<div class="tt" style="--row:${row}px;grid-template-columns:62px ${wt.map(w => `minmax(${colMin * Math.min(w, 3)}px, ${w}fr)`).join(' ')}">
     <div class="tt-corner"></div>${cols.map(vn => `<div class="tt-head">${colorTag(vn)}</div>`).join('')}
     <div class="tt-times" style="height:${H}px">${hours.join('')}</div>${colsHtml}</div>`;
 }
@@ -5282,25 +5297,30 @@ function ttAllHtml() {
   const nm = r => esc(S.spkNames[r.speaker_id]?.name || '');
   const venuesOf = d => S.venues.filter(v => showEmpty || timed.some(s => s.day === d && s.venue_id === v.id));
   const days = DAYS.map(d => ({ d, vs: venuesOf(d) })).map(o => ({ ...o, vs: o.vs.length ? o.vs : [{ id: '_none', name: '세션 없음', color: '#999' }] }));
-  const block = (s, vn) => {
+  const block = (s, vn, ln) => {
     const a = Math.max(t0, hm2m(s.start_time)), b = Math.min(t1, seEnd(s)), pil = pillarOf(s.pillar_id);
     const ppl = S.sePeopleAll.filter(r => r.session_id === s.id), sp = ppl.filter(r => r.role === 'speaker').map(nm).filter(Boolean), mo = ppl.filter(r => r.role === 'moderator').map(nm).filter(Boolean);
     const len = Math.max(1, (b - a) / 10);
-    return `<div class="b ${len < 3 ? 'sm' : ''}" style="--t:${(a - t0) / 10};--h:${len};--c:${safeColor(pil?.color || vn.color)}" data-id="${esc(s.id)}" title="${esc(seTimeLabel(s) + ' · ' + (s.name || '이름 없음') + (sp.length ? '\nSpeaker ' + sp.join(', ') : '') + (mo.length ? '\nModerator ' + mo.join(', ') : ''))}">
+    return `<div class="b ${len < 3 ? 'sm' : ''}" style="--t:${(a - t0) / 10};--h:${len};${laneCss(ln, '1px')}--c:${safeColor(pil?.color || vn.color)}" data-id="${esc(s.id)}" title="${esc(seTimeLabel(s) + ' · ' + (s.name || '이름 없음') + (sp.length ? '\nSpeaker ' + sp.join(', ') : '') + (mo.length ? '\nModerator ' + mo.join(', ') : ''))}">
       <div class="bt">${seTimeLabel(s)}</div><div class="bn">${esc(s.name || '(이름 없음)')}</div>${sp.length ? `<div class="bp">S ${sp.join(', ')}</div>` : ''}${mo.length ? `<div class="bp">M ${mo.join(', ')}</div>` : ''}</div>`;
   };
   const totalCols = days.reduce((n, o) => n + o.vs.length, 0);
-  const tmpl = `52px repeat(${totalCols}, minmax(var(--cmin,78px), 1fr))`;
+  // 겹치는 블록이 있는 장소 칸은 줄 수만큼 넓게 (1fr × 줄 수)
+  const maxLanes = its => Math.max(1, ...Object.values(ttLanes(its)).map(x => x[1]));
+  const wts = days.flatMap(o => o.vs.map(v => maxLanes(timed.filter(s => s.day === o.d && s.venue_id === v.id))));
+  const tmpl = `52px ${wts.map(w => `minmax(calc(var(--cmin,78px) * ${w}), ${w}fr)`).join(' ')}`;
   const hours = []; for (let h = t0 / 60; h <= t1 / 60; h++) hours.push(`<div class="hr" style="--t:${(h * 60 - t0) / 10}">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
   let col = 2;
   const dayHead = days.map((o, i) => { const c = col; col += o.vs.length; return `<div class="dh ${i ? 'sep' : ''}" style="grid-column:${c} / span ${o.vs.length}">${i + 1}일차 · ${dayLab(o.d)} <small>${all.filter(s => s.day === o.d).length}개</small></div>`; }).join('');
   const vHead = days.flatMap((o, i) => o.vs.map((v, j) => `<div class="vh ${i && !j ? 'sep' : ''}" style="--c:${safeColor(v.color)}">${esc(v.name)}</div>`)).join('');
-  const cols = days.flatMap((o, i) => o.vs.map((v, j) => `<div class="col ${i && !j ? 'sep' : ''}">${timed.filter(s => s.day === o.d && s.venue_id === v.id).sort((a, b) => hm2m(a.start_time) - hm2m(b.start_time)).map(s => block(s, v)).join('')}</div>`)).join('');
+  const cols = days.flatMap((o, i) => o.vs.map((v, j) => `<div class="col ${i && !j ? 'sep' : ''}">${(its => { const ln = ttLanes(its); return its.map(s => block(s, v, ln[s.id])).join(''); })(timed.filter(s => s.day === o.d && s.venue_id === v.id).sort((a, b) => hm2m(a.start_time) - hm2m(b.start_time)))}</div>`)).join('');
   const miss = all.filter(s => !s.venue_id || !s.start_time), noDay = S.sessions.filter(s => !DAYS.includes(s.day));
+  // 인쇄: A3 가로 한 장을 꽉 채우게 · 한 칸(10분) 높이를 용지 높이에서 계산 (mm)
+  const PRINT_H = 297 - 2 * 7, prow = Math.max(2, Math.min(6, (PRINT_H - 26 - (miss.length ? 5 : 0) - (noDay.length ? 5 : 0)) / slots)).toFixed(2);
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(p?.name || '세션')} · 3일 시간표</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-@page{size:A3 landscape;margin:8mm}
+@page{size:A3 landscape;margin:7mm}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#16181d;background:#f6f6f4;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;flex-direction:column}
@@ -5310,7 +5330,7 @@ body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color
 .bar button.pri{background:#4f46e5;font-weight:700}
 .wrap{flex:1;overflow:auto;padding:8px 10px 10px}
 .g{--row:var(--rowpx,10px);display:grid;grid-template-columns:${tmpl};background:#fff;border:1px solid #d4d4cf;border-radius:8px;min-width:min-content}
-.dh{position:sticky;top:0;z-index:3;background:#16181d;color:#fff;font-weight:700;font-size:13px;padding:6px 10px}
+.dh{position:sticky;top:0;z-index:3;background:#16181d;color:#fff;font-weight:700;font-size:13px;padding:6px 10px;text-align:center}
 .dh small{opacity:.65;font-weight:500;margin-left:4px}
 .g.narrow .vh{white-space:normal;font-size:10px;line-height:1.2;padding:3px 1px;word-break:break-all;text-overflow:clip}.g.narrow .b{font-size:10px;padding:2px 3px}.g.narrow .bt,.g.narrow .bp{font-size:9px}
 .vh{position:sticky;top:31px;z-index:3;background:#f4f4f2;font-size:11.5px;font-weight:700;text-align:center;padding:4px 3px;border-left:1px solid #e2e2de;border-bottom:1px solid #d4d4cf;color:color-mix(in srgb,var(--c,#333) 78%,#000);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -5330,8 +5350,12 @@ body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color
 .bp{font-size:10px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .b.sm{display:flex;gap:4px;align-items:baseline;white-space:nowrap}.b.sm .bp{display:none}.b.sm .bn{overflow:hidden;text-overflow:ellipsis}
 .miss{font-size:12px;color:#666;margin-top:8px}
-@media print{body{background:#fff;display:block}.bar{display:none}.wrap{overflow:visible;padding:0}.g{--row:2.15mm;border-radius:0;min-width:0}.dh,.vh,.corner,.tm{position:static}
-  .b{font-size:6.6pt;padding:.4mm 1mm}.bt,.bp{font-size:5.8pt}.dh{font-size:10pt;padding:1.2mm 2mm}.vh{font-size:7pt}.hr{font-size:6pt}}
+@media print{html,body{height:auto}body{background:#fff;display:block}.bar{display:none}.wrap{overflow:visible;padding:0}
+  .g{--row:${prow}mm!important;--cmin:0px!important;border-radius:0;min-width:0;grid-template-columns:13mm ${wts.map(w => `minmax(0,${w}fr)`).join(' ')}!important}
+  .dh,.vh,.corner{position:static}.tm{position:relative;left:auto}.vh{top:auto}
+  .b{font-size:8pt;padding:.5mm 1.2mm;line-height:1.2}.bt,.bp{font-size:6.8pt}.b.sm .bp{display:none}
+  .dh{font-size:12pt;padding:1.6mm 2mm}.vh{font-size:8pt;white-space:normal;word-break:break-all;padding:1mm .5mm;line-height:1.15}.hr{font-size:7.5pt;right:1.5mm}
+  .miss{font-size:8pt;margin-top:1.5mm}}
 </style></head><body>
 <div class="bar"><b>${esc(p?.name || '')} · 3일 시간표</b><span class="muted">${stamp} · 블록을 누르면 원래 창에서 세션이 열려요</span><span class="sp"></span>
   <label><input type="checkbox" id="fit" checked> 창 높이에 맞추기</label>
@@ -5374,14 +5398,14 @@ function ttPrintHtml() {
   const nm = r => esc(S.spkNames[r.speaker_id]?.name || '');
   const page = day => {
     const all = S.sessions.filter(s => s.day === day);
-    const cell = vn => all.filter(s => s.venue_id === vn.id && s.start_time).map(s => {
+    const cell = vn => { const its = all.filter(s => s.venue_id === vn.id && s.start_time), lanes = ttLanes(its); return its.map(s => {
       const a = Math.max(TT_START, hm2m(s.start_time)), b = Math.min(TT_END, seEnd(s)), pil = pillarOf(s.pillar_id);
       const top = (a - TT_START) / 10 * ROW, h = Math.max(ROW, (b - a) / 10 * ROW);
       const ppl = S.sePeopleAll.filter(r => r.session_id === s.id), sp = ppl.filter(r => r.role === 'speaker').map(nm).filter(Boolean), mo = ppl.filter(r => r.role === 'moderator').map(nm).filter(Boolean);
-      return `<div class="b" style="top:${top + 0.25}mm;height:${h - 0.5}mm;--c:${safeColor(pil?.color || vn.color)}">
+      return `<div class="b" style="top:${top + 0.25}mm;height:${h - 0.5}mm;${laneCss(lanes[s.id], '0.3mm')}--c:${safeColor(pil?.color || vn.color)}">
         <div class="bt">${seTimeLabel(s)}${pil ? ` · ${esc(pil.name)}` : ''}</div><div class="bn">${esc(s.name || '(이름 없음)')}</div>
         ${sp.length ? `<div class="bp">S ${sp.join(', ')}</div>` : ''}${mo.length ? `<div class="bp">M ${mo.join(', ')}</div>` : ''}</div>`;
-    }).join('');
+    }).join(''); };
     const hours = []; for (let h = TT_START / 60; h <= TT_END / 60; h++) hours.push(`<div class="hr" style="top:${(h * 60 - TT_START) / 10 * ROW}mm">${h < 12 ? '오전' : '오후'} ${((h + 11) % 12) + 1}시</div>`);
     const miss = all.filter(s => !s.venue_id || !s.start_time);
     return `<section class="pg"><header><h1>${day}일 시간표</h1><div>${esc(p?.name || '')} · 세션 ${all.length}개 · ${stamp} 기준</div></header>
@@ -5773,10 +5797,13 @@ function seSideHtml() {
   const list = seSort(seVisible()).filter(s => !dayF || (dayF === 'none' ? !s.day : String(s.day) === dayF))
     .sort((a, b) => dayRank(a.day) - dayRank(b.day) || (a.start_time ? hm2m(a.start_time) : 9999) - (b.start_time ? hm2m(b.start_time) : 9999) || (venueOf(a.venue_id)?.sort_order ?? 99) - (venueOf(b.venue_id)?.sort_order ?? 99));
   const nPpl = id => new Set(S.sePeopleAll.filter(x => x.session_id === id).map(x => x.speaker_id)).size;
-  const card = s => { const n = nPpl(s.id), meta = [venueOf(s.venue_id)?.name || '장소 미정', pillarOf(s.pillar_id)?.name, n ? `연사 ${n}` : ''].filter(Boolean).join(' · ');
+  const spkOf = id => [...new Set(S.sePeopleAll.filter(x => x.session_id === id).sort((a, b) => a.position - b.position).map(x => x.speaker_id))].map(k => S.spkNames[k]?.name || '🔒');
+  const card = s => { const n = nPpl(s.id), vn = venueOf(s.venue_id)?.name || '장소 미정';
+    // 부대행사: 아랫줄 = 연사 이름 · 장소 만 / 세션: 장소 · 트랙 · 연사 수
+    const meta = side ? [spkOf(s.id).join(', '), vn].filter(Boolean).join(' · ') : [vn, pillarOf(s.pillar_id)?.name, n ? `연사 ${n}` : ''].filter(Boolean).join(' · ');
     return `<button type="button" class="sc se-c ${S.seId === s.id ? 'on' : ''}" data-act="seOpen" data-eid="${s.id}">
       <span class="se-t">${s.start_time ? `<b>${hm(s.start_time).replace(/^0/, '')}</b><small>${s.end_time ? '–' + hm(s.end_time).replace(/^0/, '') : ''}</small>` : '<span class="muted">미정</span>'}</span>
-      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}${side && n ? ` <span class="se-spk">${[...new Set(S.sePeopleAll.filter(x => x.session_id === s.id).sort((a, b) => a.position - b.position).map(x => x.speaker_id))].map(id => esc(S.spkNames[id]?.name || '🔒')).join(', ')}</span>` : ''}</b><small class="${!n && !side ? 'warn' : ''}">${esc(meta)}${!n && !side ? ' · 연사 없음' : ''}</small></span></button>`; };
+      <span class="sc-b"><b>${s.name ? esc(s.name) : '<span class="muted">이름 없음</span>'}</b><small class="${!n && !side ? 'warn' : ''}">${esc(meta)}${!n && !side ? ' · 연사 없음' : ''}</small></span></button>`; };
   const days = [...DAYS.map((d, i) => ({ k: String(d), label: `${d}일 (Day ${i + 1})`, L: list.filter(s => s.day === d) })), { k: 'none', label: '날짜 미정', L: list.filter(s => !s.day) }].filter(g => g.L.length);
   const segB = (k, l) => `<button type="button" class="${dayF === k ? 'on' : ''}" data-act="seSDay" data-k="${k}">${l}</button>`;
   return `<div class="ss-top">
