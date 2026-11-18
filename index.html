@@ -1252,7 +1252,7 @@ body.page-full #spage [data-act="pageNewWin"]{display:none}
 .st-b:hover:not(:disabled){border-color:#9aa3b5}
 .st-b.on{color:#fff;border-color:transparent}
 .st-b.on small{color:rgba(255,255,255,.85)}
-.st-b.on.st-purple{background:#6e56cf}.st-b.on.st-yellow{background:#b7791f}.st-b.on.st-green{background:#1f7a4d}.st-b.on.st-red{background:#b42318}.st-b.on.st-gray{background:#5f6368}.conf-note{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted,#6b7280);margin:0 0 10px}
+.st-b.on.st-purple{background:#6e56cf}.st-b.on.st-yellow{background:#b7791f}.st-b.on.st-green{background:#1f7a4d}.st-b.on.st-red{background:#b42318}.st-b.on.st-gray{background:#5f6368}.paid-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:8px 0 2px;font-size:13px}.paid-row .paid-l{font-weight:700;color:var(--ink,#222)}.paid-row small{color:var(--muted,#6b7280)}.paid-seg{display:inline-flex;border:1px solid var(--line,#d1d5db);border-radius:8px;overflow:hidden}.paid-seg button{border:0;background:transparent;padding:4px 12px;font:inherit;cursor:pointer;color:inherit}.paid-seg button+button{border-left:1px solid var(--line,#d1d5db)}.paid-seg button.on{background:#374151;color:#fff;font-weight:700}.conf-note{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted,#6b7280);margin:0 0 10px}
 .years{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:30px}
 .yr-l{font-size:12px;color:#5f6368;margin-right:2px}
 .yr{height:28px;padding:0 11px;border-radius:14px;border:1px solid #d9dce2;background:#fff;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center}
@@ -2234,6 +2234,7 @@ function demoApi() {
       return;
     }
     const sec = p.kind === 'secret', L = sec ? secret : tasks, tbl = sec ? 'secret_items' : 'tasks', nk = sec ? 'name' : 'title', t = new Date().toISOString();
+    if (sec && !priv.find(x => x.speaker_id === sp.id)?.paid) return;   // v29: 대외비 = 확정 + 연사료 있음
     if (L.some(x => x.project_id === p.id && x.speaker_id === sp.id)) return;
     const same = L.find(x => x.project_id === p.id && !x.speaker_id && String(x[nk] || '').trim() && String(x[nk]).trim().toLowerCase() === String(sp.name || '').trim().toLowerCase());
     if (same) { same.speaker_id = sp.id; return; }
@@ -2244,6 +2245,10 @@ function demoApi() {
   });
   const syncRemove = sid => { const t = new Date().toISOString();
     [[secret, 'secret_items'], [tasks, 'tasks'], [vruns, 'vehicle_runs']].forEach(([L, tbl]) => { for (let i = L.length - 1; i >= 0; i--) if (L[i].speaker_id === sid) { logCh(tbl, L[i], 'delete'); CL[0].changed_at = t; L.splice(i, 1); } }); };
+  // 지금 대외비에 연결된 연사는 '연사료 있음'으로 시작 (실제 DB는 v29 SQL이 처리)
+  secret.forEach(x => { if (!x.speaker_id) return; let r = priv.find(y => y.speaker_id === x.speaker_id); if (!r) { r = { speaker_id:x.speaker_id, project_id:speakers.find(y => y.id === x.speaker_id)?.project_id, passport_no:'', birth_date:'', memo:'' }; priv.push(r); } if (r.paid == null) r.paid = true; });
+  const paidSync = (sid, paid) => { const sp = speakers.find(x => x.id === sid); if (!sp || sp.grp !== 3) return;
+    if (paid) syncAdd(sp); else { const t = new Date().toISOString(); for (let i = secret.length - 1; i >= 0; i--) if (secret[i].speaker_id === sid) { logCh('secret_items', secret[i], 'delete'); CL[0].changed_at = t; secret.splice(i, 1); } } };
   const syncSp = (sp, before) => {
     if (sp.grp === 3 && before.grp !== 3) syncAdd(sp);
     else if (before.grp === 3 && sp.grp !== 3) syncRemove(sp.id);
@@ -2315,7 +2320,8 @@ function demoApi() {
       return ret(n); },
     vrunsForSpeaker: sid => ret(vruns.filter(r => r.speaker_id === sid)),
     speakerPrivate: pid => ret(priv.filter(r => r.project_id === pid)),
-    savePrivate: (speaker_id, project_id, patch) => { let r = priv.find(x => x.speaker_id === speaker_id); if (!r) { r = { speaker_id, project_id, passport_no:'', birth_date:'', memo:'' }; priv.push(r); } Object.assign(r, patch); return ret(null); },
+    savePrivate: (speaker_id, project_id, patch) => { let r = priv.find(x => x.speaker_id === speaker_id); if (!r) { r = { speaker_id, project_id, passport_no:'', birth_date:'', memo:'', paid:null }; priv.push(r); }
+      const was = !!r.paid; Object.assign(r, patch); if ('paid' in patch && !!r.paid !== was) paidSync(speaker_id, !!r.paid); return ret(null); },
     createVrun: r => { const t = new Date().toISOString(); const n = { id:newId(), category:'assigned', run_date:null, run_time:'', send_time:'', last_name:'', first_name:'', pax:null, origin:'', dest:'', flight:'', terminal:'', note:'', note_color:'', car_type:'', car_no:'', driver:'', driver_phone:'', status_id:null, created_by:'u1', created_at:t, updated_at:t, ...r }; vruns.push(n); return ret(n); },
     createVruns: rows => { const t = new Date().toISOString(); const made = rows.map(r => ({ id:newId(), category:'assigned', run_date:null, run_time:'', send_time:'', last_name:'', first_name:'', pax:null, origin:'', dest:'', flight:'', terminal:'', note:'', note_color:'', car_type:'', car_no:'', driver:'', driver_phone:'', status_id:null, created_by:'u1', created_at:t, updated_at:t, ...r })); vruns.push(...made); return ret(made); },
     updateVrun: (id, patch) => { const r = vruns.find(x => x.id === id); logCh('vehicle_runs', r, 'update'); Object.assign(r, JSON.parse(JSON.stringify(patch)), { updated_at:new Date().toISOString() }); return ret({ id, updated_at:r.updated_at }); },
@@ -3899,13 +3905,17 @@ async function updateSpeaker(id, patch, from, opt = {}) {
   Object.assign(s, patch, { updated_at: new Date().toISOString() });
   spRefresh(from);
   try {
-    const pub = { ...patch }, pv = {}; PRIV_KEYS.forEach(k => { if (k in pub) { pv[k] = pub[k] ?? ''; delete pub[k]; } });
+    const pub = { ...patch }, pv = {}; PRIV_KEYS.forEach(k => { if (k in pub) { pv[k] = k === 'paid' ? (pub[k] ?? null) : (pub[k] ?? ''); delete pub[k]; } });
     if (Object.keys(pv).length) await api.savePrivate(id, s.project_id, pv);
     const row = Object.keys(pub).length ? await api.updateSpeaker(id, pub) : null; const cur = spOf(id); if (cur && row?.updated_at) cur.updated_at = row.updated_at;
     if ('grp' in patch && (patch.grp === 3) !== (prev.grp === 3) && S.projects.some(p => p.sync_confirmed && sameEdition(p)))
-      toast(patch.grp === 3 ? `'${s.name || '이름 없음'}' 확정 → ${syncNames()}에 자동으로 추가했어요` : `'${s.name || '이름 없음'}' 확정 해제 → ${syncNames()}에서 뺐어요`);
+      toast(patch.grp === 3 ? (s.paid ? `'${s.name || '이름 없음'}' 확정 · 연사료 있음 → ${syncNames()}에 추가했어요` : `'${s.name || '이름 없음'}' 확정 · 연사료를 '있음'으로 하면 ${syncNames()}에 올라가요`)
+        : (prev.paid || s.paid ? `'${s.name || '이름 없음'}' 확정 해제 → ${syncNames()}에서 뺐어요 (휴지통에 남아요)` : `'${s.name || '이름 없음'}' 확정 해제`));
+    if ('paid' in patch && s.grp === 3 && !!patch.paid !== !!prev.paid && S.projects.some(p => p.sync_confirmed && sameEdition(p)))
+      toast(patch.paid ? `연사료 있음 → ${syncNames()}에 올렸어요` : `연사료 없음 → ${syncNames()}에서 뺐어요 (휴지통에 남아요)`);
     return true; }
-  catch (e) { const cur = spOf(id); if (cur) Object.assign(cur, prev); if (!opt.noUndo) { S.undo.pop(); updateUndoBtn(); } spRefresh(); err(e); return false; }
+  catch (e) { const cur = spOf(id); if (cur) Object.assign(cur, prev); if (!opt.noUndo) { S.undo.pop(); updateUndoBtn(); } spRefresh();
+    if ('paid' in patch && /paid/.test(e?.message || '') && /column|schema cache/i.test(e?.message || '')) toast('먼저 Supabase에서 setup/schema_v29_secret_paid_only.sql을 실행해 주세요', true); else err(e); return false; }
 }
 async function spAdd(el) {
   if (!canEdit()) return;
@@ -4299,6 +4309,7 @@ function spPageHtml(s) {
     </div>
     ${s.grp === 0 ? '<div class="d-guide">가이드 항목이에요 (연사가 아닌 안내 문서). 아래 정보는 자유롭게 써도 돼요.</div>' : `
     <div class="stage">${GROUPS.filter(g => g.k !== 0).map(g => `<button type="button" class="st-b st-${g.tone} ${s.grp === g.k ? 'on' : ''}" data-act="spGrp" data-v="${g.k}" ${dis}>${s.grp === g.k ? '✓ ' : ''}${g.label}<small>${cnt(g.k)}</small></button>`).join('')}</div>`}
+    ${canEdit() && s.grp !== 0 ? spPaidHtml(s) : ''}
     <div class="years" id="spYears">${spYearsHtml(s)}</div>
     <div class="d-tabs">${SP_DTABS.map(([k, l]) => `<button type="button" class="d-tab ${k === 'basic' ? 'on' : ''}" data-act="dJump" data-t="${k}">${l}${k === 'pass' ? ' 🔒' : ''}${tabCnt[k] ? ` <small>${tabCnt[k]}</small>` : ''}</button>`).join('')}</div>
     <fieldset class="fs d-body" ${dis}>${body}</fieldset>
@@ -7366,13 +7377,19 @@ document.addEventListener('dblclick', e => {
 /* =====================================================================
    v10 · 여권번호·생년월일 편집자 전용
    ===================================================================== */
-const PRIV_KEYS = ['passport_no', 'birth_date', 'memo'];
+const PRIV_KEYS = ['passport_no', 'birth_date', 'memo', 'paid'];
 const LOCK_CELL = '<span class="priv-lock" title="여권번호·생년월일은 편집자만 볼 수 있어요">🔒</span>';
+// v29 · 연사료 있음/없음 (편집자만) · 확정 + 있음이면 연사 대외비에 자동으로 올라가요
+function spPaidHtml(s) {
+  const v = s.paid, b = (val, label) => `<button type="button" class="${v === val ? 'on' : ''}" data-act="spPaid" data-v="${val}">${label}</button>`;
+  const note = s.grp !== 3 ? '확정이 되면 이 기준으로 연사 대외비에 올라가요' : v ? '연사 대외비에 올라가 있어요' : v === false ? '연사 대외비에는 올라가지 않아요' : '아직 미정 · 대외비에 안 올라가요';
+  return `<div class="paid-row"><span class="paid-l">🔒 연사료</span><span class="seg paid-seg">${b(true, '있음')}${b(false, '없음')}</span><small>${note}</small></div>`;
+}
 function spMergePriv(rows) {
-  (rows || []).forEach(r => { const s = spOf(r.speaker_id); if (s) { s.passport_no = r.passport_no || ''; s.birth_date = r.birth_date || ''; s.memo = r.memo || ''; } });
+  (rows || []).forEach(r => { const s = spOf(r.speaker_id); if (s) { s.passport_no = r.passport_no || ''; s.birth_date = r.birth_date || ''; s.memo = r.memo || ''; s.paid = r.paid ?? null; } });
 }
 async function loadSpPriv(pid) {
-  if (!canEdit(pid)) { S.speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; s.memo = ''; }); return; }
+  if (!canEdit(pid)) { S.speakers.forEach(s => { s.passport_no = ''; s.birth_date = ''; s.memo = ''; s.paid = null; }); return; }
   try { spMergePriv(await api.speakerPrivate(pid)); } catch (e) { console.warn('speaker_private', e); }
 }
 
@@ -7596,6 +7613,10 @@ const ACT = {
   spWide: () => { SP_WIDE = !SP_WIDE; try { localStorage.setItem('spWide', SP_WIDE ? '1' : '0'); } catch (_) {} $('.split')?.classList.toggle('wide', SP_WIDE); renderSpPage(true); },
   spStep: el => { const L = spNavOrder(), i = L.indexOf(S.spId), n = L[i + Number(el.dataset.d)]; if (n) { openSpPage(n); $('#spage .sp-panel')?.scrollTo(0, 0); } },
   dJump: el => dJump(el.dataset.t),
+  spPaid: el => { const s = spOf(S.spId); if (!s || !canEdit()) return; const v = el.dataset.v === 'true';
+    if (s.paid === v) return;
+    if (!v && s.grp === 3 && s.paid && !confirm('연사료 없음으로 바꾸면 연사 대외비에서 이 연사 줄이 빠져요 (휴지통에 남고, 다시 있음으로 바꾸면 내용 그대로 돌아와요). 바꿀까요?')) return;
+    updateSpeaker(s.id, { paid: v }); },
   spGrp: el => { const s = spOf(S.spId), v = Number(el.dataset.v); if (s && canEdit() && s.grp !== v) updateSpeaker(s.id, { grp: v }); },
   spPri: el => { const s = spOf(S.spId), v = el.dataset.v; if (s && canEdit()) updateSpeaker(s.id, { priority: s.priority === v ? null : v }); },
   spDiet: () => { const s = spOf(S.spId); if (s && canEdit()) updateSpeaker(s.id, { diet_flag: !s.diet_flag }); },
